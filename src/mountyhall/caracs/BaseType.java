@@ -18,8 +18,8 @@ public abstract class BaseType {
 	 */
 	public abstract double meanVal(int baseVal);
 	
-	public static final BaseType
-		points = new BaseType() {
+		/** caractéristiques sans D, comme l'armure, la vue, la mm. */
+	public static final BaseType points = new BaseType() {
 			public String format(int baseVal) {
 				if(baseVal==0) {
 					return "";
@@ -29,43 +29,55 @@ public abstract class BaseType {
 			public double meanVal(int baseVal) {
 				return baseVal;
 			}
-		},
-		d6 = new BaseType() {
+		};
+	
+		/** caractértistiques attaques et esquive qui utilisent des D6*/
+	public static final BaseType d6 = new BaseType() {
 			public String format(int baseVal) {
 				return ""+baseVal+"D6";
 			}
 			public double meanVal(int baseVal) {
 				return 3.5*baseVal;
 			}
-		},
-		d3 = new BaseType() {
+		};
+	
+		/** caractéristique dégat et regen, à D3 */
+	public static final BaseType d3 = new BaseType() {
 			public String format(int baseVal) {
 				return ""+baseVal+"D3";
 			}
 			public double meanVal(int baseVal) {
 				return 2*baseVal;
 			}
-		},
-		none = new BaseType() {
+		};
+	public static final BaseType none = new BaseType() {
 			public String format(int baseVal) {
 				return "";
 			}
 			public double meanVal(int baseVal) {
 				return 0.0;
 			}
-		},
-		/** le type de la dla, qui est un peu spécial */
-		dla = new BaseType() {
+		};
+		
+	/** la dla est un peu spéciale puisqu'il n'y a pas de jet de dla<br />
+	 * Et qu'il faut traduire l'heure*/
+	public static final BaseType dla = new BaseType() {
 			@Override
 			public String format(int baseVal) {
 				String retour="";
-				int hour=baseVal/120;
-				
+				int hours=baseVal/120;
+				int minutes = (baseVal-hours*120)/2;
+				if(hours>0) {
+					retour+= hours+"H";
+				}
+				if(minutes>0 ) {
+					if(retour.length()>0) {retour+= " ";}
+					retour+=minutes+"min";
+				}
 				return retour;
 			}
 			@Override
 			public double meanVal(int baseVal) {
-				// TODO Auto-generated method stub
 				return 0;
 			}
 		}
