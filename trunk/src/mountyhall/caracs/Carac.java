@@ -1,7 +1,17 @@
 package mountyhall.caracs;
 
 /**
- * Une caractéristique d'une entité, ou d'un objet
+ * Une caractéristique vectorielle d'une entité, ou d'un objet.<br />
+ * Composée de :
+ * <ul>
+ * <li> un nom long et un nom court qui permettent d'identifier la carac </li>
+ * <li> une valeur de base, qui n'est modifié qu'à l'évolution de l'entité</li>
+ * <li> une modification de la base, qui représente les ajouts qu'on y fait</li>
+ * <li> le type de la base, soit comment calculer une moyenne ou afficher la valeur</li>
+ * <li> un pourcentage supplémentaire à la base, utile pour mm/rm </li>
+ * <li> un bonus magique en points</li>
+ * <li> un bonus physique ne points</li>
+ * </ul>
  * @author guigolum
  */
 public abstract class Carac {
@@ -86,7 +96,7 @@ public abstract class Carac {
 	/** @return la valeur moyenne de cette carac sur un jet magique<br />
 	 * Vaut 0 pour la plupart des caracs sauf Deg, Att, Arm, Esq*/
 	public double meanMag() {
-		return basetype().meanVal(modifiedBase())*(1+(double)percent()/100)+magique();
+		return basetype().meanVal(modifiedBase()+base())*(1+(double)percent()/100)+magique();
 	}
 	
 	
@@ -118,11 +128,13 @@ public abstract class Carac {
 		}
 	}
 	
+	/** affiche la caractéristique de deux manières 
+	 * @param expensed si l'affichage doit être long(au lieu de court)*/
 	public String show(boolean expensed) {
-		if(modifiedBase()==0 && physique()==0 && magique()==0 && !expensed) {
+		if(modifiedBase()+base()==0 && physique()==0 && magique()==0 && !expensed) {
 			return "";
 		}
-		String retour=shortName()+(expensed?" : ":":")+basetype().format(modifiedBase());
+		String retour=shortName()+(expensed?" : ":":")+basetype().format(modifiedBase()+base());
 		if(expensed) retour+=" ";
 		if(physique()!=0 || magique()!=0 || expensed) {
 			retour+=printSigned(physique());

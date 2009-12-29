@@ -19,8 +19,6 @@
 
 package mha.engine.core;
 
-import java.io.*;
-
 public class BM {
 
     private String name;

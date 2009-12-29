@@ -19,13 +19,18 @@
 
 package mha.engine;
 
-import java.net.*;
-import java.io.*;
-import javax.swing.Timer;
-import java.awt.event.*;
-import mha.engine.core.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Vector;
-import java.lang.reflect.*;
+
+import javax.swing.Timer;
+
+import mha.engine.core.Equipement;
+import mha.engine.core.MHAGame;
+import mha.engine.core.Mouche;
+import mha.engine.core.Troll;
 
 // The main child thread waits for new information in the ChatArea, and 
 // sends it out to the eagerly waiting clients
@@ -48,7 +53,7 @@ public class MHAServer extends Thread {
 	   com=new Vector<String>();
 	   caracTrolls=new Vector<String>();
 	   source=new Vector<Integer>();
-	   game=new MHAGame();
+	   game=MHAGame.instance();
     }
 
     public synchronized void run() {
@@ -138,7 +143,7 @@ public class MHAServer extends Thread {
 	}
 	else if(liste.length==1 && liste[0].toLowerCase().equals("login"))
 	{
-		myChatArea.putString(myIndex,"MHA serveur "+version+"\n"+game.presentation);
+		myChatArea.putString(myIndex,"MHA serveur "+version+"\n"+game.getPresentation());
 		myChatArea.putString(myIndex,"Rules: "+game.getMode()+" "+game.isInviPossible()+" "+game.isTPPossible()+" "+game.getNbrTeam()); 
 		Vector<Troll> liste2=game.getListeTrolls();
 		//myChatArea.putString(myIndex,"Infos: ");
@@ -1240,9 +1245,9 @@ public class MHAServer extends Thread {
 				myChatArea.putString(game.getCurrentTroll().getSocketId(),"Error: Mauvais nombre d'arguments");
 				return ;
 			}
-			Class [] argsClass = new Class[infos[id-1].length-1];
+			Class<?> [] argsClass = new Class[infos[id-1].length-1];
 			Object [] myArgs=new Object[infos[id-1].length-1];
-			Class thisClass=game.getClass();
+			Class<?> thisClass=game.getClass();
 			for(int i=1;i<infos[id-1].length;i++)
 			{
 				if(infos[id-1][i].equals("int"))

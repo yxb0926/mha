@@ -23,35 +23,10 @@ import java.io.*;
 //C'est mal !!!
 
 public class MHAGame implements Serializable {
-
-    //private ListeTrolls trolls;
-    public Vector listeEquipement;
-    private Vector<Troll> trolls;
-    public Vector<String> events;
-    private Vector<Lieu> listeLieux=new Vector<Lieu>();
+	
     static final long serialVersionUID = 1231521531;
-
-    private static Random r = new Random();
-
-    private Troll currentTroll;
-    private int current_time=0;
-    private int gameState;
-    
-    // La config de la partie !
-    
-    private static int gameMode;
-    private static int sizeArena=0;
-    private static int nbteam=-1;
-    private static boolean useTP=false;
-    private static boolean useInvisibilite=false;
-    private static boolean tomCamoufle=false;
-    private static boolean regroupe=false;
-    private static int nbRespawn=0;
-    private int vainqueur=-2;
-    public String presentation="Bienvenue sur ce serveur !";
     
     //Les valeurs prédéfinies
-
     public final static int STATE_NEW_GAME        = 0;
     public final static int STATE_PLAYING         = 1;
     public final static int STATE_SYNCHRO         = 2;
@@ -63,18 +38,44 @@ public class MHAGame implements Serializable {
     public final static int DRAW_DRAW       = 0;
     public final static int DRAW_MAX_DEGAT  = 1;
     public final static int DRAW_MAX_NIVEAU = 2;
+    
+    // utilisation du pattern singleton
+    protected static final MHAGame instance = new MHAGame();
+    public static MHAGame instance() { return instance;}
+
+    //private ListeTrolls trolls;
+    //public Vector listeEquipement; //TODO can it be suppressed?
+    private Vector<Troll> trolls;
+    public Vector<String> events;
+    private Vector<Lieu> listeLieux=new Vector<Lieu>();
+
+    protected Random r = new Random();
+
+    protected Troll currentTroll;
+    protected int current_time=0;
+    protected int gameState;
+    
+    // La config de la partie !
+    protected int gameMode;
+    protected int sizeArena=0;
+    protected int nbteam=-1;
+    protected boolean useTP=false;
+    protected boolean useInvisibilite=false;
+    protected boolean tomCamoufle=false;
+    protected boolean regroupe=false;
+    protected int nbRespawn=0;
+    protected int vainqueur=-2;
+    protected String presentation="Bienvenue sur ce serveur !";
 
 
-    public MHAGame() {
+    protected MHAGame() {
 
         trolls = new Vector<Troll>();
         events = new Vector<String>();
-        //currentPlayer=null;
         gameState=STATE_NEW_GAME;
-        //System.out.print("New Game created\n"); // testing
     }
 
-    public MHAGame(int mode,boolean tp,boolean invi,int nbt, int nbr) {
+    protected MHAGame(int mode,boolean tp,boolean invi,int nbt, int nbr) {
 
         trolls = new Vector<Troll>();
         events = new Vector<String>();
@@ -90,6 +91,10 @@ public class MHAGame implements Serializable {
 		nbRespawn=nbr;
         gameState=STATE_NEW_GAME;
     }
+    
+    public String getPresentation() {
+    	return presentation;
+    }
 
     public int getVainqueur()
     {
@@ -103,52 +108,52 @@ public class MHAGame implements Serializable {
     	return gameState;
     }
     
-    public static int getMode()
+    public int getMode()
     {
     	return gameMode;
     }
 
-    public static void setMode(int m)
+    public void setMode(int m)
     {
     	if(m==0 || m==1)
     		gameMode=m;
     }
     
-    public static void setNbrResu(int i)
+    public void setNbrResu(int i)
     {
     	nbRespawn=i;
     }
     
-    public static int getNbrResu()
+    public int getNbrResu()
     {
     	return nbRespawn;
     }
     
-    public static boolean isTPPossible()
+    public boolean isTPPossible()
     {
     	return useTP;
     }
     
-    public static void setTPPossible(boolean b)
+    public void setTPPossible(boolean b)
     {
     	useTP=b;
     }
     
-    public static  boolean isInviPossible()
+    public boolean isInviPossible()
     {
     	return useInvisibilite;
     }
     
-    public static void setInviPossible(boolean b)
+    public void setInviPossible(boolean b)
     {
     	useInvisibilite=b;
     }  
      
-    public static void setTomCamouflés(boolean tc){
+    public void setTomCamouflés(boolean tc){
     	tomCamoufle=tc;
     }
     
-    public static boolean isTomCamoufle(){
+    public boolean isTomCamoufle(){
     	return tomCamoufle;
     }
     
@@ -197,17 +202,17 @@ public class MHAGame implements Serializable {
     	trolls.remove(t);
     }
     
-    public static int getNbrTeam()
+    public int getNbrTeam()
     {
     	return nbteam;
     }
     
-    public static void setNbrTeam(int i)
+    public void setNbrTeam(int i)
     {
     	nbteam=i;
     }
     
-    public static void placeTrollInHisTeam(Troll t)
+    public void placeTrollInHisTeam(Troll t)
     {
     	int team = t.getTeam();
         switch(nbteam)
@@ -545,7 +550,7 @@ public class MHAGame implements Serializable {
         return s.substring(1);
     }
     
-    public static int roll(int nbr,int faces)
+    public int roll(int nbr,int faces)
     {
         int i=0;
         int n=Math.abs(nbr);
@@ -578,7 +583,7 @@ public class MHAGame implements Serializable {
     }
 
     //dD+dD/2
-    private String lowLevelAttaque(String nomA,Troll a,Troll d,int dA,int bmA,int dE,int bmE, int seuil, int dD,int dDC,int bmD,int armure,int seuil_decamoufle,boolean peutEtreContreAttaque)
+    protected String lowLevelAttaque(String nomA,Troll a,Troll d,int dA,int bmA,int dE,int bmE, int seuil, int dD,int dDC,int bmD,int armure,int seuil_decamoufle,boolean peutEtreContreAttaque)
     {
         String s1,s2;
         int jetAttaque,jetEsquive;
@@ -759,7 +764,7 @@ public class MHAGame implements Serializable {
         return s1;
     }
 
-    private String lowLevelPotionParchemin(Equipement e,Troll t, int distance) {
+    protected String lowLevelPotionParchemin(Equipement e,Troll t, int distance) {
 		
 		String typeEquipement;
 		String s,s2,s3,returnstring;
@@ -1896,7 +1901,7 @@ public class MHAGame implements Serializable {
         return Math.max((rm*50)/mm,10);
     }
 
-    private String sortilege(Troll t, int id_sort,int cout)
+    protected String sortilege(Troll t, int id_sort,int cout)
     {
         int seuil=t.getReussiteSort(id_sort);
         int con=t.getConcentration();
@@ -1979,7 +1984,7 @@ public class MHAGame implements Serializable {
         return s;
     }
 
-    private Object[] competence(Troll t, int id_comp,int cout)
+    protected Object[] competence(Troll t, int id_comp,int cout)
     {
     	int level = t.getLevelComp(id_comp);
         int seuil=t.getReussiteComp(id_comp,level);
@@ -2145,7 +2150,7 @@ public class MHAGame implements Serializable {
     }
     
     
-    private String appliquePiege(Piege p)
+    protected String appliquePiege(Piege p)
     {
     	String s="\nVous avez marché sur un piège\n";
 	String s1="Le piège à la position X="+p.getPosX()+", Y="+p.getPosY()+", N="+p.getPosN()+" a été déclenché";
@@ -2339,7 +2344,7 @@ public class MHAGame implements Serializable {
         return gameState==STATE_GAMEOVER;
     }
     
-    private String rendflou(int i, int flou,int min_flou, int max_flou)
+    protected String rendflou(int i, int flou,int min_flou, int max_flou)
     {
     	int i_bas = i - r.nextInt(2)*flou;
     	int i_haut = i_bas + 2*flou;
@@ -2350,7 +2355,7 @@ public class MHAGame implements Serializable {
     	return ( "entre " + i_bas + " et " + i_haut + " ");
     }
 
-    private String formate(String s,int v)
+    protected String formate(String s,int v)
     {
     	if(v>0)
     		return s+" +"+v+", ";
@@ -2359,19 +2364,19 @@ public class MHAGame implements Serializable {
     	return "";
     }
 
-	public static boolean isRegroupe() {
+	public boolean isRegroupe() {
 		return regroupe;
 	}
 
-	public static void setRegroupe(boolean r) {
+	public void setRegroupe(boolean r) {
 		regroupe = r;
 	}
 
-	public static int getSizeArena() {
+	public int getSizeArena() {
 		return sizeArena;
 	}
 
-	public static void setSizeArena(int sizeArena) {
-		MHAGame.sizeArena = sizeArena;
+	public void setSizeArena(int newsizeArena) {
+		sizeArena = newsizeArena;
 	}
 }

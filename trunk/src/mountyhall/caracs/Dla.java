@@ -4,7 +4,7 @@ public class Dla extends Carac {
 
 	@Override
 	protected BaseType basetype() {
-		return BaseType.none;
+		return BaseType.dla;
 	}
 
 	@Override

@@ -50,6 +50,7 @@ public abstract class BaseType {
 				return 2*baseVal;
 			}
 		};
+		
 	public static final BaseType none = new BaseType() {
 			public String format(int baseVal) {
 				return "";
