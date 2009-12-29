@@ -1,8 +1,8 @@
 package mountyhall.effets;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import mountyhall.caracs.Carac;
-import mountyhall.caracs.Etat;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -27,40 +27,31 @@ public class HypnotiseTest {
 			&& c.percent() == 0;
 	}
 	
-	public static boolean hypnofull(Hypnotise h) {
-		Etat e = h.etat();
-		return !e.camoufle && !e.glue && e.hypnotise && !e.intangible && !e.invisible && !e.levitation && !e.tetalenvers;
-	}
-	
-	public static boolean hypnores(Hypnotise h) {
-		return ! h.etat().modifier();
-	}
-	
 	@Test
 	public void testfull5() {
 		assertTrue(onlyBaseModif(full5));
-		assertTrue(hypnofull(full5));
+		assertTrue(full5.etat().seulEtat("hypnotise"));
 		assertEquals(full5.esq.modifiedBase(),-7);
 	}
 	
 	@Test
 	public void testfull11() {
 		assertTrue(onlyBaseModif(full11));
-		assertTrue(hypnofull(full11));
+		assertTrue(full11.etat().seulEtat("hypnotise"));
 		assertEquals(full11.esq.modifiedBase(),-16);
 	}
 	
 	@Test
 	public void testres5() {
 		assertTrue(onlyBaseModif(res5));
-		assertTrue(hypnores(res5));
+		assertTrue(!res5.etat().modifier());
 		assertEquals(res5.esq.modifiedBase(),-1);
 	}
 	
 	@Test
 	public void testres11() {
 		assertTrue(onlyBaseModif(res11));
-		assertTrue(hypnores(res11));
+		assertTrue(!res11.etat().modifier());
 		assertEquals(res11.esq.modifiedBase(),-3);
 	}
 }

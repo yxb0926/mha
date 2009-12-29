@@ -72,5 +72,26 @@ public class Etat {
 		}
 		return retour;
 	}
+	
+	/** 
+	 * @return Si l'état ne contient qu'une modif, qui est le nom demandé
+	 * 
+	 */
+	public boolean seulEtat(String name) {
+
+		for(Field f : this.getClass().getFields()) {
+			try {
+				if(f.getName().equals(name)) {
+					if(!(Boolean) f.get(this)) return false;
+				} else {
+					if((Boolean) f.get(this)) return false;
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return true;
+		
+	}
 
 }

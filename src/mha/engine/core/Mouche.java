@@ -18,8 +18,6 @@
 
 package mha.engine.core;
 
-import java.io.*;
-
 public class Mouche {
 
     private String name;
@@ -35,8 +33,6 @@ public class Mouche {
     public final static int CARNATION = 7;
     public final static int NABOLISANT = 8;
     
-    private int duree;
-
     public Mouche(String n, int t) {
 	name=n;
 	type=t;

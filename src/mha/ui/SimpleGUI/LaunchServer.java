@@ -237,20 +237,20 @@ public class LaunchServer extends JPanel implements ActionListener {
 				dialog.setVisible(false);
 				dialog.dispose();
 
-				MHAGame.setTPPossible(!tp.isSelected());
-				MHAGame.setInviPossible(!invi.isSelected());
-				MHAGame.setRegroupe(regroup.isSelected());
-				MHAGame.setTomCamouflés(camou.isSelected());
+				MHAGame.instance().setTPPossible(!tp.isSelected());
+				MHAGame.instance().setInviPossible(!invi.isSelected());
+				MHAGame.instance().setRegroupe(regroup.isSelected());
+				MHAGame.instance().setTomCamouflés(camou.isSelected());
 				if (tmpM > 0)
 					ca.getServer().time_blitz = tmpM * 1000;
 				// System.out.println(ca.getServer().time_blitz);
-				MHAGame.setNbrResu(nbR);
+				MHAGame.instance().setNbrResu(nbR);
 				if (tdm.isSelected()) {
-					MHAGame.setMode(MHAGame.MODE_TEAM_DEATHMATCH);
-					MHAGame.setNbrTeam(nbT);
-					MHAGame.setSizeArena(tA);
+					MHAGame.instance().setMode(MHAGame.MODE_TEAM_DEATHMATCH);
+					MHAGame.instance().setNbrTeam(nbT);
+					MHAGame.instance().setSizeArena(tA);
 				} else
-					MHAGame.setMode(MHAGame.MODE_DEATHMATCH);
+					MHAGame.instance().setMode(MHAGame.MODE_DEATHMATCH);
 
 				mha.getControler().sendMessage("Le serveur a démarré", false,
 						true);

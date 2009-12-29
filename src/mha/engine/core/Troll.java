@@ -27,8 +27,10 @@ import java.util.Vector;
 
 
 public class Troll {
-
-    public final static int RACE_SKRIM     = 0;
+	
+	public static enum race{skrim, durakuir, kastar, tomawak};
+	
+    public final static int RACE_SKRIM = 0;
     public final static int RACE_DURAKUIR   = 1;
     public final static int RACE_KASTAR        = 2;
     public final static int RACE_TOMAWAK = 3;
@@ -185,7 +187,7 @@ public class Troll {
 	vue=3;
 	duree_tour=12*60;
 	pa=0;
-	debut_tour=MHAGame.roll(1,duree_tour)-1;
+	debut_tour=MHAGame.instance().roll(1,duree_tour)-1;
 	date_jeu=debut_tour;
 	if(r==RACE_SKRIM)
 	{
@@ -1194,12 +1196,12 @@ public class Troll {
 	{
 		nbResu--;
 		s+="\nVous étiez mort mais vous revenez à la vie\nIl ne vous reste plus que "+nbResu+" résurrection(s)\n";
-		if(MHAGame.getMode()==MHAGame.MODE_TEAM_DEATHMATCH && MHAGame.isRegroupe())
+		if(MHAGame.instance().getMode()==MHAGame.MODE_TEAM_DEATHMATCH && MHAGame.instance().isRegroupe())
 		{
-			MHAGame.placeTrollInHisTeam(this);
+			MHAGame.instance().placeTrollInHisTeam(this);
 		}
 		else
-			setPos(MHAGame.roll(1,MHAGame.getSizeArena())-1,MHAGame.roll(1,MHAGame.getSizeArena())-1,-MHAGame.roll(1,(MHAGame.getSizeArena()+1)/2));
+			setPos(MHAGame.instance().roll(1,MHAGame.instance().getSizeArena())-1,MHAGame.instance().roll(1,MHAGame.instance().getSizeArena())-1,-MHAGame.instance().roll(1,(MHAGame.instance().getSizeArena()+1)/2));
 		pv_actuels=(pv_totaux*50)/100;
 		s+="Vous réapparaissez en X="+posx+" Y="+posy+" N="+posn+" avec seulement "+pv_actuels+"PV";
 		removeAllBMs();
@@ -1231,7 +1233,7 @@ public class Troll {
 		}
 	}
 	s+="\nVotre nouvelle date limite d'action est le "+hour2string(debut_tour);
-	int i=Math.max(MHAGame.roll(des_Regeneration,3)+bmRegeneration+bmmRegeneration,0);
+	int i=Math.max(MHAGame.instance().roll(des_Regeneration,3)+bmRegeneration+bmmRegeneration,0);
 	int j=i-venin;
 	if(pv_actuels<pv_totaux)
 	{

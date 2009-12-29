@@ -19,13 +19,8 @@
 
 package mha.engine;
 
-import java.net.*;
-import java.io.*;
-import javax.swing.Timer;
-import java.awt.event.*;
-import mha.engine.core.*;
-import java.util.Vector;
-import java.lang.reflect.*;
+import mha.engine.core.MHAGame;
+import mha.engine.core.Troll;
 
 // The main child thread waits for new information in the ChatArea, and 
 // sends it out to the eagerly waiting clients
@@ -388,43 +383,42 @@ public class MHABot {
 			findCible();
 			return;
 		}
-		String s="";
 		//SI j'ai 6PA et que je n'attaque qu'à 4PA et que je suis pas skrim, j'ai une chance de me booster un peu
 		if(pa==6 && meilleureAttaque==3 && (t.getReussiteSort(Troll.SORT_ADA)!=0 || t.getReussiteSort(Troll.SORT_ADD)!=0) && t.getReussiteComp(Troll.COMP_BOTTE_SECRETE,1)==0 )
 		{
-			if(t.getReussiteSort(Troll.SORT_ADA)!=0 && MHAGame.roll(1,160)<t.getReussiteSort(Troll.SORT_ADA))
+			if(t.getReussiteSort(Troll.SORT_ADA)!=0 && MHAGame.instance().roll(1,160)<t.getReussiteSort(Troll.SORT_ADA))
 				game.augmentationDeLAttaque();
-			else if(t.getReussiteSort(Troll.SORT_ADD)!=0 && MHAGame.roll(1,160)<t.getReussiteSort(Troll.SORT_ADD))
+			else if(t.getReussiteSort(Troll.SORT_ADD)!=0 && MHAGame.instance().roll(1,160)<t.getReussiteSort(Troll.SORT_ADD))
 				game.augmentationDesDegats();
 			pa=t.getPA();
 		}
 		else if(pa==6 && meilleureAttaque==2 && (t.getReussiteSort(Troll.SORT_ADA)!=0 || t.getReussiteSort(Troll.SORT_ADD)!=0) && t.getReussiteComp(Troll.COMP_BOTTE_SECRETE,1)==0 )
 		{
-			if(t.getReussiteSort(Troll.SORT_ADD)!=0 && MHAGame.roll(1,160)<t.getReussiteSort(Troll.SORT_ADD))
+			if(t.getReussiteSort(Troll.SORT_ADD)!=0 && MHAGame.instance().roll(1,160)<t.getReussiteSort(Troll.SORT_ADD))
 				game.augmentationDesDegats();
-			else if(t.getReussiteSort(Troll.SORT_ADA)!=0 && MHAGame.roll(1,160)<t.getReussiteSort(Troll.SORT_ADA))
+			else if(t.getReussiteSort(Troll.SORT_ADA)!=0 && MHAGame.instance().roll(1,160)<t.getReussiteSort(Troll.SORT_ADA))
 				game.augmentationDeLAttaque();
 			pa=t.getPA();
 		}
 		else if(pa==6&&(meilleureAttaque==6 || meilleureAttaque==7 || meilleureAttaque==8)&& t.getReussiteSort(Troll.SORT_BUM)!=0 && t.getReussiteComp(Troll.COMP_BOTTE_SECRETE,1)==0 )
 		{
-			if(MHAGame.roll(1,100)<t.getReussiteSort(Troll.SORT_BUM)*(100-game.calculeSeuil(t.getMM(),meilleureCible.getRM()))/100)
+			if(MHAGame.instance().roll(1,100)<t.getReussiteSort(Troll.SORT_BUM)*(100-game.calculeSeuil(t.getMM(),meilleureCible.getRM()))/100)
 				game.bulleMagique();
 			pa=t.getPA();
 		}
 		switch(meilleureAttaque)
 		{
-			case 1: s=game.attaque(meilleureCible);break;
-			case 2: s=game.coupDeButoir(meilleureCible);break;
-			case 3: s=game.attaquePrecise(meilleureCible);break;
-			case 4: s=game.frenesie(meilleureCible);break;
-			case 5: s=game.botteSecrete(meilleureCible);break;
-			case 6: s=game.rafalePsychique(meilleureCible);break;
-			case 7: s=game.vampirisme(meilleureCible);break;
-			case 8: s=game.griffeDuSorcier(meilleureCible);break;
-			case 9: s=game.explosion();break;
-			case 10: s=game.charger(meilleureCible);break;
-			case 11: s=game.projectileMagique(meilleureCible);break;
+			case 1: game.attaque(meilleureCible);break;
+			case 2: game.coupDeButoir(meilleureCible);break;
+			case 3: game.attaquePrecise(meilleureCible);break;
+			case 4: game.frenesie(meilleureCible);break;
+			case 5: game.botteSecrete(meilleureCible);break;
+			case 6: game.rafalePsychique(meilleureCible);break;
+			case 7: game.vampirisme(meilleureCible);break;
+			case 8: game.griffeDuSorcier(meilleureCible);break;
+			case 9: game.explosion();break;
+			case 10: game.charger(meilleureCible);break;
+			case 11: game.projectileMagique(meilleureCible);break;
 			default : return;
 		}
 		dejaFrappe=true;
@@ -447,9 +441,9 @@ public class MHABot {
 		Troll cible=null;
 		if(pa>=2 && (t.getReussiteSort(Troll.SORT_AE)!=0 || t.getReussiteSort(Troll.SORT_ADE)!=0))
 		{
-			if(MHAGame.roll(1,160)<t.getReussiteSort(Troll.SORT_AE))
+			if(MHAGame.instance().roll(1,160)<t.getReussiteSort(Troll.SORT_AE))
 				game.armureEtheree();
-			else if(MHAGame.roll(1,160)<t.getReussiteSort(Troll.SORT_ADE))
+			else if(MHAGame.instance().roll(1,160)<t.getReussiteSort(Troll.SORT_ADE))
 				game.augmentationDeLEsquive();
 			pa=t.getPA();
 		}
@@ -501,14 +495,14 @@ public class MHABot {
 			}
 		}
 		catch(Exception e){e.printStackTrace();}
-		if(t.getReussiteComp(Troll.COMP_PIEGE,1)!=0 && pa>=4 && game.getLieuFromPosition(x,y,n)==null && MHAGame.roll(1,160)<t.getReussiteComp(Troll.COMP_PIEGE,1) )
+		if(t.getReussiteComp(Troll.COMP_PIEGE,1)!=0 && pa>=4 && game.getLieuFromPosition(x,y,n)==null && MHAGame.instance().roll(1,160)<t.getReussiteComp(Troll.COMP_PIEGE,1) )
 		{
 			game.construireUnPiege();
 			findCible();
 			return;
 		}
 		if(t.getReussiteComp(Troll.COMP_REGENERATION_ACCRUE,1)!=0 && pa>=2 && !t.getCompReservee() &&
-		          ((MHAGame.roll(1,50)+90)*t.getPV())/t.getPVTotaux()<t.getReussiteComp(Troll.COMP_REGENERATION_ACCRUE,1) )
+		          ((MHAGame.instance().roll(1,50)+90)*t.getPV())/t.getPVTotaux()<t.getReussiteComp(Troll.COMP_REGENERATION_ACCRUE,1) )
 		{
 			game.regenerationAccrue();
 			findCible();
@@ -632,11 +626,10 @@ public class MHABot {
 	{
 		if(t.getPV()<=0)
 			return false;
-		int x=t.getPosX();
-		int y=t.getPosY();
-		int n=t.getPosN();
+		t.getPosX();
+		t.getPosY();
+		t.getPosN();
 		int pa=t.getPA();
-		int nbidentique=0;
 		boolean de=(t.getReussiteComp(Troll.COMP_DE,1)!=0);
 		
 		int nbpa=paDeplacement()+((t.isGlue())?2:1)*sens(nbTrollsCase-1);
@@ -646,9 +639,9 @@ public class MHABot {
 		String result;
 		do
 		{
-			int dx=MHAGame.roll(1,3)-2;
-			int dy=MHAGame.roll(1,3)-2;
-			int dn=((nbpa==pa)?0:MHAGame.roll(1,3)-2);
+			int dx=MHAGame.instance().roll(1,3)-2;
+			int dy=MHAGame.instance().roll(1,3)-2;
+			int dn=((nbpa==pa)?0:MHAGame.instance().roll(1,3)-2);
 			//System.out.println("J'essaie d'aller en "+(x+dx)+" "+(y+dy)+" "+(n+dn));
 			if(de)
 				result=game.deplacementEclair(dx,dy,dn);
