@@ -18,7 +18,6 @@
 
 package mha.engine.core;
 
-import java.io.*;
 
 public class Piege extends Lieu {
 
