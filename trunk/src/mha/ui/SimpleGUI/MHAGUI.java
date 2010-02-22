@@ -89,9 +89,9 @@ import mha.engine.MHA;
 import mha.engine.MHAAdapter;
 import mha.engine.MHAFileFilter;
 import mha.engine.MHAServer;
-import mha.engine.core.Equipement;
 import mha.engine.core.MHAGame;
 import mha.engine.core.Troll;
+import mha.engine.core.Equipement.types;
 
 public class MHAGUI extends JFrame implements MouseInputListener {
 
@@ -3081,7 +3081,7 @@ public class MHAGUI extends JFrame implements MouseInputListener {
 			int torse = -1, mainGauche = -1, mainDroite = -1, tete = -1, cou = -1, pieds = -1;
 			String[] ls = s.split("\n");
 			String[][] lss = new String[ls.length][];
-			Vector<String[]>[] lv = new Vector[16];
+			Vector<String[]>[] lv = new Vector[types.values().length];
 			for (int i = 0; i < lv.length; i++)
 				lv[i] = new Vector<String[]>();
 			for (int i = 0; i < ls.length; i++) {
@@ -3092,26 +3092,24 @@ public class MHAGUI extends JFrame implements MouseInputListener {
 					continue;
 				for (int j = 5; j < lss[i].length; j++)
 					lss[i][4] += ";" + lss[i][j];
-				int type = Integer.parseInt(lss[i][1]);
-				if (type == Equipement.ARMURE && lss[i][2].equals("1"))
+				types type = types.valueOf(lss[i][1]);
+				if (type == types.armure && lss[i][2].equals("1"))
 					torse = i;
-				else if (type == Equipement.BOUCLIER && lss[i][2].equals("1"))
+				else if (type == types.bouclier && lss[i][2].equals("1"))
 					mainGauche = i;
-				else if (type == Equipement.CASQUE && lss[i][2].equals("1"))
+				else if (type == types.casque && lss[i][2].equals("1"))
 					tete = i;
-				else if (type == Equipement.ARME_1_MAIN
-						&& lss[i][2].equals("1"))
+				else if (type == types.arme1H && lss[i][2].equals("1"))
 					mainDroite = i;
-				else if (type == Equipement.TALISMAN && lss[i][2].equals("1"))
+				else if (type == types.talisman && lss[i][2].equals("1"))
 					cou = i;
-				else if (type == Equipement.BOTTES && lss[i][2].equals("1"))
+				else if (type == types.bottes && lss[i][2].equals("1"))
 					pieds = i;
-				else if (type == Equipement.ARME_2_MAINS
-						&& lss[i][2].equals("1")) {
+				else if (type == types.arme2h && lss[i][2].equals("1")) {
 					mainDroite = i;
 					mainGauche = i;
 				} else
-					lv[type].add(lss[i]);
+					lv[type.ordinal()].add(lss[i]);
 			}
 			String stringEquip = "<html><center>"
 					+ "<h2>MON ÉQUIPEMENT</h2>"
@@ -3346,7 +3344,7 @@ public class MHAGUI extends JFrame implements MouseInputListener {
 		int highToLowIndex;
 		int pivotIndex;
 		Integer pivotValue; // values are Strings in this demo, change to suit
-							// your application
+		// your application
 		Integer lowToHighValue;
 		Integer highToLowValue;
 		Object[] parking;
@@ -3376,7 +3374,7 @@ public class MHAGUI extends JFrame implements MouseInputListener {
 		newHighIndex = lowIndex - 1;
 		// loop until low meets high
 		while ((newHighIndex + 1) < newLowIndex) // loop until partition
-													// complete
+		// complete
 		{ // loop from low to high to find a candidate for swapping
 			lowToHighValue = ((Integer) ((Object[]) elements
 					.elementAt(lowToHighIndex))[0]);
@@ -3401,10 +3399,10 @@ public class MHAGUI extends JFrame implements MouseInputListener {
 
 			// swap if needed
 			if (lowToHighIndex == highToLowIndex) // one last element, may go in
-													// either part
+			// either part
 			{
 				newHighIndex = lowToHighIndex; // move element arbitrary to
-												// lower part
+				// lower part
 			} else if (lowToHighIndex < highToLowIndex) // not last element yet
 			{
 				compareResult = lowToHighValue.compareTo(highToLowValue);
@@ -3427,11 +3425,11 @@ public class MHAGUI extends JFrame implements MouseInputListener {
 		// Continue recursion for parts that have more than one element
 		if (lowIndex < newHighIndex) {
 			this.quickSort(elements, lowIndex, newHighIndex); // sort lower
-																// subpart
+			// subpart
 		}
 		if (newLowIndex < highIndex) {
 			this.quickSort(elements, newLowIndex, highIndex); // sort higher
-																// subpart
+			// subpart
 		}
 	}
 

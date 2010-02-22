@@ -20,6 +20,7 @@
 package mha.engine.core;
 
 import mha.engine.MHABot;
+import mha.engine.core.Equipement.types;
 
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -523,19 +524,19 @@ public class Troll {
 		return "";
 	switch(e.getType())
 	{
-		case Equipement.ARMURE: 
+		case armure: 
 			return "Torse       : "+e.getId()+" "+e.getName()+"\n";
-		case Equipement.BOUCLIER: 
+		case bouclier: 
 			return "Main gauche : "+e.getId()+" "+e.getName()+"\n";
-		case Equipement.CASQUE:
+		case casque:
 			return "Tête        : "+e.getId()+" "+e.getName()+"\n";
-		case Equipement.ARME_1_MAIN: 
+		case arme1H: 
 			return "Main droite : "+e.getId()+" "+e.getName()+"\n";
-		case Equipement.TALISMAN: 
+		case talisman: 
 			return "Cou         : "+e.getId()+" "+e.getName()+"\n";
-		case Equipement.BOTTES: 
+		case bottes: 
 			return "Pieds       : "+e.getId()+" "+e.getName()+"\n";
-		case Equipement.ARME_2_MAINS:
+		case arme2h:
 			return "Deux mains  : "+e.getId()+" "+e.getName()+"\n";
 	}
 	return "";
@@ -753,16 +754,16 @@ public class Troll {
 		return;
     	switch(e.getType())
 	{
-		case Equipement.ARMURE: 
+		case armure: 
 			if(torse!=null)
 				bonusEquip(torse,false);
 			torse=e;
 			bonusEquip(e,true);
 			return;
-		case Equipement.BOUCLIER: 
+		case bouclier: 
 			if(mainGauche!=null)
 				bonusEquip(mainGauche,false);
-			if(mainDroite!=null && mainDroite.getType()==Equipement.ARME_2_MAINS)
+			if(mainDroite!=null && mainDroite.getType()==types.arme2h)
 			{
 				bonusEquip(mainDroite,false);
 				mainDroite=null;
@@ -770,31 +771,31 @@ public class Troll {
 			mainGauche=e;
 			bonusEquip(e,true);
 			return;
-		case Equipement.CASQUE:
+		case casque:
 			if(tete!=null)
 				bonusEquip(tete,false);
 			tete=e;
 			bonusEquip(e,true);
 			return;
-		case Equipement.ARME_1_MAIN: 
+		case arme1H: 
 			if(mainDroite!=null)
 				bonusEquip(mainDroite,false);
 			mainDroite=e;
 			bonusEquip(e,true);
 			return;
-		case Equipement.TALISMAN: 
+		case talisman: 
 			if(cou!=null)
 				bonusEquip(cou,false);
 			cou=e;
 			bonusEquip(e,true);
 			return;
-		case Equipement.BOTTES: 
+		case bottes: 
 			if(pieds!=null)
 				bonusEquip(pieds,false);
 			pieds=e;
 			bonusEquip(e,true);
 			return;
-		case Equipement.ARME_2_MAINS: 
+		case arme2h: 
 			if(mainDroite!=null)
 				bonusEquip(mainDroite,false);
 			if(mainGauche!=null)
@@ -839,18 +840,18 @@ public class Troll {
     {
     	switch(e.getType())
 	{
-    		case Equipement.ARMURE: 
+    		case armure: 
 			return torse==e;
-		case Equipement.BOUCLIER: 
+		case bouclier: 
 			return mainGauche==e;
-		case Equipement.CASQUE:
+		case casque:
 			return tete==e;
-		case Equipement.ARME_1_MAIN:
-		case Equipement.ARME_2_MAINS:
+		case arme1H:
+		case arme2h:
 			return mainDroite==e;
-		case Equipement.TALISMAN: 
+		case talisman: 
 			return cou==e;
-		case Equipement.BOTTES: 
+		case bottes: 
 			return pieds==e;
 	}
 	return false;
