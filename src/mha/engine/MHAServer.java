@@ -31,6 +31,7 @@ import mha.engine.core.Equipement;
 import mha.engine.core.MHAGame;
 import mha.engine.core.Mouche;
 import mha.engine.core.Troll;
+import mha.engine.core.Equipement.types;
 
 // The main child thread waits for new information in the ChatArea, and 
 // sends it out to the eagerly waiting clients
@@ -680,7 +681,7 @@ public class MHAServer extends Thread {
 			if(fullbmm)
 			{
 				int idEquip=Integer.parseInt(liste[1]);
-				int typeEquip=Integer.parseInt(liste[2]);
+				types typeEquip=types.valueOf(liste[2]);
 				int attEquip=Integer.parseInt(liste[3]);
 				int attMEquip=Integer.parseInt(liste[4]);
 				int esqEquip=Integer.parseInt(liste[5]);
@@ -701,7 +702,7 @@ public class MHAServer extends Thread {
 				int mmEquip=Integer.parseInt(liste[20]);
 				int rmEquip=Integer.parseInt(liste[21]);
 				//int equipEquip=Math.abs(Integer.parseInt(liste[22]));
-				if(typeEquip<0 || typeEquip>15)
+				if(typeEquip== null)
 				{
 					myChatArea.putString(myIndex,"Error: Ce type d'objet n'existe pas");
 					return false;
@@ -724,7 +725,7 @@ public class MHAServer extends Thread {
 			if(!smallbmm)
 			{
 				int idEquip=Integer.parseInt(liste[1]);
-				int typeEquip=Integer.parseInt(liste[2]);
+				types typeEquip=types.valueOf(liste[2]);
 				int attEquip=Integer.parseInt(liste[3]);
 				int esqEquip=Integer.parseInt(liste[4]);
 				int degEquip=Integer.parseInt(liste[5]);
@@ -740,7 +741,7 @@ public class MHAServer extends Thread {
 				int mmEquip=Integer.parseInt(liste[15]);
 				int rmEquip=Integer.parseInt(liste[16]);
 				//int equipEquip=Math.abs(Integer.parseInt(liste[17]));
-				if(typeEquip<0 || typeEquip>15)
+				if(typeEquip==null)
 				{
 					myChatArea.putString(myIndex,"Error: Ce type d'objet n'existe pas");
 					return false;
@@ -763,7 +764,7 @@ public class MHAServer extends Thread {
 			else
 			{
 				int idEquip=Integer.parseInt(liste[1]);
-				int typeEquip=Integer.parseInt(liste[2]);
+				types typeEquip=types.valueOf(liste[2]);
 				int attEquip=Integer.parseInt(liste[3]);
 				int attMEquip=Integer.parseInt(liste[4]);
 				int esqEquip=Integer.parseInt(liste[5]);
@@ -781,7 +782,7 @@ public class MHAServer extends Thread {
 				int mmEquip=Integer.parseInt(liste[17]);
 				int rmEquip=Integer.parseInt(liste[18]);
 				//int equipEquip=Math.abs(Integer.parseInt(liste[19]));
-				if(typeEquip<0 || typeEquip>15)
+				if(typeEquip==null)
 				{
 					myChatArea.putString(myIndex,"Error: Ce type d'objet n'existe pas");
 					return false;

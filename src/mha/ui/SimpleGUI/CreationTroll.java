@@ -18,36 +18,86 @@
 
 package mha.ui.SimpleGUI;
 
-import java.io.*;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Graphics2D;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Image;
+import java.awt.MediaTracker;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.math.BigInteger;
-import java.awt.*;
-import java.util.*;
-import java.awt.event.*;
-import java.awt.image.*;
-import javax.imageio.ImageIO;
-import javax.swing.*;
-import javax.swing.filechooser.*;
-import mha.engine.*;
-import mha.engine.core.*;
-import mha.ui.SimpleGUI.MHAGUI.MyTableModel;
+import java.util.Vector;
 
+import javax.imageio.ImageIO;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
+import javax.swing.JFileChooser;
+import javax.swing.JFormattedTextField;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
+import javax.swing.JSpinner;
+import javax.swing.JTabbedPane;
+import javax.swing.JTable;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.ScrollPaneConstants;
+import javax.swing.SpinnerModel;
+import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableModel;
+
+import mha.engine.MHAFileFilter;
+import mha.engine.core.Equipement;
+import mha.engine.core.Equipement.types;
 
 //import com.sun.java_cup.internal.internal_error;
 
-
 public class CreationTroll extends JPanel implements ActionListener,
 		ChangeListener {
-	final JButton cancelButton, saveButton, executeButton, loadButton, avatarButton, ajoutEquip, supprEquip, modifyEquip;
+	final JButton cancelButton, saveButton, executeButton, loadButton,
+			avatarButton, ajoutEquip, supprEquip, modifyEquip;
 	final JSpinner[] caracSpinner;
-	final JTextField numeroField, nomField, mmField, rmField, saveField; // niveauField, raceField, piRestantsField, mmField, rmField, saveField;
-	final JLabel niveauLabel, niveauLabelTitre, piTotalLabel,piTotalLabelTitre;
-	final JTextField[] caracFields = { new JTextField(20), new JTextField(20),new JTextField(20), new JTextField(20), new JTextField(20),new JTextField(20), new JTextField(20) };
+	final JTextField numeroField, nomField, mmField, rmField, saveField; // niveauField,
+																			// raceField,
+																			// piRestantsField,
+																			// mmField,
+																			// rmField,
+																			// saveField;
+	final JLabel niveauLabel, niveauLabelTitre, piTotalLabel,
+			piTotalLabelTitre;
+	final JTextField[] caracFields = { new JTextField(20), new JTextField(20),
+			new JTextField(20), new JTextField(20), new JTextField(20),
+			new JTextField(20), new JTextField(20) };
 	final JLabel[] amelioPlusInit, piInvestis, prochaineAmelio;
-	final String[] titresCarac = { "Caractéristique", "Nb Amélios", "","PI investis", "Prix prochaine Amélio" };
+	final String[] titresCarac = { "Caractéristique", "Nb Amélios", "",
+			"PI investis", "Prix prochaine Amélio" };
 	final String[] caracs = { "Att", "Esq", "Dég", "Règ", "PV", "Vue", "DLA" };
 	final String[] uniteCaracs = { "D6", "D6", "D3", "D3", "", "", "min" };
 	final int[] incrementCaracs = { 1, 1, 1, 1, 10, 1, 30 };
@@ -55,17 +105,28 @@ public class CreationTroll extends JPanel implements ActionListener,
 	final int[] piInitCoutCaracsParRace = { 16, 16, 16, 30, 16, 16, 18 };
 	final int[] nbInitCaracs = { 3, 3, 3, 1, 30, 3, 720 };
 	final int[] nbInitCaracsParRace = { 3, 3, 3, 1, 30, 3, 720 };
-	final String[] competences_reservees = { "Botte secrète", "Régénération accrue","Accélération du métabolisme", "Camouflage"};
-	final String[] competences = {"Charger", "Poser un piége", "Contre-attaque","Déplacement éclair", "Frénésie", "Lancer de potion", "Pistage" };
-	final String[] competences_niveau_sup = {"Attaque précise","Coup de butoir", "Parer",};
-	final String[] sorts = { "Hypnotisme", "Rafale Psychique", "Vampirisme","Projectile magique", "Analyse anatomique", "Armure éthérée","Augmentation de l'attaque", "Augmentation de l'esquive","Augmentation des dégats", "Bulle Anti-magie", "Bulle magique","Explosion", "Faiblesse passagére", "Flash aveuglant", "Glue","Griffe du sorcier", "Invisibilité", "Projection", "Sacrifice","Téléportation", "Vision accrue", "Vision lointaine","Voir le caché", "Vue troublée" };	
-	final String[] equipementColonnes = {"Id","Nom","Type","Caracs"};
-	//final String[][] equipementLignes;
+	final String[] competences_reservees = { "Botte secrète",
+			"Régénération accrue", "Accélération du métabolisme", "Camouflage" };
+	final String[] competences = { "Charger", "Poser un piége",
+			"Contre-attaque", "Déplacement éclair", "Frénésie",
+			"Lancer de potion", "Pistage" };
+	final String[] competences_niveau_sup = { "Attaque précise",
+			"Coup de butoir", "Parer", };
+	final String[] sorts = { "Hypnotisme", "Rafale Psychique", "Vampirisme",
+			"Projectile magique", "Analyse anatomique", "Armure éthérée",
+			"Augmentation de l'attaque", "Augmentation de l'esquive",
+			"Augmentation des dégats", "Bulle Anti-magie", "Bulle magique",
+			"Explosion", "Faiblesse passagére", "Flash aveuglant", "Glue",
+			"Griffe du sorcier", "Invisibilité", "Projection", "Sacrifice",
+			"Téléportation", "Vision accrue", "Vision lointaine",
+			"Voir le caché", "Vue troublée" };
+	final String[] equipementColonnes = { "Id", "Nom", "Type", "Caracs" };
+	// final String[][] equipementLignes;
 	final int[] piCoutComp_reservees = { 0, 0, 0, 0 };
 	final int[] piCoutComp = { 50, 50, 20, 20, 100, 30, 10 };
-	final int[] piCoutComp_niveau_sup = { 50, 50, 20};
+	final int[] piCoutComp_niveau_sup = { 50, 50, 20 };
 	final JTable equipementTable;
-	
+
 	final JTextField[] pourcentComp_reservees = new JTextField[competences_reservees.length];
 	final JTextField[] pourcentComp = new JTextField[competences.length];
 	final JTextField[] pourcentComp_niveau_sup = new JTextField[competences_niveau_sup.length];
@@ -73,7 +134,7 @@ public class CreationTroll extends JPanel implements ActionListener,
 	final JCheckBox[] compCheckBox = new JCheckBox[competences.length];
 	final JCheckBox[] compCheckBox_niveau_sup = new JCheckBox[competences_niveau_sup.length];
 	final JSpinner[] compSpinner = new JSpinner[competences_niveau_sup.length];
-	
+
 	final JTextField[] pourcentSort = new JTextField[sorts.length];
 	final JCheckBox[] sortCheckBox = new JCheckBox[sorts.length];
 	final String[] racesArray = { "Skrim", "Durakuir", "Kastar", "Tomawak" };
@@ -81,14 +142,17 @@ public class CreationTroll extends JPanel implements ActionListener,
 	final int[] caracSpecialisee = { 0, 4, 2, 5 };
 	final int[] sortSpecialise = { 0, 1, 2, 3 };
 	final int[] compSpecialisee = { 0, 1, 2, 3 };
-	final JTextField[] mouchesFields = { new JTextField(3), new JTextField(3),new JTextField(3), new JTextField(3), new JTextField(3),new JTextField(3), new JTextField(3) };
-	final String[] mouchesFieldsText = { "Crobate", "Vertie", "Lunettes","Miel", "Xidant", "Rivatant", "Nabolisants" };
+	final JTextField[] mouchesFields = { new JTextField(3), new JTextField(3),
+			new JTextField(3), new JTextField(3), new JTextField(3),
+			new JTextField(3), new JTextField(3) };
+	final String[] mouchesFieldsText = { "Crobate", "Vertie", "Lunettes",
+			"Miel", "Xidant", "Rivatant", "Nabolisants" };
 	final int[] mouchesInt = { 0, 1, 2, 3, 4, 5, 8 };
-	final Vector <Equipement> equipements = new Vector<Equipement>();
+	final Vector<Equipement> equipements = new Vector<Equipement>();
 	String addTroll, addCaracs;
 	String[] addEquip, addComp, addSort;
 	final JComboBox raceCombo;
-//	final JFileChooser fc;
+	// final JFileChooser fc;
 	int coutPiTotal = 0;
 	int Niveau = 1;
 	boolean isRAZ = false;
@@ -103,7 +167,7 @@ public class CreationTroll extends JPanel implements ActionListener,
 
 	JTextArea log;
 
-	//final JFileChooser fc;
+	// final JFileChooser fc;
 	final JDialog dialog;
 
 	File file;
@@ -114,7 +178,7 @@ public class CreationTroll extends JPanel implements ActionListener,
 		super();
 		dialog = new JDialog(gui, "Créer un troll");
 		dialog.setContentPane(this);
-//		dialog.setSize(new Dimension(710, 460));
+		// dialog.setSize(new Dimension(710, 460));
 		dialog.setResizable(false);
 		dialog.setLocationRelativeTo(g);
 		amelioPlusInit = new JLabel[caracs.length];
@@ -133,7 +197,7 @@ public class CreationTroll extends JPanel implements ActionListener,
 		c.gridwidth = 4;
 		JLabel jl = new JLabel("Création de Personnage", null,
 				SwingConstants.CENTER);
-		jl.setFont(jl.getFont().deriveFont(jl.getFont().getSize2D()+10));
+		jl.setFont(jl.getFont().deriveFont(jl.getFont().getSize2D() + 10));
 		Gridbag.setConstraints(jl, c);
 		add(jl);
 		c.gridwidth = 1;
@@ -141,28 +205,28 @@ public class CreationTroll extends JPanel implements ActionListener,
 		c.anchor = GridBagConstraints.WEST;
 		jtp = new JTabbedPane();
 
-		// informations générales du troll	
+		// informations générales du troll
 
 		c.gridy = 1;
 		c.gridx = 0;
 		jl = new JLabel("Nom du troll : ", null, SwingConstants.RIGHT);
 		Gridbag.setConstraints(jl, c);
-		//	jl.setMinimumSize(new Dimension(200,13));
+		// jl.setMinimumSize(new Dimension(200,13));
 		add(jl);
 		c.gridx = 1;
 		nomField = new JTextField(30);
-		//	nomField.setPreferredSize(new Dimension(100,20));
+		// nomField.setPreferredSize(new Dimension(100,20));
 		Gridbag.setConstraints(nomField, c);
 		nomField.setColumns(10);
 		add(nomField);
 		c.gridx = 2;
 		jl = new JLabel("Numéro du troll : ", null, SwingConstants.RIGHT);
 		Gridbag.setConstraints(jl, c);
-		//	jl.setMinimumSize(new Dimension(200,13));
+		// jl.setMinimumSize(new Dimension(200,13));
 		add(jl);
 		c.gridx = 3;
 		numeroField = new JTextField(10);
-		//	numeroField.setPreferredSize(new Dimension(80,20));
+		// numeroField.setPreferredSize(new Dimension(80,20));
 		Gridbag.setConstraints(numeroField, c);
 		numeroField.setColumns(10);
 		add(numeroField);
@@ -177,26 +241,26 @@ public class CreationTroll extends JPanel implements ActionListener,
 		piTotalLabelTitre = new JLabel("Total des PI dépensés : ", null,
 				SwingConstants.RIGHT);
 		Gridbag.setConstraints(piTotalLabelTitre, c);
-		//	piTotalLabelTitre.setMinimumSize(new Dimension(200,13));
+		// piTotalLabelTitre.setMinimumSize(new Dimension(200,13));
 		add(piTotalLabelTitre);
 
 		c.gridx = 1;
 		piTotalLabel = new JLabel("0", null, SwingConstants.RIGHT);
 		Gridbag.setConstraints(piTotalLabel, c);
-		//	piTotalLabel.setMinimumSize(new Dimension(200,13));
+		// piTotalLabel.setMinimumSize(new Dimension(200,13));
 		add(piTotalLabel);
 
 		c.gridx = 2;
 		niveauLabelTitre = new JLabel("Niveau du Troll : ", null,
 				SwingConstants.RIGHT);
 		Gridbag.setConstraints(niveauLabelTitre, c);
-		//	niveauLabelTitre.setMinimumSize(new Dimension(200,13));
+		// niveauLabelTitre.setMinimumSize(new Dimension(200,13));
 		add(niveauLabelTitre);
 
 		c.gridx = 3;
 		niveauLabel = new JLabel("1", null, SwingConstants.RIGHT);
 		Gridbag.setConstraints(niveauLabel, c);
-		//	niveauLabel.setMinimumSize(new Dimension(200,13));
+		// niveauLabel.setMinimumSize(new Dimension(200,13));
 		add(niveauLabel);
 
 		// ajout du jtabbedPAne
@@ -205,19 +269,19 @@ public class CreationTroll extends JPanel implements ActionListener,
 		c.gridx = 0;
 		c.gridwidth = 4;
 		Gridbag.setConstraints(jtp, c);
-		jtp.setMinimumSize(new Dimension(620,500));
+		jtp.setMinimumSize(new Dimension(620, 500));
 		add(jtp);
 		c.gridwidth = 1;
 
 		/***********************************************************************************************
-		 * race (combobox) 
+		 * race (combobox)
 		 ***********************************************************************************************/
 		JPanel jpg = new JPanel();
 		GridBagLayout gbl = new GridBagLayout();
 		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.insets = new java.awt.Insets(1, 1, 1, 1);
 		jpg.setLayout(gbl);
-		//add(jpg,c);
+		// add(jpg,c);
 		//
 
 		gbc.gridwidth = 1;
@@ -225,7 +289,7 @@ public class CreationTroll extends JPanel implements ActionListener,
 		gbc.gridx = 0;
 		jl = new JLabel("Race : ", null, SwingConstants.LEFT);
 		gbl.setConstraints(jl, gbc);
-		//	jl.setMinimumSize(new Dimension(200,10));
+		// jl.setMinimumSize(new Dimension(200,10));
 		jpg.add(jl);
 
 		gbc.gridx = 1;
@@ -233,19 +297,17 @@ public class CreationTroll extends JPanel implements ActionListener,
 		raceCombo.addActionListener(this);
 		gbl.setConstraints(raceCombo, gbc);
 		jpg.add(raceCombo);
-		/*	
-		 for (int i=0;i<4;i++) {
-		 raceButton[i] = new JRadioButton(racesArray[i]);
-		 raceButton[i].setMnemonic(KeyEvent.VK_R);
-		 raceButton[i].setActionCommand(racesArray[i]);
-		 raceButton[i].addActionListener(this);
-		 c.gridx=i+1;
-		 Gridbag.setConstraints(raceButton[i], c);
-		 add(raceButton[i]);
-		 }*/
+		/*
+		 * for (int i=0;i<4;i++) { raceButton[i] = new
+		 * JRadioButton(racesArray[i]);
+		 * raceButton[i].setMnemonic(KeyEvent.VK_R);
+		 * raceButton[i].setActionCommand(racesArray[i]);
+		 * raceButton[i].addActionListener(this); c.gridx=i+1;
+		 * Gridbag.setConstraints(raceButton[i], c); add(raceButton[i]); }
+		 */
 
 		/***********************************************************************************************
-		 * caracs du troll	
+		 * caracs du troll
 		 ***********************************************************************************************/
 
 		for (int i = 0; i < titresCarac.length; i++) {
@@ -257,14 +319,14 @@ public class CreationTroll extends JPanel implements ActionListener,
 		}
 		for (int i = 0; i < caracs.length; i++) {
 			gbc.gridy = i + 3;
-			
-			//carac
+
+			// carac
 			gbc.gridx = 0;
 			jl = new JLabel(caracs[i] + " : ", null, SwingConstants.CENTER);
 			gbl.setConstraints(jl, gbc);
 			jpg.add(jl);
 
-			//nb amélios
+			// nb amélios
 			gbc.gridx = 1;
 			SpinnerModel caracmodel = new SpinnerNumberModel(0, 0, null, 1);
 			caracSpinner[i] = new JSpinner(caracmodel);
@@ -274,7 +336,7 @@ public class CreationTroll extends JPanel implements ActionListener,
 			gbl.setConstraints(caracSpinner[i], gbc);
 			jpg.add(caracSpinner[i]);
 
-			//valeurs total : initial + amélios
+			// valeurs total : initial + amélios
 			gbc.gridx = 2;
 			amelioPlusInit[i] = new JLabel(nbInitCaracs[i] + " "
 					+ uniteCaracs[i], null, SwingConstants.CENTER);
@@ -287,7 +349,7 @@ public class CreationTroll extends JPanel implements ActionListener,
 			gbl.setConstraints(piInvestis[i], gbc);
 			jpg.add(piInvestis[i]);
 
-			//Pi prochaine amélio
+			// Pi prochaine amélio
 			gbc.gridx = 4;
 			prochaineAmelio[i] = new JLabel(Integer
 					.toString(piInitCoutCaracs[i]), null, SwingConstants.CENTER);
@@ -348,28 +410,27 @@ public class CreationTroll extends JPanel implements ActionListener,
 		gbc.gridx = 2;
 		jl = new JLabel("MM : ", null, SwingConstants.CENTER);
 		gbl.setConstraints(jl, gbc);
-		//    	jl.setMinimumSize(new Dimension(200,10));
+		// jl.setMinimumSize(new Dimension(200,10));
 		jpg.add(jl);
 		gbc.gridx = 3;
 		mmField = new JTextField(10);
-		//    	mmField.setPreferredSize(new Dimension(80,20));
+		// mmField.setPreferredSize(new Dimension(80,20));
 		gbl.setConstraints(mmField, gbc);
 		mmField.setColumns(10);
 		jpg.add(mmField);
 		gbc.gridx = 4;
 		jl = new JLabel("RM : ", null, SwingConstants.CENTER);
 		gbl.setConstraints(jl, gbc);
-		//    	jl.setMinimumSize(new Dimension(200,10));
+		// jl.setMinimumSize(new Dimension(200,10));
 		jpg.add(jl);
 		gbc.gridx = 5;
 		rmField = new JTextField(10);
 		gbl.setConstraints(rmField, gbc);
 		rmField.setColumns(10);
-		//    	rmField.setPreferredSize(new Dimension(80,20));
+		// rmField.setPreferredSize(new Dimension(80,20));
 		jpg.add(rmField);
 
 		jtp.addTab("Caracs", jpg);
-
 
 		/*************************************************************************************************
 		 * Compétences checkbox
@@ -381,18 +442,17 @@ public class CreationTroll extends JPanel implements ActionListener,
 		gbc.insets = new java.awt.Insets(2, 2, 2, 2);
 		gbc.anchor = GridBagConstraints.LINE_START;
 		jpg.setLayout(gbl);
-		//	add(jpg,c);
+		// add(jpg,c);
 		//	
 
 		jtp.addTab("Compétences", jpg);
 
-		//    	Gridbag.setConstraints(jl, c);
-		//    	jl.setMinimumSize(new Dimension(200,13));
-		//    	add(jl);   	
+		// Gridbag.setConstraints(jl, c);
+		// jl.setMinimumSize(new Dimension(200,13));
+		// add(jl);
 		gbc.gridwidth = 1;
-		
-		for(int i=0;i < competences_reservees.length; i++)
-		{
+
+		for (int i = 0; i < competences_reservees.length; i++) {
 			gbc.gridx = 0;
 			gbc.gridy = i;
 			compCheckBox_reservees[i] = new JCheckBox(competences_reservees[i]);
@@ -411,23 +471,23 @@ public class CreationTroll extends JPanel implements ActionListener,
 			gbl.setConstraints(jlab, gbc);
 			jpg.add(jlab);
 		}
-		
+
 		gbc.gridx = 3;
 		gbc.gridy = 0;
 		gbc.gridheight = 4;
-		
+
 		JSeparator jsep = new JSeparator(SwingConstants.VERTICAL);
 		gbl.setConstraints(jsep, gbc);
-		jsep.setMinimumSize(new Dimension(3,100));
-		jsep.setPreferredSize(new Dimension(3,100));
+		jsep.setMinimumSize(new Dimension(3, 100));
+		jsep.setPreferredSize(new Dimension(3, 100));
 		jpg.add(jsep);
-		
+
 		gbc.gridx = 7;
-		
+
 		jsep = new JSeparator(SwingConstants.VERTICAL);
 		gbl.setConstraints(jsep, gbc);
-		jsep.setMinimumSize(new Dimension(3,100));
-		jsep.setPreferredSize(new Dimension(3,100));
+		jsep.setMinimumSize(new Dimension(3, 100));
+		jsep.setPreferredSize(new Dimension(3, 100));
 		jpg.add(jsep);
 
 		gbc.gridx = 3;
@@ -435,20 +495,19 @@ public class CreationTroll extends JPanel implements ActionListener,
 		gbc.gridheight = 1;
 
 		for (int i = 0; i < competences.length; i++) {
-			if (i%2==0) {
+			if (i % 2 == 0) {
 				gbc.gridy++;
 				gbc.gridx = 4;
-			}
-			else
+			} else
 				gbc.gridx++;
 			compCheckBox[i] = new JCheckBox(competences[i]);
-			//		compCheckBox[i].setMinimumSize(new Dimension(160,13));
+			// compCheckBox[i].setMinimumSize(new Dimension(160,13));
 			compCheckBox[i].addActionListener(this);
 			gbl.setConstraints(compCheckBox[i], gbc);
 			jpg.add(compCheckBox[i]);
 			gbc.gridx++;
 			pourcentComp[i] = new JTextField(2);
-			//		jl.setMinimumSize(new Dimension(20,10));
+			// jl.setMinimumSize(new Dimension(20,10));
 			pourcentComp[i].setEnabled(false);
 			gbl.setConstraints(pourcentComp[i], gbc);
 			pourcentComp[i].setColumns(2);
@@ -459,24 +518,25 @@ public class CreationTroll extends JPanel implements ActionListener,
 			jpg.add(jlab);
 			gbc.gridx++;
 		}
-		
+
 		gbc.gridx = 11;
 		gbc.gridy = 0;
 		gbc.gridheight = 4;
-		
+
 		jsep = new JSeparator(SwingConstants.VERTICAL);
 		gbl.setConstraints(jsep, gbc);
-		jsep.setMinimumSize(new Dimension(3,100));
-		jsep.setPreferredSize(new Dimension(3,100));
+		jsep.setMinimumSize(new Dimension(3, 100));
+		jsep.setPreferredSize(new Dimension(3, 100));
 		jpg.add(jsep);
 
 		gbc.gridheight = 1;
-		
+
 		for (int i = 0; i < competences_niveau_sup.length; i++) {
 			gbc.gridx = 12;
 			gbc.gridy = i;
-			compCheckBox_niveau_sup[i] = new JCheckBox(competences_niveau_sup[i]);
-			//		compCheckBox[i].setMinimumSize(new Dimension(160,13));
+			compCheckBox_niveau_sup[i] = new JCheckBox(
+					competences_niveau_sup[i]);
+			// compCheckBox[i].setMinimumSize(new Dimension(160,13));
 			compCheckBox_niveau_sup[i].addActionListener(this);
 			gbl.setConstraints(compCheckBox_niveau_sup[i], gbc);
 			jpg.add(compCheckBox_niveau_sup[i]);
@@ -485,7 +545,7 @@ public class CreationTroll extends JPanel implements ActionListener,
 			gbl.setConstraints(jlab, gbc);
 			jpg.add(jlab);
 			gbc.gridx++;
-			
+
 			SpinnerModel caracmodel = new SpinnerNumberModel(1, 1, 5, 1);
 			compSpinner[i] = new JSpinner(caracmodel);
 			JFormattedTextField ftf = getTextField(compSpinner[i]);
@@ -499,9 +559,9 @@ public class CreationTroll extends JPanel implements ActionListener,
 			gbl.setConstraints(jlab, gbc);
 			jpg.add(jlab);
 			gbc.gridx++;
-			
+
 			pourcentComp_niveau_sup[i] = new JTextField(2);
-			//		jl.setMinimumSize(new Dimension(20,10));
+			// jl.setMinimumSize(new Dimension(20,10));
 			pourcentComp_niveau_sup[i].setEnabled(false);
 			gbl.setConstraints(pourcentComp_niveau_sup[i], gbc);
 			pourcentComp_niveau_sup[i].setColumns(2);
@@ -512,11 +572,10 @@ public class CreationTroll extends JPanel implements ActionListener,
 			jpg.add(jlab);
 			gbc.gridx++;
 		}
-		
+
 		compCheckBox_reservees[0].setSelected(true);
 		pourcentComp_reservees[0].setEnabled(true);
 		pourcentComp_reservees[0].setText("90");
-
 
 		/*************************************************************************************************
 		 * sorts checkbox
@@ -531,7 +590,7 @@ public class CreationTroll extends JPanel implements ActionListener,
 		gbc.insets = new java.awt.Insets(1, 1, 1, 1);
 		gbc.anchor = GridBagConstraints.LINE_START;
 		jpg.setLayout(gbl);
-		//	add(jpg,c);
+		// add(jpg,c);
 
 		jtp.addTab("Sorts", jpg);
 
@@ -544,13 +603,13 @@ public class CreationTroll extends JPanel implements ActionListener,
 				gbc.gridx = 0;
 			}
 			sortCheckBox[i] = new JCheckBox(sorts[i]);
-			//		sortCheckBox[i].setMinimumSize(new Dimension(200,13));
+			// sortCheckBox[i].setMinimumSize(new Dimension(200,13));
 			sortCheckBox[i].addActionListener(this);
 			gbl.setConstraints(sortCheckBox[i], gbc);
 			jpg.add(sortCheckBox[i]);
 			gbc.gridx++;
 			pourcentSort[i] = new JTextField(2);
-			//		jl.setMinimumSize(new Dimension(20,10));
+			// jl.setMinimumSize(new Dimension(20,10));
 			pourcentSort[i].setEnabled(false);
 			gbl.setConstraints(pourcentSort[i], gbc);
 			pourcentSort[i].setColumns(2);
@@ -565,8 +624,6 @@ public class CreationTroll extends JPanel implements ActionListener,
 		pourcentSort[0].setText("80");
 		gbc.anchor = GridBagConstraints.LINE_START;
 
-
-
 		/********************************************************************************************************
 		 * Equipement
 		 ********************************************************************************************************/
@@ -576,18 +633,18 @@ public class CreationTroll extends JPanel implements ActionListener,
 		gbc.insets = new java.awt.Insets(1, 1, 1, 1);
 		gbc.anchor = GridBagConstraints.LINE_START;
 		jpg.setLayout(gbl);
-		//	add(jpg,c);
+		// add(jpg,c);
 		//	
 
 		jtp.addTab("Equipement", jpg);
 
 		gbc.gridy = 0;
 		gbc.gridx = 0;
-//
-//		jl = new JLabel("Equipement :", null, SwingConstants.LEFT);
-//		gbl.setConstraints(jl, gbc);
-//		jl.setMinimumSize(new Dimension(200, 13));
-//		jpg.add(jl);
+		//
+		// jl = new JLabel("Equipement :", null, SwingConstants.LEFT);
+		// gbl.setConstraints(jl, gbc);
+		// jl.setMinimumSize(new Dimension(200, 13));
+		// jpg.add(jl);
 
 		gbc.gridwidth = 3;
 		gbc.gridy = 0;
@@ -598,28 +655,32 @@ public class CreationTroll extends JPanel implements ActionListener,
 		model.addColumn("Type");
 		model.addColumn("Caractérisques");
 		model.addColumn("Equipé");
-		
+
 		equipementTable.getColumnModel().getColumn(0).setPreferredWidth(70);
 		equipementTable.getColumnModel().getColumn(1).setPreferredWidth(100);
-		equipementTable.getColumnModel().getColumn(1).setCellRenderer(new MultiLineCellRenderer());
+		equipementTable.getColumnModel().getColumn(1).setCellRenderer(
+				new MultiLineCellRenderer());
 		equipementTable.getColumnModel().getColumn(2).setPreferredWidth(100);
 		equipementTable.getColumnModel().getColumn(3).setPreferredWidth(340);
-		equipementTable.getColumnModel().getColumn(3).setCellRenderer(new MultiLineCellRenderer());
+		equipementTable.getColumnModel().getColumn(3).setCellRenderer(
+				new MultiLineCellRenderer());
 		equipementTable.getColumnModel().getColumn(4).setPreferredWidth(50);
-		equipementTable.setPreferredScrollableViewportSize(new Dimension(650,200));
-		equipementTable.setMinimumSize(new Dimension(600,200));
+		equipementTable.setPreferredScrollableViewportSize(new Dimension(650,
+				200));
+		equipementTable.setMinimumSize(new Dimension(600, 200));
 
 		JScrollPane scrollPane = new JScrollPane(equipementTable);
-		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		scrollPane
+				.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 		gbl.setConstraints(scrollPane, gbc);
 		jpg.add(scrollPane);
-		
+
 		gbc.gridwidth = 3;
-		gbc.anchor=GridBagConstraints.CENTER;
+		gbc.anchor = GridBagConstraints.CENTER;
 		gbc.gridy = 1;
 
-		JPanel jp=new JPanel();
-		jp.setLayout(new BoxLayout(jp,BoxLayout.LINE_AXIS));
+		JPanel jp = new JPanel();
+		jp.setLayout(new BoxLayout(jp, BoxLayout.LINE_AXIS));
 		jp.add(Box.createHorizontalGlue());
 		ajoutEquip = new JButton("Ajouter");
 		ajoutEquip.addActionListener(this);
@@ -633,9 +694,7 @@ public class CreationTroll extends JPanel implements ActionListener,
 		supprEquip.addActionListener(this);
 		jp.add(supprEquip);
 		jp.add(Box.createHorizontalGlue());
-		jpg.add(jp,gbc);
-		
-
+		jpg.add(jp, gbc);
 
 		/*************************************************************************************************
 		 * boutons
@@ -658,8 +717,8 @@ public class CreationTroll extends JPanel implements ActionListener,
 		loadButton.addActionListener(this);
 		jpg.add(loadButton);
 		jpg.add(Box.createHorizontalGlue());
-		add(jpg,c);
-		
+		add(jpg, c);
+
 		c.gridy = 5;
 		c.gridx = 0;
 		c.gridwidth = 5;
@@ -681,16 +740,17 @@ public class CreationTroll extends JPanel implements ActionListener,
 		saveButton.addActionListener(this);
 		jpg.add(saveButton);
 		jpg.add(Box.createHorizontalGlue());
-		add(jpg,c);
+		add(jpg, c);
 		c.gridwidth = 1;
-		
-		//Create a file chooser
-		//fc = new JFileChooser();
-		//MHAFileFilter filter = new MHAFileFilter("mha","Fiche de perso pour Mountyhall Arena");
-		//fc.setFileFilter(filter);
-		//	filter.addExtension("gif");
-		//	filter.setDescription("Perso Mountyhall Arena");
-		//fc.setFileFilter(filter);
+
+		// Create a file chooser
+		// fc = new JFileChooser();
+		// MHAFileFilter filter = new
+		// MHAFileFilter("mha","Fiche de perso pour Mountyhall Arena");
+		// fc.setFileFilter(filter);
+		// filter.addExtension("gif");
+		// filter.setDescription("Perso Mountyhall Arena");
+		// fc.setFileFilter(filter);
 
 		/********************************************************************************************************
 		 * Avatar
@@ -699,34 +759,34 @@ public class CreationTroll extends JPanel implements ActionListener,
 		jpg.setLayout(new BoxLayout(jpg, BoxLayout.PAGE_AXIS));
 		jtp.addTab("Avatar", jpg);
 
-		//Set up the picture.
+		// Set up the picture.
 		avatar = new JLabel();
 		avatar.setFont(avatar.getFont().deriveFont(Font.ITALIC));
-		avatar.setAlignmentX(Component.CENTER_ALIGNMENT);;
-		//updateLabel(petStrings[petList.getSelectedIndex()]);
-		//avatar.setBorder(BorderFactory.createEmptyBorder(10,0,0,0));
+		avatar.setAlignmentX(Component.CENTER_ALIGNMENT);
+		;
+		// updateLabel(petStrings[petList.getSelectedIndex()]);
+		// avatar.setBorder(BorderFactory.createEmptyBorder(10,0,0,0));
 		avatar.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-	
-		//The preferred size is hard-coded to be the width of the
-		//widest image and the height of the tallest image + the border.
-		//A real program would compute this.
-		avatar.setPreferredSize(new Dimension(120, 120+10));
-		avatar.setMinimumSize(new Dimension(120, 120+10));
-		avatar.setMaximumSize(new Dimension(120, 120+10));
+
+		// The preferred size is hard-coded to be the width of the
+		// widest image and the height of the tallest image + the border.
+		// A real program would compute this.
+		avatar.setPreferredSize(new Dimension(120, 120 + 10));
+		avatar.setMinimumSize(new Dimension(120, 120 + 10));
+		avatar.setMaximumSize(new Dimension(120, 120 + 10));
 		jpg.add(Box.createVerticalGlue());
 		jpg.add(avatar);
 		jpg.add(Box.createVerticalStrut(5));
 		avatarButton = new JButton("Changer d'avatar");
 		avatarButton.addActionListener(this);
-		avatarButton.setAlignmentX(Component.CENTER_ALIGNMENT);;
+		avatarButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+		;
 		jpg.add(avatarButton);
-		
+
 		jpg.add(Box.createVerticalGlue());
 
-		
-		
 		dialog.pack();
-		dialog.setSize(dialog.getWidth()+10,dialog.getHeight()+10);
+		dialog.setSize(dialog.getWidth() + 10, dialog.getHeight() + 10);
 		dialog.setVisible(true);
 	}
 
@@ -768,9 +828,9 @@ public class CreationTroll extends JPanel implements ActionListener,
 				pourcentSort[i].setEnabled(false);
 			}
 		}
-		while(((DefaultTableModel) equipementTable.getModel()).getRowCount()!=0)
+		while (((DefaultTableModel) equipementTable.getModel()).getRowCount() != 0)
 			((DefaultTableModel) equipementTable.getModel()).removeRow(0);
-		while(equipements.size()!=0)
+		while (equipements.size() != 0)
 			equipements.remove(0);
 		updatePI();
 	}
@@ -796,14 +856,16 @@ public class CreationTroll extends JPanel implements ActionListener,
 						+ uniteCaracs[caracSpecialisee[i]]);
 				prochaineAmelio[caracSpecialisee[i]].setText(""
 						+ piInitCoutCaracsParRace[caracSpecialisee[i]]);
-/*				coutPiTotal = 0;
-				piTotalLabel.setText(Integer.toString(coutPiTotal));
-				Niveau = (int) (Math.floor((-1 + Math
-						.sqrt(9 + 4 * coutPiTotal / 5)) / 2));
-				niveauLabel.setText(Integer.toString(Niveau));*/
+				/*
+				 * coutPiTotal = 0;
+				 * piTotalLabel.setText(Integer.toString(coutPiTotal)); Niveau =
+				 * (int) (Math.floor((-1 + Math .sqrt(9 + 4 * coutPiTotal / 5))
+				 * / 2)); niveauLabel.setText(Integer.toString(Niveau));
+				 */
 				compCheckBox_reservees[compSpecialisee[i]].setSelected(true);
 				pourcentComp_reservees[compSpecialisee[i]].setEnabled(true);
-				if (pourcentComp_reservees[sortSpecialise[i]].getText().length() == 0)
+				if (pourcentComp_reservees[sortSpecialise[i]].getText()
+						.length() == 0)
 					pourcentComp_reservees[sortSpecialise[i]].setText("90");
 				sortCheckBox[sortSpecialise[i]].setSelected(true);
 				pourcentSort[sortSpecialise[i]].setEnabled(true);
@@ -830,7 +892,7 @@ public class CreationTroll extends JPanel implements ActionListener,
 				updatePI();
 			}
 		}
-		
+
 		/*******************************************************************
 		 * sélection des comps
 		 *******************************************************************/
@@ -849,7 +911,7 @@ public class CreationTroll extends JPanel implements ActionListener,
 				updatePI();
 			}
 		}
-		
+
 		/*******************************************************************
 		 * sélection des comps
 		 *******************************************************************/
@@ -871,7 +933,7 @@ public class CreationTroll extends JPanel implements ActionListener,
 					if (pourcentSort[i].getText().length() == 0)
 						pourcentSort[i].setText("80");
 				} else {
-					//pourcentSort[i].setText("");
+					// pourcentSort[i].setText("");
 					pourcentSort[i].setEnabled(false);
 				}
 			}
@@ -881,386 +943,446 @@ public class CreationTroll extends JPanel implements ActionListener,
 		 * boutons
 		 ********************************************************************/
 
-		//boutons globaux : annuler, enregistrer, choisir un fichier
-		
+		// boutons globaux : annuler, enregistrer, choisir un fichier
+
 		if (e.getSource() == cancelButton) {
 			dialog.setVisible(false);
 			dialog.dispose();
 		}
 
-		//charger un avatar
-		if(e.getSource() == avatarButton){
-			Vector <String> lignes = new Vector <String> ();
+		// charger un avatar
+		if (e.getSource() == avatarButton) {
+			Vector<String> lignes = new Vector<String>();
 			String valeur;
-			JFileChooser fc2 ;
-			if(MHAGUI.lastDirectory.length()==0)
-				fc2 = new JFileChooser(new File ("."));
+			JFileChooser fc2;
+			if (MHAGUI.lastDirectory.length() == 0)
+				fc2 = new JFileChooser(new File("."));
 			else
 				fc2 = new JFileChooser(MHAGUI.lastDirectory);
 			fc2.setFileFilter(new ImageFilter());
 			fc2.setAccessory(new ImagePreview(fc2));
 			int returnVal = fc2.showOpenDialog(this);
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
-				int count=0;
-				byte[]buf = new byte[2000000];
+				int count = 0;
+				byte[] buf = new byte[2000000];
 				try {
 					file = fc2.getSelectedFile();
 					MHAGUI.lastDirectory = file.getCanonicalPath();
-					FileInputStream fr =  new FileInputStream(file);
+					FileInputStream fr = new FileInputStream(file);
 					BufferedInputStream bufferin = new BufferedInputStream(fr);
 					count = bufferin.read(buf);
 					fr.close();
 				} catch (Exception ieo) {
-					JOptionPane.showMessageDialog(dialog, "Le fichier "+file.getName()+" ne peut pas étre lu", "Erreur", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(dialog, "Le fichier "
+							+ file.getName() + " ne peut pas étre lu",
+							"Erreur", JOptionPane.ERROR_MESSAGE);
 					return;
 				}
-				
+
 				if (count <= 0) {
-					JOptionPane.showMessageDialog(dialog, "Le fichier "+file.getName()+" est vide", "Erreur", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(dialog, "Le fichier "
+							+ file.getName() + " est vide", "Erreur",
+							JOptionPane.ERROR_MESSAGE);
 					return;
 				}
-				ImageIcon inImage=new ImageIcon(Toolkit.getDefaultToolkit().createImage(buf));
+				ImageIcon inImage = new ImageIcon(Toolkit.getDefaultToolkit()
+						.createImage(buf));
 				int maxDim = 120;
-				double scale=(double) maxDim / (double) inImage.getImage().getHeight(null);
-				if (inImage.getImage().getWidth(null) > inImage.getImage().getHeight(null))
-				{
-					scale = (double) maxDim / (double) inImage.getImage().getWidth(null);
+				double scale = (double) maxDim
+						/ (double) inImage.getImage().getHeight(null);
+				if (inImage.getImage().getWidth(null) > inImage.getImage()
+						.getHeight(null)) {
+					scale = (double) maxDim
+							/ (double) inImage.getImage().getWidth(null);
 				}
 				// Determine size of new image.
-				//One of them
+				// One of them
 				// should equal maxDim.
 				int scaledW = (int) (scale * inImage.getImage().getWidth(null));
 				int scaledH = (int) (scale * inImage.getImage().getHeight(null));
-				ImageIcon img = new ImageIcon(inImage.getImage().getScaledInstance(scaledW , scaledH, Image.SCALE_SMOOTH));
+				ImageIcon img = new ImageIcon(
+						inImage.getImage().getScaledInstance(scaledW, scaledH,
+								Image.SCALE_SMOOTH));
 				avatar.setIcon(img);
-				//System.out.println(img.getImageLoadStatus());
-				//MediaTracker.COMPLETE
+				// System.out.println(img.getImageLoadStatus());
+				// MediaTracker.COMPLETE
 			}
 			return;
 		}
-		
+
 		// charger un troll
-		if(e.getSource() == loadButton){
-			Vector <String> lignes = new Vector <String> ();
+		if (e.getSource() == loadButton) {
+			Vector<String> lignes = new Vector<String>();
 			String valeur;
 			JFileChooser fc;
-			if(MHAGUI.lastDirectory.length()==0)
-				fc = new JFileChooser(new File ("."));
+			if (MHAGUI.lastDirectory.length() == 0)
+				fc = new JFileChooser(new File("."));
 			else
 				fc = new JFileChooser(MHAGUI.lastDirectory);
-			MHAFileFilter filter = new MHAFileFilter("mha","Fiche de perso pour Mountyhall Arena");
+			MHAFileFilter filter = new MHAFileFilter("mha",
+					"Fiche de perso pour Mountyhall Arena");
 			fc.setFileFilter(filter);
 			int returnVal = fc.showOpenDialog(this);
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
 				file = fc.getSelectedFile();
-				try { MHAGUI.lastDirectory = file.getCanonicalPath(); } catch(Exception ex){}
 				try {
-					FileReader fr =  new FileReader(file);
+					MHAGUI.lastDirectory = file.getCanonicalPath();
+				} catch (Exception ex) {
+				}
+				try {
+					FileReader fr = new FileReader(file);
 					BufferedReader bufferin = new BufferedReader(fr);
 					String input = bufferin.readLine();
-					if(input!=null)
-						input=input.replaceFirst("//.*","");
-					while(input != null) {
-						String [] ls = input.split(" ");
-						if(ls[0].toLowerCase().equals("addequip") || ls[0].toLowerCase().equals("addtroll") || 
-								ls[0].toLowerCase().equals("carac") || ls[0].toLowerCase().equals("addsort") || ls[0].toLowerCase().equals("icontroll") ||
-								ls[0].toLowerCase().equals("addcomp") || ls[0].toLowerCase().equals("addmouche"))
-						{
+					if (input != null)
+						input = input.replaceFirst("//.*", "");
+					while (input != null) {
+						String[] ls = input.split(" ");
+						if (ls[0].toLowerCase().equals("addequip")
+								|| ls[0].toLowerCase().equals("addtroll")
+								|| ls[0].toLowerCase().equals("carac")
+								|| ls[0].toLowerCase().equals("addsort")
+								|| ls[0].toLowerCase().equals("icontroll")
+								|| ls[0].toLowerCase().equals("addcomp")
+								|| ls[0].toLowerCase().equals("addmouche")) {
 							lignes.add(input);
 						}
 						input = bufferin.readLine();
-						if(input!=null)
-							input=input.replaceFirst("//.*","");
+						if (input != null)
+							input = input.replaceFirst("//.*", "");
 					}
-					if(lignes.size()==0) {
-						JOptionPane.showMessageDialog(dialog,
-							"Fichier vide", "Erreur",
-							JOptionPane.ERROR_MESSAGE);
+					if (lignes.size() == 0) {
+						JOptionPane.showMessageDialog(dialog, "Fichier vide",
+								"Erreur", JOptionPane.ERROR_MESSAGE);
 						return;
 					}
 					remiseAZero();
-					for(int i=0;i<lignes.size();i++){						
+					for (int i = 0; i < lignes.size(); i++) {
 						input = lignes.get(i);
-						//System.out.println(input);
+						// System.out.println(input);
 						String[] ls2 = input.split(" ");
-						//System.out.println(ls2[0]);
-						if (ls2[0].toLowerCase().equals("addtroll")){
-							//addtroll id nom race 
+						// System.out.println(ls2[0]);
+						if (ls2[0].toLowerCase().equals("addtroll")) {
+							// addtroll id nom race
 							numeroField.setText(ls2[1]);
 							String tmpNomTroll = "";
-							for(int j=0;j<ls2.length-3;j++){tmpNomTroll+=ls2[j+2] + " ";}
+							for (int j = 0; j < ls2.length - 3; j++) {
+								tmpNomTroll += ls2[j + 2] + " ";
+							}
 							nomField.setText(tmpNomTroll.trim());
-							raceCombo.setSelectedIndex(Integer.parseInt(ls2[ls2.length-1]));
-						}
-						else if (ls2[0].toLowerCase().equals("carac")) {
-							//carac Niv Att Esq Deg Reg PV Vue Durée_DLA(en minutes) MM_pure RM_pure
-							//niveau
+							raceCombo.setSelectedIndex(Integer
+									.parseInt(ls2[ls2.length - 1]));
+						} else if (ls2[0].toLowerCase().equals("carac")) {
+							// carac Niv Att Esq Deg Reg PV Vue Durée_DLA(en
+							// minutes) MM_pure RM_pure
+							// niveau
 							niveauLabel.setText(ls2[1]);
 
-							//caracs simples
-							for(int j=0;j<caracs.length-1;j++){
-								int valAmelio=Integer.parseInt(ls2[j+2]) - Integer.parseInt(amelioPlusInit[j].getText().substring(0,amelioPlusInit[j].getText().length()-(1 + uniteCaracs[j].length())));
-								caracSpinner[j].setValue( valAmelio / incrementCaracs[j]);
+							// caracs simples
+							for (int j = 0; j < caracs.length - 1; j++) {
+								int valAmelio = Integer.parseInt(ls2[j + 2])
+										- Integer
+												.parseInt(amelioPlusInit[j]
+														.getText()
+														.substring(
+																0,
+																amelioPlusInit[j]
+																		.getText()
+																		.length()
+																		- (1 + uniteCaracs[j]
+																				.length())));
+								caracSpinner[j].setValue(valAmelio
+										/ incrementCaracs[j]);
 							}
-														
-							//DLA
+
+							// DLA
 							int nbDlaAmelio = 0;
-							if(Integer.parseInt(ls2[8]) < 555 ) {
-								nbDlaAmelio = (int)(10 + (555-Integer.parseInt(ls2[8]))/2.5);
-							}
-							else {
-								nbDlaAmelio = (int)((21 - Math.sqrt((8*Integer.parseInt(ls2[8]) - 4437)/3))/2);
+							if (Integer.parseInt(ls2[8]) < 555) {
+								nbDlaAmelio = (int) (10 + (555 - Integer
+										.parseInt(ls2[8])) / 2.5);
+							} else {
+								nbDlaAmelio = (int) ((21 - Math
+										.sqrt((8 * Integer.parseInt(ls2[8]) - 4437) / 3)) / 2);
 							}
 							caracSpinner[6].setValue(nbDlaAmelio);
-													
-							//MM et RM
+
+							// MM et RM
 							mmField.setText(ls2[9]);
-							rmField.setText(ls2[10]);							
-						}
-						else if (ls2[0].toLowerCase().equals("addcomp")) {
+							rmField.setText(ls2[10]);
+						} else if (ls2[0].toLowerCase().equals("addcomp")) {
 							int nbComp = Integer.parseInt(ls2[1]);
-							if(nbComp<=4)
-							{
-								compCheckBox_reservees[nbComp-1].setSelected(true);
-								pourcentComp_reservees[nbComp-1].setText(ls2[2]);
-								pourcentComp_reservees[nbComp-1].setEnabled(true);
-							}
-							else if(nbComp == 5)
-							{
+							if (nbComp <= 4) {
+								compCheckBox_reservees[nbComp - 1]
+										.setSelected(true);
+								pourcentComp_reservees[nbComp - 1]
+										.setText(ls2[2]);
+								pourcentComp_reservees[nbComp - 1]
+										.setEnabled(true);
+							} else if (nbComp == 5) {
 								int level = 1;
-								if(ls2.length==4)
+								if (ls2.length == 4)
 									level = Integer.parseInt(ls2[3]);
-									
-								if(level >=Integer.parseInt(compSpinner[0].getValue().toString()))
-								{
-									compCheckBox_niveau_sup[0].setSelected(true);
+
+								if (level >= Integer.parseInt(compSpinner[0]
+										.getValue().toString())) {
+									compCheckBox_niveau_sup[0]
+											.setSelected(true);
 									pourcentComp_niveau_sup[0].setText(ls2[2]);
 									pourcentComp_niveau_sup[0].setEnabled(true);
 									compSpinner[0].setEnabled(true);
 									compSpinner[0].setValue(level);
 								}
-							}
-							else if(nbComp == 9 )
-							{
+							} else if (nbComp == 9) {
 								int level = 1;
-								if(ls2.length==4)
+								if (ls2.length == 4)
 									level = Integer.parseInt(ls2[3]);
-								if(level>=Integer.parseInt(compSpinner[1].getValue().toString()))
-								{
-									compCheckBox_niveau_sup[1].setSelected(true);
+								if (level >= Integer.parseInt(compSpinner[1]
+										.getValue().toString())) {
+									compCheckBox_niveau_sup[1]
+											.setSelected(true);
 									pourcentComp_niveau_sup[1].setText(ls2[2]);
 									pourcentComp_niveau_sup[1].setEnabled(true);
 									compSpinner[1].setEnabled(true);
 									compSpinner[1].setValue(level);
 								}
-							}
-							else if(nbComp == 13 )
-							{
+							} else if (nbComp == 13) {
 								int level = 1;
-								if(ls2.length==4)
+								if (ls2.length == 4)
 									level = Integer.parseInt(ls2[3]);
-								if(level>=Integer.parseInt(compSpinner[1].getValue().toString()))
-								{
-									compCheckBox_niveau_sup[2].setSelected(true);
+								if (level >= Integer.parseInt(compSpinner[1]
+										.getValue().toString())) {
+									compCheckBox_niveau_sup[2]
+											.setSelected(true);
 									pourcentComp_niveau_sup[2].setText(ls2[2]);
 									pourcentComp_niveau_sup[2].setEnabled(true);
 									compSpinner[2].setEnabled(true);
 									compSpinner[2].setValue(level);
 								}
-							}
-							else if(nbComp>5 && nbComp<9)
-							{
-								compCheckBox[nbComp-6].setSelected(true);
-								pourcentComp[nbComp-6].setText(ls2[2]);
-								pourcentComp[nbComp-6].setEnabled(true);
-							}
-							else if(nbComp<13)
-							{
-								compCheckBox[nbComp-7].setSelected(true);
-								pourcentComp[nbComp-7].setText(ls2[2]);
-								pourcentComp[nbComp-7].setEnabled(true);
-							}
-							else if(nbComp<15)
-							{
-								compCheckBox[nbComp-8].setSelected(true);
-								pourcentComp[nbComp-8].setText(ls2[2]);
-								pourcentComp[nbComp-8].setEnabled(true);
+							} else if (nbComp > 5 && nbComp < 9) {
+								compCheckBox[nbComp - 6].setSelected(true);
+								pourcentComp[nbComp - 6].setText(ls2[2]);
+								pourcentComp[nbComp - 6].setEnabled(true);
+							} else if (nbComp < 13) {
+								compCheckBox[nbComp - 7].setSelected(true);
+								pourcentComp[nbComp - 7].setText(ls2[2]);
+								pourcentComp[nbComp - 7].setEnabled(true);
+							} else if (nbComp < 15) {
+								compCheckBox[nbComp - 8].setSelected(true);
+								pourcentComp[nbComp - 8].setText(ls2[2]);
+								pourcentComp[nbComp - 8].setEnabled(true);
 							}
 
-						}
-						else if (ls2[0].toLowerCase().equals("addsort")) {
-							sortCheckBox[Integer.parseInt(ls2[1])-1].setSelected(true);
-							pourcentSort[Integer.parseInt(ls2[1])-1].setText(ls2[2]);
-							pourcentSort[Integer.parseInt(ls2[1])-1].setEnabled(true);
-							
-						}
-						else if (ls2[0].toLowerCase().equals("addequip")) {
-							boolean bmm=false,fullbmm=false;
-							Equipement equip=null;
-							String isEquip="Non";
-							try{Integer.parseInt(ls2[18]);Integer.parseInt(ls2[19]);bmm=true;}catch(NumberFormatException ex){}
-							try{Integer.parseInt(ls2[21]);Integer.parseInt(ls2[22]);fullbmm=true;}catch(Exception ex){}
-							if(fullbmm)
-							{
-								int idEquip=Integer.parseInt(ls2[1]);
-								int typeEquip=Integer.parseInt(ls2[2]);
-								int attEquip=Integer.parseInt(ls2[3]);
-								int attMEquip=Integer.parseInt(ls2[4]);
-								int esqEquip=Integer.parseInt(ls2[5]);
-								int esqMEquip=Integer.parseInt(ls2[6]);
-								int degEquip=Integer.parseInt(ls2[7]);
-								int degMEquip=Integer.parseInt(ls2[8]);
-								int dlaEquip=Integer.parseInt(ls2[9]);
-								int regEquip=Integer.parseInt(ls2[10]);
-								int regMEquip=Integer.parseInt(ls2[11]);
-								int pvEquip=Integer.parseInt(ls2[12]);
-								int vueEquip=Integer.parseInt(ls2[13]);
-								int vueMEquip=Integer.parseInt(ls2[14]);
-								int apEquip=Integer.parseInt(ls2[15]);
-								int amEquip=Integer.parseInt(ls2[16]);
-								int poidsEquip=Integer.parseInt(ls2[19]);
-								int mmEquip=Integer.parseInt(ls2[20]);
-								int rmEquip=Integer.parseInt(ls2[21]);
-								//int equipEquip=Math.abs(Integer.parseInt(liste[19]));
-								boolean zoneEquip=false;
-								if(ls2[17].equals("1"))
-									zoneEquip=true;
-								boolean dropEquip=false;
-								if(ls2[18].equals("1"))
-									dropEquip=true;
-								if(ls2[22].equals("1"))
-									isEquip="Oui";
-								String tmpNomEquip="";
-								for(int j=0;j<ls2.length-23;j++){tmpNomEquip += ls2[j+23] + " ";}
-								String nomEquip=tmpNomEquip.trim();
-								equip=new Equipement(idEquip,nomEquip,typeEquip,attEquip,attMEquip,esqEquip,esqMEquip,degEquip,degMEquip,dlaEquip,regEquip,regMEquip,vueEquip,vueMEquip,pvEquip,apEquip,amEquip,mmEquip,rmEquip,zoneEquip,dropEquip,poidsEquip);
+						} else if (ls2[0].toLowerCase().equals("addsort")) {
+							sortCheckBox[Integer.parseInt(ls2[1]) - 1]
+									.setSelected(true);
+							pourcentSort[Integer.parseInt(ls2[1]) - 1]
+									.setText(ls2[2]);
+							pourcentSort[Integer.parseInt(ls2[1]) - 1]
+									.setEnabled(true);
+
+						} else if (ls2[0].toLowerCase().equals("addequip")) {
+							boolean bmm = false, fullbmm = false;
+							Equipement equip = null;
+							String isEquip = "Non";
+							try {
+								Integer.parseInt(ls2[18]);
+								Integer.parseInt(ls2[19]);
+								bmm = true;
+							} catch (NumberFormatException ex) {
+							}
+							try {
+								Integer.parseInt(ls2[21]);
+								Integer.parseInt(ls2[22]);
+								fullbmm = true;
+							} catch (Exception ex) {
+							}
+							if (fullbmm) {
+								int idEquip = Integer.parseInt(ls2[1]);
+								types typeEquip = types.valueOf(ls2[2]);
+								int attEquip = Integer.parseInt(ls2[3]);
+								int attMEquip = Integer.parseInt(ls2[4]);
+								int esqEquip = Integer.parseInt(ls2[5]);
+								int esqMEquip = Integer.parseInt(ls2[6]);
+								int degEquip = Integer.parseInt(ls2[7]);
+								int degMEquip = Integer.parseInt(ls2[8]);
+								int dlaEquip = Integer.parseInt(ls2[9]);
+								int regEquip = Integer.parseInt(ls2[10]);
+								int regMEquip = Integer.parseInt(ls2[11]);
+								int pvEquip = Integer.parseInt(ls2[12]);
+								int vueEquip = Integer.parseInt(ls2[13]);
+								int vueMEquip = Integer.parseInt(ls2[14]);
+								int apEquip = Integer.parseInt(ls2[15]);
+								int amEquip = Integer.parseInt(ls2[16]);
+								int poidsEquip = Integer.parseInt(ls2[19]);
+								int mmEquip = Integer.parseInt(ls2[20]);
+								int rmEquip = Integer.parseInt(ls2[21]);
+								// int
+								// equipEquip=Math.abs(Integer.parseInt(liste[19]));
+								boolean zoneEquip = false;
+								if (ls2[17].equals("1"))
+									zoneEquip = true;
+								boolean dropEquip = false;
+								if (ls2[18].equals("1"))
+									dropEquip = true;
+								if (ls2[22].equals("1"))
+									isEquip = "Oui";
+								String tmpNomEquip = "";
+								for (int j = 0; j < ls2.length - 23; j++) {
+									tmpNomEquip += ls2[j + 23] + " ";
+								}
+								String nomEquip = tmpNomEquip.trim();
+								equip = new Equipement(idEquip, nomEquip,
+										typeEquip, attEquip, attMEquip,
+										esqEquip, esqMEquip, degEquip,
+										degMEquip, dlaEquip, regEquip,
+										regMEquip, vueEquip, vueMEquip,
+										pvEquip, apEquip, amEquip, mmEquip,
+										rmEquip, zoneEquip, dropEquip,
+										poidsEquip);
+								equipements.add(equip);
+							} else if (!bmm) {
+								int idEquip = Integer.parseInt(ls2[1]);
+								types typeEquip = types.valueOf(ls2[2]);
+								int attEquip = Integer.parseInt(ls2[3]);
+								int esqEquip = Integer.parseInt(ls2[4]);
+								int degEquip = Integer.parseInt(ls2[5]);
+								int dlaEquip = Integer.parseInt(ls2[6]);
+								int regEquip = Integer.parseInt(ls2[7]);
+								int pvEquip = Integer.parseInt(ls2[8]);
+								int vueEquip = Integer.parseInt(ls2[9]);
+								int apEquip = Integer.parseInt(ls2[10]);
+								int amEquip = Integer.parseInt(ls2[11]);
+								int poidsEquip = Integer.parseInt(ls2[14]);
+								int mmEquip = Integer.parseInt(ls2[15]);
+								int rmEquip = Integer.parseInt(ls2[16]);
+								// int
+								// equipEquip=Math.abs(Integer.parseInt(liste[17]));
+								boolean zoneEquip = false;
+								if (ls2[12].equals("1"))
+									zoneEquip = true;
+								boolean dropEquip = false;
+								if (ls2[13].equals("1"))
+									dropEquip = true;
+								if (ls2[17].equals("1"))
+									isEquip = "Oui";
+								String tmpNomEquip = "";
+								for (int j = 0; j < ls2.length - 18; j++) {
+									tmpNomEquip += ls2[j + 18] + " ";
+								}
+								String nomEquip = tmpNomEquip.trim();
+								equip = new Equipement(idEquip, nomEquip,
+										typeEquip, attEquip, esqEquip,
+										degEquip, dlaEquip, regEquip, vueEquip,
+										pvEquip, apEquip, amEquip, mmEquip,
+										rmEquip, zoneEquip, dropEquip,
+										poidsEquip);
+								equipements.add(equip);
+							} else {
+								int idEquip = Integer.parseInt(ls2[1]);
+								types typeEquip = types.valueOf(ls2[2]);
+								int attEquip = Integer.parseInt(ls2[3]);
+								int attMEquip = Integer.parseInt(ls2[4]);
+								int esqEquip = Integer.parseInt(ls2[5]);
+								int degEquip = Integer.parseInt(ls2[6]);
+								int degMEquip = Integer.parseInt(ls2[7]);
+								int dlaEquip = Integer.parseInt(ls2[8]);
+								int regEquip = Integer.parseInt(ls2[9]);
+								int pvEquip = Integer.parseInt(ls2[10]);
+								int vueEquip = Integer.parseInt(ls2[11]);
+								int apEquip = Integer.parseInt(ls2[12]);
+								int amEquip = Integer.parseInt(ls2[13]);
+								int poidsEquip = Integer.parseInt(ls2[16]);
+								int mmEquip = Integer.parseInt(ls2[17]);
+								int rmEquip = Integer.parseInt(ls2[18]);
+								// int
+								// equipEquip=Math.abs(Integer.parseInt(liste[19]));
+								boolean zoneEquip = false;
+								if (ls2[14].equals("1"))
+									zoneEquip = true;
+								boolean dropEquip = false;
+								if (ls2[15].equals("1"))
+									dropEquip = true;
+								if (ls2[19].equals("1"))
+									isEquip = "Oui";
+								String tmpNomEquip = "";
+								for (int j = 0; j < ls2.length - 20; j++) {
+									tmpNomEquip += ls2[j + 20] + " ";
+								}
+								String nomEquip = tmpNomEquip.trim();
+								equip = new Equipement(idEquip, nomEquip,
+										typeEquip, attEquip, attMEquip,
+										esqEquip, degEquip, degMEquip,
+										dlaEquip, regEquip, vueEquip, pvEquip,
+										apEquip, amEquip, mmEquip, rmEquip,
+										zoneEquip, dropEquip, poidsEquip);
 								equipements.add(equip);
 							}
-							else if(!bmm)
-							{
-								int idEquip=Integer.parseInt(ls2[1]);
-								int typeEquip=Integer.parseInt(ls2[2]);
-								int attEquip=Integer.parseInt(ls2[3]);
-								int esqEquip=Integer.parseInt(ls2[4]);
-								int degEquip=Integer.parseInt(ls2[5]);
-								int dlaEquip=Integer.parseInt(ls2[6]);
-								int regEquip=Integer.parseInt(ls2[7]);
-								int pvEquip=Integer.parseInt(ls2[8]);
-								int vueEquip=Integer.parseInt(ls2[9]);
-								int apEquip=Integer.parseInt(ls2[10]);
-								int amEquip=Integer.parseInt(ls2[11]);
-								int poidsEquip=Integer.parseInt(ls2[14]);
-								int mmEquip=Integer.parseInt(ls2[15]);
-								int rmEquip=Integer.parseInt(ls2[16]);
-								//int equipEquip=Math.abs(Integer.parseInt(liste[17]));
-								boolean zoneEquip=false;
-								if(ls2[12].equals("1"))
-									zoneEquip=true;
-								boolean dropEquip=false;
-								if(ls2[13].equals("1"))
-									dropEquip=true;
-								if(ls2[17].equals("1"))
-									isEquip="Oui";
-								String tmpNomEquip="";
-								for(int j=0;j<ls2.length-18;j++){tmpNomEquip += ls2[j+18] + " ";}
-								String nomEquip=tmpNomEquip.trim();
-								equip=new Equipement(idEquip,nomEquip,typeEquip,attEquip,esqEquip,degEquip,dlaEquip,regEquip,vueEquip,pvEquip,apEquip,amEquip,mmEquip,rmEquip,zoneEquip,dropEquip,poidsEquip);
-								equipements.add(equip);
-							}
-							else
-							{
-								int idEquip=Integer.parseInt(ls2[1]);
-								int typeEquip=Integer.parseInt(ls2[2]);
-								int attEquip=Integer.parseInt(ls2[3]);
-								int attMEquip=Integer.parseInt(ls2[4]);
-								int esqEquip=Integer.parseInt(ls2[5]);
-								int degEquip=Integer.parseInt(ls2[6]);
-								int degMEquip=Integer.parseInt(ls2[7]);
-								int dlaEquip=Integer.parseInt(ls2[8]);
-								int regEquip=Integer.parseInt(ls2[9]);
-								int pvEquip=Integer.parseInt(ls2[10]);
-								int vueEquip=Integer.parseInt(ls2[11]);
-								int apEquip=Integer.parseInt(ls2[12]);
-								int amEquip=Integer.parseInt(ls2[13]);
-								int poidsEquip=Integer.parseInt(ls2[16]);
-								int mmEquip=Integer.parseInt(ls2[17]);
-								int rmEquip=Integer.parseInt(ls2[18]);
-								//int equipEquip=Math.abs(Integer.parseInt(liste[19]));
-								boolean zoneEquip=false;
-								if(ls2[14].equals("1"))
-									zoneEquip=true;
-								boolean dropEquip=false;
-								if(ls2[15].equals("1"))
-									dropEquip=true;
-								if(ls2[19].equals("1"))
-									isEquip="Oui";
-								String tmpNomEquip="";
-								for(int j=0;j<ls2.length-20;j++){tmpNomEquip += ls2[j+20] + " ";}
-								String nomEquip=tmpNomEquip.trim();
-								equip=new Equipement(idEquip,nomEquip,typeEquip,attEquip,attMEquip,esqEquip,degEquip,degMEquip,dlaEquip,regEquip,vueEquip,pvEquip,apEquip,amEquip,mmEquip,rmEquip,zoneEquip,dropEquip,poidsEquip);
-								equipements.add(equip);
-							}
-							((DefaultTableModel) equipementTable.getModel()).addRow(new Object[] {equip.getId(),equip.getName(),Equipement.formateType(equip.getType()),equip.getDescr(),isEquip});
-	
-						}
-						else if (ls2[0].toLowerCase().equals("icontroll")) {
+							((DefaultTableModel) equipementTable.getModel())
+									.addRow(new Object[] { equip.getId(),
+											equip.getName(), equip.toString(),
+											equip.getDescr(), isEquip });
+
+						} else if (ls2[0].toLowerCase().equals("icontroll")) {
 							BigInteger bi = new BigInteger(ls2[1], 16);
 							byte[] data = bi.toByteArray();
-							ImageIcon inImage=new ImageIcon(Toolkit.getDefaultToolkit().createImage(data));
+							ImageIcon inImage = new ImageIcon(Toolkit
+									.getDefaultToolkit().createImage(data));
 							avatar.setIcon(inImage);
-						}
-						else if (ls2[0].toLowerCase().equals("addmouche")) {
+						} else if (ls2[0].toLowerCase().equals("addmouche")) {
 							int numMouches;
-							if(Integer.parseInt(ls2[1]) == 8){
-								numMouches=6;
+							if (Integer.parseInt(ls2[1]) == 8) {
+								numMouches = 6;
+							} else {
+								numMouches = Integer.parseInt(ls2[1]);
 							}
-							else {
-								numMouches=Integer.parseInt(ls2[1]);
-							}
-							mouchesFields[numMouches].setText(Integer.toString((Integer.parseInt(mouchesFields[numMouches].getText())+1)));
+							mouchesFields[numMouches].setText(Integer
+									.toString((Integer
+											.parseInt(mouchesFields[numMouches]
+													.getText()) + 1)));
 						}
-						
+
 					}
 					updatePI();
 					jtp.setSelectedIndex(0);
-					
-				}
-				catch (Exception e4){
+
+				} catch (Exception e4) {
 					System.out.println(e4.getMessage() + " : " + e4.toString());
 					e4.printStackTrace();
 					JOptionPane.showMessageDialog(dialog,
 							"Fichier incorrect ou inexistant", "Erreur",
 							JOptionPane.ERROR_MESSAGE);
-						return;					
+					return;
 				}
 
-				
 			}
 		}
-		
-		//choisir le fichier de sauvegarde
-		
+
+		// choisir le fichier de sauvegarde
+
 		if (e.getSource() == saveButton) {
 			JFileChooser fc;
-			if(MHAGUI.lastDirectory.length()==0)
-				fc = new JFileChooser(new File ("."));
+			if (MHAGUI.lastDirectory.length() == 0)
+				fc = new JFileChooser(new File("."));
 			else
 				fc = new JFileChooser(MHAGUI.lastDirectory);
-			MHAFileFilter filter = new MHAFileFilter("mha","Fiche de perso pour Mountyhall Arena");
+			MHAFileFilter filter = new MHAFileFilter("mha",
+					"Fiche de perso pour Mountyhall Arena");
 			fc.setFileFilter(filter);
-			int returnVal = fc.showDialog(this,"Choisir");
+			int returnVal = fc.showDialog(this, "Choisir");
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
 				file = fc.getSelectedFile();
-				try { MHAGUI.lastDirectory = file.getCanonicalPath(); } catch(Exception ex){}
+				try {
+					MHAGUI.lastDirectory = file.getCanonicalPath();
+				} catch (Exception ex) {
+				}
 				saveField.setText(file.getAbsolutePath());
 				if (!saveField.getText().endsWith(".mha")) {
 					saveField.setText(saveField.getText() + ".mha");
 				}
 			}
 		}
-		
+
 		// sauvegarder
-		
+
 		if (e.getSource() == executeButton) {
 			int num;
 			if (nomField.getText().length() == 0
@@ -1281,143 +1403,147 @@ public class CreationTroll extends JPanel implements ActionListener,
 			}
 			creeTroll();
 		}
-		
+
 		// modifier équipement
-		
-		if(e.getSource() == modifyEquip)
-		try {
-			if(equipementTable.getSelectedRowCount()!=1)
-			{
-				JOptionPane.showMessageDialog(dialog,
-						"Veuillez sélectionner un équipement à modifier", "Erreur",
-						JOptionPane.ERROR_MESSAGE);
-				return;
-			}
-			int i=equipementTable.getSelectedRow();
-			String [] ajoutEquip;
-			AjoutEquipement ae=new AjoutEquipement(dialog,equipements.elementAt(i),equipementTable.getValueAt(i, 4).toString().equals("Oui"));
-			ajoutEquip=ae.getEquip();
-			if(ajoutEquip[0] == null || ajoutEquip[0].length() == 0)
-				return;
-			int idEquip=Integer.parseInt(ajoutEquip[1]);
-			int typeEquip=Integer.parseInt(ajoutEquip[2]);
-			int attEquip=Integer.parseInt(ajoutEquip[3]);
-			int attMEquip=Integer.parseInt(ajoutEquip[4]);
-			int esqEquip=Integer.parseInt(ajoutEquip[5]);
-			int esqMEquip=Integer.parseInt(ajoutEquip[6]);
-			int degEquip=Integer.parseInt(ajoutEquip[7]);
-			int degMEquip=Integer.parseInt(ajoutEquip[8]);
-			int dlaEquip=Integer.parseInt(ajoutEquip[9]);
-			int regEquip=Integer.parseInt(ajoutEquip[10]);
-			int regMEquip=Integer.parseInt(ajoutEquip[11]);
-			int pvEquip=Integer.parseInt(ajoutEquip[12]);
-			int vueEquip=Integer.parseInt(ajoutEquip[13]);
-			int vueMEquip=Integer.parseInt(ajoutEquip[14]);
-			int apEquip=Integer.parseInt(ajoutEquip[15]);
-			int amEquip=Integer.parseInt(ajoutEquip[16]);
-			int poidsEquip=Integer.parseInt(ajoutEquip[19]);
-			int mmEquip=Integer.parseInt(ajoutEquip[20]);
-			int rmEquip=Integer.parseInt(ajoutEquip[21]);
-			//int equipEquip=Math.abs(Integer.parseInt(liste[17]));
-			boolean zoneEquip=false;
-			if(ajoutEquip[17].equals("1"))
-				zoneEquip=true;
-			boolean dropEquip=false;
-			if(ajoutEquip[18].equals("1"))
-				dropEquip=true;
-			String isEquip="Non";
-			if(ajoutEquip[22].equals("1"))
-				isEquip="Oui";
-			String nomEquip=ajoutEquip[0];
-			Equipement equip=new Equipement(idEquip,nomEquip,typeEquip,attEquip,attMEquip,esqEquip,esqMEquip,degEquip,degMEquip,dlaEquip,regEquip,regMEquip,vueEquip,vueMEquip,pvEquip,apEquip,amEquip,mmEquip,rmEquip,zoneEquip,dropEquip,poidsEquip);
-			equipements.setElementAt(equip,i);
-			((DefaultTableModel) equipementTable.getModel()).removeRow(i);
-			((DefaultTableModel) equipementTable.getModel()).insertRow(i,new Object[] {idEquip,nomEquip,Equipement.formateType(typeEquip),equip.getDescr(),isEquip});
-		}
-		catch(Exception ex)
-		{
-			ex.printStackTrace();
-			return ;
-		}
-		
-		//ajouter equipement
-		
-		if(e.getSource() == ajoutEquip){
-			try
-			{
-				String [] ajoutEquip;
-				//AjoutEquipement ae=new AjoutEquipement(ajoutEquip,gui);
-				AjoutEquipement ae=new AjoutEquipement(dialog,false);
-				ajoutEquip=ae.getEquip();
-				if(ajoutEquip[0] == null || ajoutEquip[0].length() == 0)
+
+		if (e.getSource() == modifyEquip)
+			try {
+				if (equipementTable.getSelectedRowCount() != 1) {
+					JOptionPane.showMessageDialog(dialog,
+							"Veuillez sélectionner un équipement à modifier",
+							"Erreur", JOptionPane.ERROR_MESSAGE);
 					return;
-				int idEquip=Integer.parseInt(ajoutEquip[1]);
-				int typeEquip=Integer.parseInt(ajoutEquip[2]);
-				int attEquip=Integer.parseInt(ajoutEquip[3]);
-				int attMEquip=Integer.parseInt(ajoutEquip[4]);
-				int esqEquip=Integer.parseInt(ajoutEquip[5]);
-				int esqMEquip=Integer.parseInt(ajoutEquip[6]);
-				int degEquip=Integer.parseInt(ajoutEquip[7]);
-				int degMEquip=Integer.parseInt(ajoutEquip[8]);
-				int dlaEquip=Integer.parseInt(ajoutEquip[9]);
-				int regEquip=Integer.parseInt(ajoutEquip[10]);
-				int regMEquip=Integer.parseInt(ajoutEquip[11]);
-				int pvEquip=Integer.parseInt(ajoutEquip[12]);
-				int vueEquip=Integer.parseInt(ajoutEquip[13]);
-				int vueMEquip=Integer.parseInt(ajoutEquip[14]);
-				int apEquip=Integer.parseInt(ajoutEquip[15]);
-				int amEquip=Integer.parseInt(ajoutEquip[16]);
-				int poidsEquip=Integer.parseInt(ajoutEquip[19]);
-				int mmEquip=Integer.parseInt(ajoutEquip[20]);
-				int rmEquip=Integer.parseInt(ajoutEquip[21]);
-				//int equipEquip=Math.abs(Integer.parseInt(liste[17]));
-				boolean zoneEquip=false;
-				if(ajoutEquip[17].equals("1"))
-					zoneEquip=true;
-				boolean dropEquip=false;
-				if(ajoutEquip[18].equals("1"))
-					dropEquip=true;
-				String isEquip="Non";
-				if(ajoutEquip[22].equals("1"))
-					isEquip="Oui";
-				String nomEquip=ajoutEquip[0];
-				Equipement equip=new Equipement(idEquip,nomEquip,typeEquip,attEquip,attMEquip,esqEquip,esqMEquip,degEquip,degMEquip,dlaEquip,regEquip,regMEquip,vueEquip,vueMEquip,pvEquip,apEquip,amEquip,mmEquip,rmEquip,zoneEquip,dropEquip,poidsEquip);
-				equipements.add(equip);
-				((DefaultTableModel) equipementTable.getModel()).addRow(new Object[] {idEquip,nomEquip,Equipement.formateType(typeEquip),equip.getDescr(),isEquip});
-			//	System.out.print(ajoutEquip.toString());
-			}
-			catch(Exception ex)
-			{
+				}
+				int i = equipementTable.getSelectedRow();
+				String[] ajoutEquip;
+				AjoutEquipement ae = new AjoutEquipement(dialog, equipements
+						.elementAt(i), equipementTable.getValueAt(i, 4)
+						.toString().equals("Oui"));
+				ajoutEquip = ae.getEquip();
+				if (ajoutEquip[0] == null || ajoutEquip[0].length() == 0)
+					return;
+				int idEquip = Integer.parseInt(ajoutEquip[1]);
+				types typeEquip = types.valueOf(ajoutEquip[2]);
+				int attEquip = Integer.parseInt(ajoutEquip[3]);
+				int attMEquip = Integer.parseInt(ajoutEquip[4]);
+				int esqEquip = Integer.parseInt(ajoutEquip[5]);
+				int esqMEquip = Integer.parseInt(ajoutEquip[6]);
+				int degEquip = Integer.parseInt(ajoutEquip[7]);
+				int degMEquip = Integer.parseInt(ajoutEquip[8]);
+				int dlaEquip = Integer.parseInt(ajoutEquip[9]);
+				int regEquip = Integer.parseInt(ajoutEquip[10]);
+				int regMEquip = Integer.parseInt(ajoutEquip[11]);
+				int pvEquip = Integer.parseInt(ajoutEquip[12]);
+				int vueEquip = Integer.parseInt(ajoutEquip[13]);
+				int vueMEquip = Integer.parseInt(ajoutEquip[14]);
+				int apEquip = Integer.parseInt(ajoutEquip[15]);
+				int amEquip = Integer.parseInt(ajoutEquip[16]);
+				int poidsEquip = Integer.parseInt(ajoutEquip[19]);
+				int mmEquip = Integer.parseInt(ajoutEquip[20]);
+				int rmEquip = Integer.parseInt(ajoutEquip[21]);
+				// int equipEquip=Math.abs(Integer.parseInt(liste[17]));
+				boolean zoneEquip = false;
+				if (ajoutEquip[17].equals("1"))
+					zoneEquip = true;
+				boolean dropEquip = false;
+				if (ajoutEquip[18].equals("1"))
+					dropEquip = true;
+				String isEquip = "Non";
+				if (ajoutEquip[22].equals("1"))
+					isEquip = "Oui";
+				String nomEquip = ajoutEquip[0];
+				Equipement equip = new Equipement(idEquip, nomEquip, typeEquip,
+						attEquip, attMEquip, esqEquip, esqMEquip, degEquip,
+						degMEquip, dlaEquip, regEquip, regMEquip, vueEquip,
+						vueMEquip, pvEquip, apEquip, amEquip, mmEquip, rmEquip,
+						zoneEquip, dropEquip, poidsEquip);
+				equipements.setElementAt(equip, i);
+				((DefaultTableModel) equipementTable.getModel()).removeRow(i);
+				((DefaultTableModel) equipementTable.getModel()).insertRow(i,
+						new Object[] { idEquip, nomEquip, typeEquip.toString(),
+								equip.getDescr(), isEquip });
+			} catch (Exception ex) {
 				ex.printStackTrace();
-				return ;
-			}
-		}
-		
-		// supprimer un équipement
-		
-		if(e.getSource() == supprEquip){
-			if(equipementTable.getSelectedRow() == -1){
-				JOptionPane.showMessageDialog(dialog,
-						"Veuillez sélectionner un équipement à supprimer", "Erreur",
-						JOptionPane.ERROR_MESSAGE);
 				return;
 			}
-			else {
-				for(int i=0;i<equipementTable.getRowCount();i++)
-				{
-					if(equipementTable.isRowSelected(i) )
-					{
+
+		// ajouter equipement
+
+		if (e.getSource() == ajoutEquip) {
+			try {
+				String[] ajoutEquip;
+				// AjoutEquipement ae=new AjoutEquipement(ajoutEquip,gui);
+				AjoutEquipement ae = new AjoutEquipement(dialog, false);
+				ajoutEquip = ae.getEquip();
+				if (ajoutEquip[0] == null || ajoutEquip[0].length() == 0)
+					return;
+				int idEquip = Integer.parseInt(ajoutEquip[1]);
+				types typeEquip = types.valueOf(ajoutEquip[2]);
+				int attEquip = Integer.parseInt(ajoutEquip[3]);
+				int attMEquip = Integer.parseInt(ajoutEquip[4]);
+				int esqEquip = Integer.parseInt(ajoutEquip[5]);
+				int esqMEquip = Integer.parseInt(ajoutEquip[6]);
+				int degEquip = Integer.parseInt(ajoutEquip[7]);
+				int degMEquip = Integer.parseInt(ajoutEquip[8]);
+				int dlaEquip = Integer.parseInt(ajoutEquip[9]);
+				int regEquip = Integer.parseInt(ajoutEquip[10]);
+				int regMEquip = Integer.parseInt(ajoutEquip[11]);
+				int pvEquip = Integer.parseInt(ajoutEquip[12]);
+				int vueEquip = Integer.parseInt(ajoutEquip[13]);
+				int vueMEquip = Integer.parseInt(ajoutEquip[14]);
+				int apEquip = Integer.parseInt(ajoutEquip[15]);
+				int amEquip = Integer.parseInt(ajoutEquip[16]);
+				int poidsEquip = Integer.parseInt(ajoutEquip[19]);
+				int mmEquip = Integer.parseInt(ajoutEquip[20]);
+				int rmEquip = Integer.parseInt(ajoutEquip[21]);
+				// int equipEquip=Math.abs(Integer.parseInt(liste[17]));
+				boolean zoneEquip = false;
+				if (ajoutEquip[17].equals("1"))
+					zoneEquip = true;
+				boolean dropEquip = false;
+				if (ajoutEquip[18].equals("1"))
+					dropEquip = true;
+				String isEquip = "Non";
+				if (ajoutEquip[22].equals("1"))
+					isEquip = "Oui";
+				String nomEquip = ajoutEquip[0];
+				Equipement equip = new Equipement(idEquip, nomEquip, typeEquip,
+						attEquip, attMEquip, esqEquip, esqMEquip, degEquip,
+						degMEquip, dlaEquip, regEquip, regMEquip, vueEquip,
+						vueMEquip, pvEquip, apEquip, amEquip, mmEquip, rmEquip,
+						zoneEquip, dropEquip, poidsEquip);
+				equipements.add(equip);
+				((DefaultTableModel) equipementTable.getModel())
+						.addRow(new Object[] { idEquip, nomEquip,
+								typeEquip.toString(), equip.getDescr(), isEquip });
+				// System.out.print(ajoutEquip.toString());
+			} catch (Exception ex) {
+				ex.printStackTrace();
+				return;
+			}
+		}
+
+		// supprimer un équipement
+
+		if (e.getSource() == supprEquip) {
+			if (equipementTable.getSelectedRow() == -1) {
+				JOptionPane.showMessageDialog(dialog,
+						"Veuillez sélectionner un équipement à supprimer",
+						"Erreur", JOptionPane.ERROR_MESSAGE);
+				return;
+			} else {
+				for (int i = 0; i < equipementTable.getRowCount(); i++) {
+					if (equipementTable.isRowSelected(i)) {
 						equipements.remove(i);
-						((DefaultTableModel) equipementTable.getModel()).removeRow(i);
-						//equipementTable.removeRowSelectionInterval(i,i+1);
+						((DefaultTableModel) equipementTable.getModel())
+								.removeRow(i);
+						// equipementTable.removeRowSelectionInterval(i,i+1);
 						i--;
 					}
 				}
 			}
 		}
-		
-		
-		
+
 	}
 
 	private int getRace() {
@@ -1470,12 +1596,13 @@ public class CreationTroll extends JPanel implements ActionListener,
 				return;
 			}
 
-			//ajout des comps
+			// ajout des comps
 			addCompLine = "";
 			for (int i = 0; i < competences_reservees.length; i++) {
 				if (compCheckBox_reservees[i].isSelected()) {
 					try {
-						num = Integer.parseInt(pourcentComp_reservees[i].getText());
+						num = Integer.parseInt(pourcentComp_reservees[i]
+								.getText());
 					} catch (Exception ex) {
 						JOptionPane.showMessageDialog(dialog,
 								"Le niveau de compétence doit être un nombre",
@@ -1484,7 +1611,8 @@ public class CreationTroll extends JPanel implements ActionListener,
 					}
 
 					if (Integer.parseInt(pourcentComp_reservees[i].getText()) < 10
-							|| Integer.parseInt(pourcentComp_reservees[i].getText()) > 100) {
+							|| Integer.parseInt(pourcentComp_reservees[i]
+									.getText()) > 100) {
 						JOptionPane
 								.showMessageDialog(
 										dialog,
@@ -1498,7 +1626,7 @@ public class CreationTroll extends JPanel implements ActionListener,
 			}
 			for (int i = 0; i < competences.length; i++) {
 				if (compCheckBox[i].isSelected()) {
-					int nbComp=1;
+					int nbComp = 1;
 					try {
 						num = Integer.parseInt(pourcentComp[i].getText());
 					} catch (Exception ex) {
@@ -1517,24 +1645,25 @@ public class CreationTroll extends JPanel implements ActionListener,
 										"Erreur", JOptionPane.ERROR_MESSAGE);
 						return;
 					}
-					if(i<=2)
-						nbComp = i+6;
+					if (i <= 2)
+						nbComp = i + 6;
 					else
-						nbComp = i+7;
+						nbComp = i + 7;
 					addCompLine += "addcomp " + nbComp + " "
 							+ pourcentComp[i].getText() + " 1\n";
 				}
 			}
 			for (int i = 0; i < competences_niveau_sup.length; i++) {
 				if (compCheckBox_niveau_sup[i].isSelected()) {
-					int nbComp=5;
-					if(i==1)
+					int nbComp = 5;
+					if (i == 1)
 						nbComp = 9;
-					if(i==2)
+					if (i == 2)
 						nbComp = 13;
-					int level=1;
+					int level = 1;
 					try {
-						level = Integer.parseInt(compSpinner[i].getValue().toString());
+						level = Integer.parseInt(compSpinner[i].getValue()
+								.toString());
 					} catch (Exception ex) {
 						JOptionPane.showMessageDialog(dialog,
 								"Le niveau de compétence doit être un nombre",
@@ -1542,7 +1671,8 @@ public class CreationTroll extends JPanel implements ActionListener,
 						return;
 					}
 					try {
-						num = Integer.parseInt(pourcentComp_niveau_sup[i].getText());
+						num = Integer.parseInt(pourcentComp_niveau_sup[i]
+								.getText());
 					} catch (Exception ex) {
 						JOptionPane.showMessageDialog(dialog,
 								"Le niveau de compétence doit être un nombre",
@@ -1551,7 +1681,8 @@ public class CreationTroll extends JPanel implements ActionListener,
 					}
 
 					if (Integer.parseInt(pourcentComp_niveau_sup[i].getText()) < 10
-							|| Integer.parseInt(pourcentComp_niveau_sup[i].getText()) > 100) {
+							|| Integer.parseInt(pourcentComp_niveau_sup[i]
+									.getText()) > 100) {
 						JOptionPane
 								.showMessageDialog(
 										dialog,
@@ -1559,14 +1690,15 @@ public class CreationTroll extends JPanel implements ActionListener,
 										"Erreur", JOptionPane.ERROR_MESSAGE);
 						return;
 					}
-					for(int j=1;j<level;j++)
-						addCompLine += "addcomp " + nbComp + " 90 "+j+"\n";
+					for (int j = 1; j < level; j++)
+						addCompLine += "addcomp " + nbComp + " 90 " + j + "\n";
 					addCompLine += "addcomp " + nbComp + " "
-							+ pourcentComp_niveau_sup[i].getText() + " "+level+"\n";
+							+ pourcentComp_niveau_sup[i].getText() + " "
+							+ level + "\n";
 				}
 			}
 
-			//ajout des sorts
+			// ajout des sorts
 			addSortLine = "";
 			for (int i = 0; i < sorts.length; i++) {
 				if (sortCheckBox[i].isSelected()) {
@@ -1594,7 +1726,7 @@ public class CreationTroll extends JPanel implements ActionListener,
 			}
 
 			addMoucheLine = "";
-			//ajout des mouches
+			// ajout des mouches
 			for (int i = 0; i < mouchesFields.length; i++) {
 				try {
 					num = Integer.parseInt(mouchesFields[i].getText());
@@ -1612,45 +1744,53 @@ public class CreationTroll extends JPanel implements ActionListener,
 				}
 			}
 
-			//ajout de l'équipement
+			// ajout de l'équipement
 			String s = "";
 			try {
-				//addequip id type Att Esq Deg DLA reg pv vue armure_physique armure_magique effet_de_zone bidouille poids(en minute) mm rm est_équipé nom
+				// addequip id type Att Esq Deg DLA reg pv vue armure_physique
+				// armure_magique effet_de_zone bidouille poids(en minute) mm rm
+				// est_équipé nom
 				for (int i = 0; i < equipementTable.getRowCount(); i++) {
-					addEquipLine = "addequip "+equipementTable.getValueAt(i, 0).toString()+" ";
-					for(int j=0; j<AjoutEquipement.typesListe.length;j++)
-						if(AjoutEquipement.typesListe[j].equals(equipementTable.getValueAt(i, 2).toString()))
-						{
-							addEquipLine+=j+" ";
+					addEquipLine = "addequip "
+							+ equipementTable.getValueAt(i, 0).toString() + " ";
+					for (int j = 0; j < AjoutEquipement.typesListe.length; j++)
+						if (AjoutEquipement.typesListe[j]
+								.equals(equipementTable.getValueAt(i, 2)
+										.toString())) {
+							addEquipLine += j + " ";
 						}
-					addEquipLine+=equipements.elementAt(i).getBMAttaque()+" "+
-							equipements.elementAt(i).getBMMAttaque()+" "+
-							equipements.elementAt(i).getBMEsquive()+" "+
-							equipements.elementAt(i).getBMDegat()+" "+
-							equipements.elementAt(i).getBMMDegat()+" "+
-							equipements.elementAt(i).getBMDLA()+" "+
-							equipements.elementAt(i).getBMRegeneration()+" "+
-							equipements.elementAt(i).getPV()+" "+
-							equipements.elementAt(i).getBMVue()+" "+
-							equipements.elementAt(i).getBMArmurePhysique()+" "+
-							equipements.elementAt(i).getBMArmureMagique()+" ";
-					if(equipements.elementAt(i).isZone())
-						addEquipLine+="1 ";
+					addEquipLine += equipements.elementAt(i).getBMAttaque()
+							+ " " + equipements.elementAt(i).getBMMAttaque()
+							+ " " + equipements.elementAt(i).getBMEsquive()
+							+ " " + equipements.elementAt(i).getBMDegat() + " "
+							+ equipements.elementAt(i).getBMMDegat() + " "
+							+ equipements.elementAt(i).getBMDLA() + " "
+							+ equipements.elementAt(i).getBMRegeneration()
+							+ " " + equipements.elementAt(i).getPV() + " "
+							+ equipements.elementAt(i).getBMVue() + " "
+							+ equipements.elementAt(i).getBMArmurePhysique()
+							+ " "
+							+ equipements.elementAt(i).getBMArmureMagique()
+							+ " ";
+					if (equipements.elementAt(i).isZone())
+						addEquipLine += "1 ";
 					else
-						addEquipLine+="0 ";
-					if(equipements.elementAt(i).isBidouille())
-						addEquipLine+="1 ";
+						addEquipLine += "0 ";
+					if (equipements.elementAt(i).isBidouille())
+						addEquipLine += "1 ";
 					else
-						addEquipLine+="0 ";
-					addEquipLine+=equipements.elementAt(i).getPoids()+" "+
-							equipements.elementAt(i).getBMMM()+" "+
-							equipements.elementAt(i).getBMRM()+" ";
-					
-					if(equipementTable.getValueAt(i, 4).toString().equals("Oui"))
-						addEquipLine+="1 ";
+						addEquipLine += "0 ";
+					addEquipLine += equipements.elementAt(i).getPoids() + " "
+							+ equipements.elementAt(i).getBMMM() + " "
+							+ equipements.elementAt(i).getBMRM() + " ";
+
+					if (equipementTable.getValueAt(i, 4).toString().equals(
+							"Oui"))
+						addEquipLine += "1 ";
 					else
-						addEquipLine+="0 ";
-					addEquipLine+=equipementTable.getValueAt(i, 1).toString()+"\n";
+						addEquipLine += "0 ";
+					addEquipLine += equipementTable.getValueAt(i, 1).toString()
+							+ "\n";
 					s += addEquipLine;
 				}
 			} catch (Exception ex) {
@@ -1661,27 +1801,30 @@ public class CreationTroll extends JPanel implements ActionListener,
 								"Erreur", JOptionPane.ERROR_MESSAGE);
 				return;
 			}
-			if(avatar.getIcon()!=null && ((ImageIcon) avatar.getIcon()).getImageLoadStatus()==MediaTracker.COMPLETE)
-			{
-				ImageIcon img=(ImageIcon) avatar.getIcon();
+			if (avatar.getIcon() != null
+					&& ((ImageIcon) avatar.getIcon()).getImageLoadStatus() == MediaTracker.COMPLETE) {
+				ImageIcon img = (ImageIcon) avatar.getIcon();
 				int w = img.getImage().getWidth(null);
 				int h = img.getImage().getHeight(null);
-				BufferedImage bImage = new BufferedImage(w, h,BufferedImage.TYPE_INT_ARGB);
+				BufferedImage bImage = new BufferedImage(w, h,
+						BufferedImage.TYPE_INT_ARGB);
 				Graphics2D g2 = bImage.createGraphics();
 				g2.drawImage(img.getImage(), 0, 0, null);
 				ByteArrayOutputStream baos = new ByteArrayOutputStream(1024);
 				try {
 					ImageIO.write(bImage, "png", baos);
 				} catch (IOException e) {
-					JOptionPane.showMessageDialog(dialog, "Problème de conversion des images", "Erreur", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(dialog,
+							"Problème de conversion des images", "Erreur",
+							JOptionPane.ERROR_MESSAGE);
 					return;
 				}
 				byte[] imageBytes = baos.toByteArray();
-				BigInteger bi = new BigInteger(imageBytes);    
-				s+="icontroll "+bi.toString(16)+"\n";
+				BigInteger bi = new BigInteger(imageBytes);
+				s += "icontroll " + bi.toString(16) + "\n";
 			}
 
-			//fin du fichier
+			// fin du fichier
 			FileWriter writer = new FileWriter(saveField.getText());
 			writer.write(addTrollLine + "\n");
 			writer.write(addCaracLine + "\n");
@@ -1710,8 +1853,7 @@ public class CreationTroll extends JPanel implements ActionListener,
 		updatePI();
 	}
 
-	public void updatePI()
-	{
+	public void updatePI() {
 		int nbAmelios = 0;
 		if (!isRAZ) {
 			coutPiTotal = 0;
@@ -1746,7 +1888,11 @@ public class CreationTroll extends JPanel implements ActionListener,
 			}
 			for (int i = 0; i < competences_niveau_sup.length; i++) {
 				if (compCheckBox_niveau_sup[i].isSelected())
-					coutPiTotal += piCoutComp[i]*((Integer.parseInt(compSpinner[i].getValue().toString())*(Integer.parseInt(compSpinner[i].getValue().toString())+1))/2);
+					coutPiTotal += piCoutComp[i]
+							* ((Integer.parseInt(compSpinner[i].getValue()
+									.toString()) * (Integer
+									.parseInt(compSpinner[i].getValue()
+											.toString()) + 1)) / 2);
 			}
 			piTotalLabel.setText(Integer.toString(coutPiTotal));
 			Niveau = (int) (Math
@@ -1772,16 +1918,19 @@ public class CreationTroll extends JPanel implements ActionListener,
 	}
 
 	class MyTableModel extends DefaultTableModel {
-		int col=-1;
-		public MyTableModel()
-		{ super();}
-		public MyTableModel(int c)
-		{
+		int col = -1;
+
+		public MyTableModel() {
 			super();
-			col=c;
 		}
+
+		public MyTableModel(int c) {
+			super();
+			col = c;
+		}
+
 		public boolean isCellEditable(int row, int c) {
-			return col==c;
-        	}
-        }
+			return col == c;
+		}
+	}
 }

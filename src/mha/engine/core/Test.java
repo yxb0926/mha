@@ -63,8 +63,8 @@ public class  Test{
         T2.addComp(Troll.COMP_LDP, 90,1);
         T1.setPV(100);
         T2.setPV(100);
-        Equipement e1 = new Equipement(123456,"potion zone",Equipement.POTION,1,2,3,4,5,6,7,8,9,123,456,true,false,5);
-        Equipement e2 = new Equipement(123456,"potion zone",Equipement.POTION,9,8,7,6,5,4,3,2,1,123,456,false,false,5);
+        Equipement e1 = new Equipement(123456,"potion zone",Equipement.types.potion,1,2,3,4,5,6,7,8,9,123,456,true,false,5);
+        Equipement e2 = new Equipement(123456,"potion zone",Equipement.types.potion,9,8,7,6,5,4,3,2,1,123,456,false,false,5);
         T1.addEquipement(e1);
         T2.addEquipement(e2);
         
