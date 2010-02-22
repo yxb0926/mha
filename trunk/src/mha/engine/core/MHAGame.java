@@ -28,20 +28,20 @@ public class MHAGame implements Serializable {
 	static final long serialVersionUID = 1231521531;
 
 	// Les valeurs prédéfinies
-	public final static int STATE_NEW_GAME = 0;
-	public final static int STATE_PLAYING = 1;
-	public final static int STATE_SYNCHRO = 2;
-	public final static int STATE_GAMEOVER = 3;
+	public static enum gameStates {
+		newGame, playing, synchro, gameover
+	}
 
-	public final static int MODE_DEATHMATCH = 0;
-	public final static int MODE_TEAM_DEATHMATCH = 1;
+	public static enum gameModes {
+		deathmatch, teamdeathmatch
+	}
 
 	public final static int DRAW_DRAW = 0;
 	public final static int DRAW_MAX_DEGAT = 1;
 	public final static int DRAW_MAX_NIVEAU = 2;
 
 	// utilisation du pattern singleton
-	protected static final MHAGame instance = new MHAGame();
+	public static final MHAGame instance = new MHAGame();
 
 	public static MHAGame instance() {
 		return instance;
@@ -57,10 +57,16 @@ public class MHAGame implements Serializable {
 
 	protected Troll currentTroll;
 	protected int current_time = 0;
-	protected int gameState;
+	protected gameStates gamestate = gameStates.newGame;
 
 	// La config de la partie !
-	protected int gameMode;
+	protected gameModes gameMode;
+
+	/**
+	 * the size of the arena. Represents the X/Y max, and N*2 max. That means a
+	 * correct position is (X, Y, N) , with X and Y in 0..sizeArena-1, and N in
+	 * -1..-(sizeArena+1)/2
+	 */
 	protected int sizeArena = 0;
 	protected int nbteam = -1;
 	protected boolean useTP = false;
@@ -75,22 +81,44 @@ public class MHAGame implements Serializable {
 
 		trolls = new Vector<Troll>();
 		events = new Vector<String>();
-		gameState = STATE_NEW_GAME;
+		gamestate = gameStates.newGame;
 	}
 
-	protected MHAGame(int mode, boolean tp, boolean invi, int nbt, int nbr) {
+	protected MHAGame(gameModes mode, boolean tp, boolean invi, int nbt, int nbr) {
 
 		trolls = new Vector<Troll>();
 		events = new Vector<String>();
-		if (mode == MODE_TEAM_DEATHMATCH) {
-			gameMode = MODE_TEAM_DEATHMATCH;
+		this.gameMode = mode;
+		if (mode == gameModes.teamdeathmatch) {
 			nbteam = nbt;
 		} else
-			gameMode = MODE_DEATHMATCH;
-		useTP = tp;
+			useTP = tp;
 		useInvisibilite = invi;
 		nbRespawn = nbr;
-		gameState = STATE_NEW_GAME;
+	}
+
+	public int maxX() {
+		return sizeArena - 1;
+	}
+
+	public int minX() {
+		return 0;
+	}
+
+	public int maxY() {
+		return sizeArena - 1;
+	}
+
+	public int minY() {
+		return 0;
+	}
+
+	public int minN() {
+		return -((sizeArena + 1) / 2);
+	}
+
+	public int maxN() {
+		return -1;
 	}
 
 	public String getPresentation() {
@@ -98,22 +126,26 @@ public class MHAGame implements Serializable {
 	}
 
 	public int getVainqueur() {
-		if (gameState != STATE_GAMEOVER)
+		if (gamestate != gameStates.gameover)
 			return -2;
 		return vainqueur;
 	}
 
-	public int getState() {
-		return gameState;
+	public gameStates getState() {
+		return gamestate;
 	}
 
-	public int getMode() {
+	public gameModes getMode() {
 		return gameMode;
 	}
 
 	public void setMode(int m) {
 		if (m == 0 || m == 1)
-			gameMode = m;
+			setMode(gameModes.values()[m]);
+	}
+
+	public void setMode(gameModes gamemode) {
+		this.gameMode = gamemode;
 	}
 
 	public void setNbrResu(int i) {
@@ -152,33 +184,33 @@ public class MHAGame implements Serializable {
 		return trolls.size();
 	}
 
-	public boolean addTroll(Troll t) {
-		if (gameState != STATE_NEW_GAME)
+	public boolean addTroll(Troll trollToAdd) {
+		if (gamestate != gameStates.newGame)
 			return false;
-		for (int i = 0; i < trolls.size(); i++) {
-			if (t.compare(trolls.elementAt(i)))
+		for (Troll presentTroll : trolls) {
+			if (trollToAdd.sameNameOrId(presentTroll))
 				return false;
 		}
-		trolls.add(t);
-		if (t.getRace() == Troll.RACE_TOMAWAK) {
-			t.setCamouflage(isTomCamoufle());
+		trolls.add(trollToAdd);
+		if (trollToAdd.getRace() == Troll.RACE_TOMAWAK) {
+			trollToAdd.setCamouflage(isTomCamoufle());
 		}
-		t.setResu(nbRespawn);
+		trollToAdd.setResu(nbRespawn);
 		return true;
 	}
 
 	public Troll getTrollBySocketId(int id) {
-		for (int i = 0; i < trolls.size(); i++) {
-			if (id == trolls.elementAt(i).getSocketId())
-				return trolls.elementAt(i);
+		for (Troll troll : trolls) {
+			if (id == troll.getSocketId())
+				return troll;
 		}
 		return null;
 	}
 
 	public Troll getTrollById(int id) {
-		for (int i = 0; i < trolls.size(); i++) {
-			if (id == trolls.elementAt(i).getId())
-				return trolls.elementAt(i);
+		for (Troll troll : trolls) {
+			if (id == troll.getId())
+				return troll;
 		}
 		return null;
 	}
@@ -195,143 +227,142 @@ public class MHAGame implements Serializable {
 		nbteam = i;
 	}
 
-	public void placeTrollInHisTeam(Troll t) {
-		int team = t.getTeam();
+	/**
+	 * place a troll on a position his tem will start at.
+	 */
+	public void placeTrollInHisTeam(Troll troll) {
+		int team = troll.getTeam();
 		switch (nbteam) {
 		case 2:
 			switch (team) {
 			case 0:
-				t.setPos(0, 0, -1);
+				troll.setPos(minX(), minY(), maxN());
 				break;
 			case 1:
-				t.setPos(sizeArena - 1, sizeArena - 1, -(sizeArena + 1) / 2);
+				troll.setPos(maxX(), maxY(), minN());
 				break;
 			}
 			break;
 		case 3:
 			switch (team) {
 			case 0:
-				t.setPos(0, 0, -1);
+				troll.setPos(minX(), minY(), maxN());
 				break;
 			case 1:
-				t.setPos(sizeArena - 1, sizeArena - 1, -(sizeArena + 1) / 4);
+				troll.setPos(maxX(), maxY(), minN() / 2);
 				break;
 			case 2:
-				t.setPos(sizeArena - 1, 0, -(sizeArena + 1) / 2);
+				troll.setPos(maxX(), minY(), minN());
 				break;
 			}
 			break;
 		case 4:
 			switch (team) {
 			case 0:
-				t.setPos(0, 0, -1);
+				troll.setPos(minX(), minY(), maxN());
 				break;
 			case 1:
-				t.setPos(sizeArena - 1, sizeArena - 1, -1);
+				troll.setPos(maxX(), maxY(), maxN());
 				break;
 			case 2:
-				t.setPos(0, sizeArena - 1, -(sizeArena + 1) / 2);
+				troll.setPos(minX(), maxY(), minN());
 				break;
 			case 3:
-				t.setPos(sizeArena - 1, 0, -(sizeArena + 1) / 2);
+				troll.setPos(maxX(), minY(), minN());
 				break;
 			}
 			break;
 		case 5:
 			switch (team) {
 			case 0:
-				t.setPos(0, 0, -1);
+				troll.setPos(minX(), minY(), maxN());
 				break;
 			case 1:
-				t.setPos(sizeArena - 1, sizeArena - 1, -1);
+				troll.setPos(maxX(), maxY(), maxN());
 				break;
 			case 2:
-				t.setPos(0, sizeArena - 1, -(sizeArena + 1) / 2);
+				troll.setPos(minX(), maxY(), minN());
 				break;
 			case 3:
-				t.setPos(sizeArena - 1, 0, -(sizeArena + 1) / 2);
+				troll.setPos(maxX(), minY(), minN());
 				break;
 			case 4:
-				t.setPos((sizeArena - 1) / 2, (sizeArena - 1) / 2,
-						-(sizeArena + 1) / 4);
+				troll.setPos(maxX() / 2, maxY() / 2, minN() / 2);
 				break;
 			}
 			break;
 		case 6:
 			switch (team) {
 			case 0:
-				t.setPos(0, 0, -1);
+				troll.setPos(minX(), minY(), maxN());
 				break;
 			case 1:
-				t.setPos(sizeArena - 1, 0, -1);
+				troll.setPos(maxX(), minY(), maxN());
 				break;
 			case 2:
-				t.setPos((sizeArena - 1) / 2, sizeArena - 1, -1);
+				troll.setPos(maxX() / 2, maxY(), maxN());
 				break;
 			case 3:
-				t.setPos(0, 0, -(sizeArena + 1) / 2);
+				troll.setPos(minX(), maxY(), minN());
 				break;
 			case 4:
-				t.setPos(sizeArena - 1, 0, -(sizeArena + 1) / 2);
+				troll.setPos(maxX(), maxY(), minN());
 				break;
 			case 5:
-				t.setPos((sizeArena - 1) / 2, sizeArena - 1,
-						-(sizeArena + 1) / 2);
+				troll.setPos(maxX() / 2, minY(), minN());
 				break;
 			}
 			break;
 		case 7:
 			switch (team) {
 			case 0:
-				t.setPos(0, 0, -1);
+				troll.setPos(minX(), minY(), maxN());
 				break;
 			case 1:
-				t.setPos(sizeArena - 1, 0, -1);
+				troll.setPos(maxX(), minY(), maxN());
 				break;
 			case 2:
-				t.setPos((sizeArena - 1) / 2, sizeArena - 1, -1);
+				troll.setPos(maxX() / 2, maxY(), maxN());
 				break;
 			case 3:
-				t.setPos(0, 0, -(sizeArena + 1) / 2);
+				troll.setPos(minX(), minY(), minN());
 				break;
 			case 4:
-				t.setPos(sizeArena - 1, 0, -(sizeArena + 1) / 2);
+				troll.setPos(maxX(), minY(), minN());
 				break;
 			case 5:
-				t.setPos((sizeArena - 1) / 2, sizeArena - 1,
-						-(sizeArena + 1) / 2);
+				troll.setPos(maxX() / 2, maxY(), minN());
 				break;
 			case 6:
-				t.setPos((sizeArena - 1) / 2, (sizeArena - 1) / 2,
-						-(sizeArena + 1) / 4);
+				troll.setPos(maxX() / 2, maxY() / 2, minN() / 2);
 				break;
 			}
 			break;
 		case 8:
 			switch (team) {
 			case 0:
-				t.setPos(0, 0, -1);
+				troll.setPos(minX(), minY(), maxN());
 				break;
 			case 1:
-				t.setPos(sizeArena - 1, 0, -1);
+				troll.setPos(maxX(), minY(), maxN());
 				break;
 			case 2:
-				t.setPos(0, sizeArena - 1, -1);
+				troll.setPos(minX(), maxY(), maxN());
 				break;
 			case 3:
-				t.setPos(sizeArena - 1, sizeArena - 1, -1);
+				troll.setPos(maxX(), maxY(), maxN());
 				break;
 			case 4:
-				t.setPos(0, 0, -(sizeArena + 1) / 2);
+				troll.setPos(minX(), minY(), minN());
 				break;
 			case 5:
-				t.setPos(sizeArena - 1, 0, -(sizeArena + 1) / 2);
+				troll.setPos(maxX(), minY(), minN());
 				break;
 			case 6:
-				t.setPos(0, sizeArena - 1, -(sizeArena + 1) / 2);
+				troll.setPos(minX(), maxY(), minN());
 				break;
 			case 7:
-				t.setPos(sizeArena - 1, sizeArena - 1, -(sizeArena + 1) / 2);
+				troll.setPos(maxX(), maxY(), minN());
 				break;
 			}
 			break;
@@ -339,20 +370,20 @@ public class MHAGame implements Serializable {
 	}
 
 	public boolean startGame() {
-		if (gameState != STATE_NEW_GAME)
+		if (gamestate != gameStates.newGame)
 			return false;
-		if (gameMode == MODE_TEAM_DEATHMATCH) {
+		if (gameMode == gameModes.teamdeathmatch) {
 			for (int i = 0; i < trolls.size(); i++) {
 				if (trolls.elementAt(i).getTeam() < 0
 						|| (nbteam != -1 && trolls.elementAt(i).getTeam() >= nbteam))
 					return false;
 			}
 		}
-		gameState = STATE_PLAYING;
+		gamestate = gameStates.playing;
 		if (sizeArena < 1) {
 			sizeArena = trolls.size() * 3;
 		}
-		if (gameMode == MODE_TEAM_DEATHMATCH && regroupe) {
+		if (gameMode == gameModes.teamdeathmatch && regroupe) {
 			for (int i = 0; i < trolls.size(); i++) {
 				placeTrollInHisTeam(trolls.elementAt(i));
 			}
@@ -366,17 +397,17 @@ public class MHAGame implements Serializable {
 	}
 
 	public void newTurn() {
-		if (gameState != STATE_PLAYING)
+		if (gamestate != gameStates.playing)
 			return;
 		int ct = 5000000;
 		int ctr = -1;
 		int nbActifs = 0;
 		int lastActive = -1;
 		boolean[] team = { true };
-		if (gameMode == MODE_TEAM_DEATHMATCH)
+		if (gameMode == gameModes.teamdeathmatch)
 			team = new boolean[nbteam];
 		for (int i = 0; i < trolls.size(); i++) {
-			if (gameMode == MODE_TEAM_DEATHMATCH) {
+			if (gameMode == gameModes.teamdeathmatch) {
 				if (!trolls.elementAt(i).isDead()
 						|| (trolls.elementAt(i).isDead() && trolls.elementAt(i)
 								.getResu() > 0)) {
@@ -413,7 +444,7 @@ public class MHAGame implements Serializable {
 			}
 		} else {
 			vainqueur = lastActive;
-			gameState = STATE_GAMEOVER;
+			gamestate = gameStates.gameover;
 		}
 
 	}
@@ -427,7 +458,7 @@ public class MHAGame implements Serializable {
 	}
 
 	public String getPosition(int id) {
-		if (gameState != STATE_PLAYING)
+		if (gamestate != gameStates.playing)
 			return "Error: The game is not started";
 		Troll t = getTrollBySocketId(id);
 		if (t == null)
@@ -436,7 +467,7 @@ public class MHAGame implements Serializable {
 	}
 
 	public String getVue(int id) {
-		if (gameState != STATE_PLAYING)
+		if (gamestate != gameStates.playing)
 			return "Error: The game is not started";
 		Troll t = getTrollBySocketId(id);
 		if (t == null)
@@ -461,7 +492,7 @@ public class MHAGame implements Serializable {
 	}
 
 	public String getInfosLieu(int id) {
-		if (gameState != STATE_PLAYING)
+		if (gamestate != gameStates.playing)
 			return "Error: The game is not started";
 		Troll t = getTrollBySocketId(id);
 		if (t == null)
@@ -481,7 +512,7 @@ public class MHAGame implements Serializable {
 	}
 
 	public String getLieux(int id) {
-		if (gameState != STATE_PLAYING)
+		if (gamestate != gameStates.playing)
 			return "Error: The game is not started";
 		Troll t = getTrollBySocketId(id);
 		if (t == null)
@@ -2623,7 +2654,7 @@ public class MHAGame implements Serializable {
 	}
 
 	public boolean gameOver() {
-		return gameState == STATE_GAMEOVER;
+		return gamestate == gameStates.gameover;
 	}
 
 	protected String rendflou(int i, int flou, int min_flou, int max_flou) {

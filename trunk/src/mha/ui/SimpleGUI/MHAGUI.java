@@ -89,82 +89,82 @@ import mha.engine.MHA;
 import mha.engine.MHAAdapter;
 import mha.engine.MHAFileFilter;
 import mha.engine.MHAServer;
-import mha.engine.core.MHAGame;
 import mha.engine.core.Troll;
 import mha.engine.core.Equipement.types;
+import mha.engine.core.MHAGame.gameModes;
 
 public class MHAGUI extends JFrame implements MouseInputListener {
 
-	private static final long serialVersionUID = 1L;
-	private final static String version = "0.6.4 build 11022008";
-	private final static String product = "Mountyhall Arena";
+	protected static final long serialVersionUID = 1L;
+	protected final static String version = "0.6.4 build 11022008";
+	protected final static String product = "Mountyhall Arena";
 
-	private JTextPane Console;
-	private StyledDocument doc;
-	private JTextField Command;
-	private JButton Submit;
-	private static MHAGUI gui;
-	// private PicturePanel pp;
+	protected JTextPane Console;
+	protected StyledDocument doc;
+	protected JTextField Command;
+	protected JButton Submit;
+	protected static MHAGUI gui;
+	// protected PicturePanel pp;
 
-	private JLabel statusBar;
-	private JLabel hourBar;
-	private JLabel gameStatus;
-	private JScrollPane Con;
-	private JTable tableEvent;
-	private JTable tableTrolls;
-	private JTable tableVue;
-	private JTable tableLieux;
-	private JTable tableBM;
-	private JTable tableMouches;
-	private JEditorPane profil;
-	private JEditorPane equipement;
-	private JTabbedPane tabbedPane;
+	protected JLabel statusBar;
+	protected JLabel hourBar;
+	protected JLabel gameStatus;
+	protected JScrollPane Con;
+	protected JTable tableEvent;
+	protected JTable tableTrolls;
+	protected JTable tableVue;
+	protected JTable tableLieux;
+	protected JTable tableBM;
+	protected JTable tableMouches;
+	protected JEditorPane profil;
+	protected JEditorPane equipement;
+	protected JTabbedPane tabbedPane;
 
-	private MHA mha;
-	private Vector history;
-	private int pointer;
-	private String temptext;
+	protected MHA mha;
+	protected Vector history;
+	protected int pointer;
+	protected String temptext;
 
-	private JPanel gp;
-	private JLabel Pix;
+	protected JPanel gp;
+	protected JLabel Pix;
 
-	private JComboBox actionComboBox;
-	private JButton action;
+	protected JComboBox actionComboBox;
+	protected JButton action;
 
-	private JMenu menuFile;
-	private JTabbedPane messages;
-	private Vector<Integer> listeTab = new Vector<Integer>();
-	private JTextField texteMessage;
+	protected JMenu menuFile;
+	protected JTabbedPane messages;
+	protected Vector<Integer> listeTab = new Vector<Integer>();
+	protected JTextField texteMessage;
 
-	private int current_time = 0;
-	private int nbPA = 0;
-	private int trollId = -1;
-	private int idTeam = -1;
-	private int size = 5;
-	private boolean dlaActive = false;
-	private boolean popNext = false;
-	private boolean updateEquip = false;
-	private boolean dead = false;
-	private int[] sorts = new int[Troll.NB_SORT];
-	private Hashtable<Integer, Hashtable<Integer, Integer>> comps = new Hashtable<Integer, Hashtable<Integer, Integer>>();
-	private Vector<String[]> parchemins;
-	private Vector<String[]> potions;
-	private int x = 0;
-	private int y = 0;
-	private int n = 0;
-	private boolean finish = false;
+	protected int current_time = 0;
+	protected int nbPA = 0;
+	protected int trollId = -1;
+	protected int idTeam = -1;
+	protected int size = 5;
+	protected boolean dlaActive = false;
+	protected boolean popNext = false;
+	protected boolean updateEquip = false;
+	protected boolean dead = false;
+	protected int[] sorts = new int[Troll.NB_SORT];
+	protected Hashtable<Integer, Hashtable<Integer, Integer>> comps = new Hashtable<Integer, Hashtable<Integer, Integer>>();
+	protected Vector<String[]> parchemins;
+	protected Vector<String[]> potions;
+	protected int x = 0;
+	protected int y = 0;
+	protected int n = 0;
+	protected boolean finish = false;
 
-	private boolean useTP;
-	private boolean useInvi;
-	private int mode;
-	private int nbTeam;
-	private boolean isServer = false;
-	private Vector<Color> couleurs = new Vector<Color>();
-	private ColorCellRenderer rendererVue;
+	protected boolean useTP;
+	protected boolean useInvi;
+	protected gameModes mode;
+	protected int nbTeam;
+	protected boolean isServer = false;
+	protected Vector<Color> couleurs = new Vector<Color>();
+	protected ColorCellRenderer rendererVue;
 
-	private Vector<InfoTroll> trolls = new Vector<InfoTroll>();
+	protected Vector<InfoTroll> trolls = new Vector<InfoTroll>();
 	public static String lastDirectory = "";
-	private JDialog newDLA = null;
+	protected JDialog newDLA = null;
 
 	public MHAGUI(MHA r) {
 		super();
@@ -256,8 +256,8 @@ public class MHAGUI extends JFrame implements MouseInputListener {
 					} else if (strcmp(output, "Rules: ")) {
 						String s = extractString(output, "Rules: ");
 						String[] ls = s.split(" ");
-						mode = Integer.parseInt(ls[0]);
-						if (mode == 1)
+						mode = gameModes.valueOf(ls[0]);
+						if (mode == gameModes.teamdeathmatch)
 							for (int k = 0; k < menuFile.getItemCount(); k++)
 								if (menuFile.getItem(k).getText().equals(
 										"Charger un bot"))
@@ -790,7 +790,7 @@ public class MHAGUI extends JFrame implements MouseInputListener {
 							((DefaultTableModel) tableVue.getModel())
 									.removeRow(0);
 						for (int j = 0; j < trolls.size()
-								&& mode == MHAGame.MODE_TEAM_DEATHMATCH; j++)
+								&& mode == gameModes.teamdeathmatch; j++)
 							if (trolls.elementAt(j).getId() == trollId) {
 								cv
 										.add(getCouleur(trolls.elementAt(j)
@@ -800,7 +800,7 @@ public class MHAGUI extends JFrame implements MouseInputListener {
 						((DefaultTableModel) tableVue.getModel()).addRow(tt);
 						for (int i = 0; i < v.size(); i++) {
 							for (int j = 0; j < trolls.size()
-									&& mode == MHAGame.MODE_TEAM_DEATHMATCH; j++)
+									&& mode == gameModes.teamdeathmatch; j++)
 								if (trolls.elementAt(j).getId() == (Integer) ((Object[]) v
 										.elementAt(i))[1]) {
 									cv.add(getCouleur(trolls.elementAt(j)
@@ -909,7 +909,7 @@ public class MHAGUI extends JFrame implements MouseInputListener {
 									"", 1);
 							setTitle(product + " : " + nom);
 
-							if (mode == MHAGame.MODE_TEAM_DEATHMATCH) {
+							if (mode == gameModes.teamdeathmatch) {
 								Vector<Color> vc = new Vector<Color>();
 								for (int i = 0; i < Math.min(nbTeam,
 										listeCouleurs.length); i++)
@@ -1310,7 +1310,7 @@ public class MHAGUI extends JFrame implements MouseInputListener {
 		// statusBar.setText("Ready");
 	}
 
-	private void reInitGui() {
+	protected void reInitGui() {
 		current_time = 0;
 		nbPA = 0;
 		trollId = -1;
@@ -1397,7 +1397,7 @@ public class MHAGUI extends JFrame implements MouseInputListener {
 	public final int[] convertCheck2Sort = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
 			12, 13, 14, 25, 15, 16, 17, 26, 18, 27, 19, 20, 28, 21, 22, 23, 24 };
 
-	private void updatePA() {
+	protected void updatePA() {
 		statusBar.setText("Il vous reste " + nbPA + " PA");
 		actionComboBox.removeAllItems();
 		actionComboBox.setEnabled(true);
@@ -1443,7 +1443,7 @@ public class MHAGUI extends JFrame implements MouseInputListener {
 
 	}
 
-	private void initGUI() {
+	protected void initGUI() {
 
 		// set title
 		setTitle(product);
@@ -2124,12 +2124,12 @@ public class MHAGUI extends JFrame implements MouseInputListener {
 
 	}
 
-	private void exitForm() {
+	protected void exitForm() {
 
 		System.exit(0);
 	}
 
-	private void analyseAction(String s) {
+	protected void analyseAction(String s) {
 		int id = -1;
 		if (s.equals("Prendre le portail de téléportation")) {
 			Object[] options = { "Oui", "Non" };
@@ -2271,7 +2271,7 @@ public class MHAGUI extends JFrame implements MouseInputListener {
 		return;
 	}
 
-	private void lowLevelDialog(final JDialog dialog, JLabel label,
+	protected void lowLevelDialog(final JDialog dialog, JLabel label,
 			JButton closeButton, JComboBox combo) {
 		JPanel closePanel = new JPanel();
 		JButton otherButton = new JButton("Annuler");
@@ -2312,7 +2312,7 @@ public class MHAGUI extends JFrame implements MouseInputListener {
 		dialog.setVisible(true);
 	}
 
-	private void dialogAllVisibleTroll(String s1, String s2) {
+	protected void dialogAllVisibleTroll(String s1, String s2) {
 		final String s = s2;
 		final JDialog dialog = new JDialog(gui, "Action");
 		JLabel label = new JLabel(s1);
@@ -2338,7 +2338,7 @@ public class MHAGUI extends JFrame implements MouseInputListener {
 		lowLevelDialog(dialog, label, closeButton, combo);
 	}
 
-	private void dialogAllTroll(String s1, String s2) {
+	protected void dialogAllTroll(String s1, String s2) {
 		final String s = s2;
 		final JDialog dialog = new JDialog(gui, "Action");
 		JLabel label = new JLabel(s1);
@@ -2364,7 +2364,7 @@ public class MHAGUI extends JFrame implements MouseInputListener {
 		lowLevelDialog(dialog, label, closeButton, combo);
 	}
 
-	private void dialogTrollSacro(final String s) {
+	protected void dialogTrollSacro(final String s) {
 		final JDialog dialog = new JDialog(gui, "Action");
 		final JTextField nb = new JTextField(3);
 		nb.setMaximumSize(new Dimension(30, 20));
@@ -2428,7 +2428,7 @@ public class MHAGUI extends JFrame implements MouseInputListener {
 		dialog.setVisible(true);
 	}
 
-	private void dialogTrollPopo(final boolean isLdP) {
+	protected void dialogTrollPopo(final boolean isLdP) {
 		final JDialog dialog = new JDialog(gui, "Action");
 		final JComboBox combo = new JComboBox();
 		final JComboBox combo2 = new JComboBox();
@@ -2524,7 +2524,7 @@ public class MHAGUI extends JFrame implements MouseInputListener {
 		dialog.setVisible(true);
 	}
 
-	private void dialogTrollCible(String s1, String s2) {
+	protected void dialogTrollCible(String s1, String s2) {
 		final String s = s2;
 		final JDialog dialog = new JDialog(gui, "Action");
 		JLabel label = new JLabel(s1);
@@ -2552,7 +2552,7 @@ public class MHAGUI extends JFrame implements MouseInputListener {
 		lowLevelDialog(dialog, label, closeButton, combo);
 	}
 
-	private void dialogTrollCible(String s1, String s2, int dh, int dv) {
+	protected void dialogTrollCible(String s1, String s2, int dh, int dv) {
 		try {
 			final String s = s2;
 			final JDialog dialog = new JDialog(gui, "Action");
@@ -2596,7 +2596,7 @@ public class MHAGUI extends JFrame implements MouseInputListener {
 		}
 	}
 
-	private void dialogChooseTeam(Vector<Color> vc) {
+	protected void dialogChooseTeam(Vector<Color> vc) {
 		try {
 			final JDialog dialog = new JDialog(gui, "Choix de l'équipe");
 			JLabel label = new JLabel("Sélection de votre équipe :");
@@ -2663,7 +2663,7 @@ public class MHAGUI extends JFrame implements MouseInputListener {
 		}
 	}
 
-	private void dialogDeplacement(final String s) {
+	protected void dialogDeplacement(final String s) {
 		try {
 			int x = ((Integer) tableVue.getModel().getValueAt(0, 5));
 			int y = ((Integer) tableVue.getModel().getValueAt(0, 6));
@@ -2774,7 +2774,7 @@ public class MHAGUI extends JFrame implements MouseInputListener {
 		}
 	}
 
-	private void dialogCase(String s1, final String s2) {
+	protected void dialogCase(String s1, final String s2) {
 		try {
 			final JTextField x = new JTextField(3);
 			final JTextField y = new JTextField(3);
@@ -2870,7 +2870,7 @@ public class MHAGUI extends JFrame implements MouseInputListener {
 
 	}
 
-	private void updateProfil(String s) {
+	protected void updateProfil(String s) {
 		try {
 			InfoTroll it = null;
 			String[] ls = s.split(";");
@@ -3058,25 +3058,25 @@ public class MHAGUI extends JFrame implements MouseInputListener {
 		}
 	}
 
-	private String[] nomEquip = { "Armure", "Bouclier", "Casque",
+	protected String[] nomEquip = { "Armure", "Bouclier", "Casque",
 			"Arme à 1 main", "Talisman", "Bottes", "Bidouille", "Anneau",
 			"Bric à Brac", "Arme à deux mains", "Composant", "Parchemin",
 			"Potion", "Tarot", "Champignon", "Minerai" };
 
-	private String pm(int i) {
+	protected String pm(int i) {
 		if (i >= 0)
 			return "+" + i;
 		return "" + i;
 	}
 
-	private String pm(String s) {
+	protected String pm(String s) {
 
 		if (s.substring(0, 1).equals("-"))
 			return s;
 		return "+" + s;
 	}
 
-	private void updateEquip(String s) {
+	protected void updateEquip(String s) {
 		try {
 			int torse = -1, mainGauche = -1, mainDroite = -1, tete = -1, cou = -1, pieds = -1;
 			String[] ls = s.split("\n");
@@ -3314,7 +3314,7 @@ public class MHAGUI extends JFrame implements MouseInputListener {
 
 	}
 
-	private boolean strcmp(String s, String s2) {
+	protected boolean strcmp(String s, String s2) {
 		if (s.length() >= s2.length()
 				&& s.substring(0, s2.length()).toLowerCase().equals(
 						s2.toLowerCase()))
@@ -3322,24 +3322,24 @@ public class MHAGUI extends JFrame implements MouseInputListener {
 		return false;
 	}
 
-	private String extractString(String s, String s2) {
+	protected String extractString(String s, String s2) {
 		if (!strcmp(s, s2))
 			return s;
 		return s.substring(s2.length());
 	}
 
-	private String convertTime(int t) {
+	protected String convertTime(int t) {
 		if (t % 60 > 9)
 			return (t / 60) + ":" + (t % 60);
 		return (t / 60) + ":0" + (t % 60);
 	}
 
-	private String hour2string(int t) {
+	protected String hour2string(int t) {
 		return "Jour " + (t / (60 * 24) + 1) + " à "
 				+ convertTime(t % (60 * 24));
 	}
 
-	private void quickSort(Vector elements, int lowIndex, int highIndex) {
+	protected void quickSort(Vector elements, int lowIndex, int highIndex) {
 		int lowToHighIndex;
 		int highToLowIndex;
 		int pivotIndex;
@@ -3542,11 +3542,11 @@ public class MHAGUI extends JFrame implements MouseInputListener {
 		}
 	}
 
-	private final Color[] listeCouleurs = { Color.CYAN, Color.GREEN,
+	protected final Color[] listeCouleurs = { Color.CYAN, Color.GREEN,
 			Color.LIGHT_GRAY, Color.ORANGE, Color.MAGENTA, Color.WHITE,
 			Color.YELLOW, Color.PINK };
 
-	private Color getCouleur(int i) {
+	protected Color getCouleur(int i) {
 		if (i >= 0 && i < listeCouleurs.length)
 			return listeCouleurs[i];
 		if (i % 2 == 0)

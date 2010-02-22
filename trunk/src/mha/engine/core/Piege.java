@@ -40,22 +40,22 @@ public class Piege extends Lieu {
     
     public int getPosX()
     {
-    	return posx;
+    	return posX;
     }
     
     public int getPosY()
     {
-    	return posy;
+    	return posY;
     }
         
     public int getPosN()
     {
-    	return posn;
+    	return posN;
     }
     
     public String getPos()
     {
-    	return posx+" "+posy+" "+posn;
+    	return posX+" "+posY+" "+posN;
     }
         
     public String getName()
