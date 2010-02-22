@@ -21,6 +21,7 @@ package mha.engine.core;
 
 import mha.engine.MHABot;
 import mha.engine.core.Equipement.types;
+import mha.engine.core.MHAGame.gameModes;
 
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -1063,7 +1064,7 @@ public class Troll {
         return race;
     }    
 
-    public boolean compare(Troll t)
+    public boolean sameNameOrId(Troll t)
     {
        return ((t.getId()==id)||(t.getName().equals(name)));
     }
@@ -1197,7 +1198,7 @@ public class Troll {
 	{
 		nbResu--;
 		s+="\nVous étiez mort mais vous revenez à la vie\nIl ne vous reste plus que "+nbResu+" résurrection(s)\n";
-		if(MHAGame.instance().getMode()==MHAGame.MODE_TEAM_DEATHMATCH && MHAGame.instance().isRegroupe())
+		if(MHAGame.instance().getMode()==gameModes.teamdeathmatch && MHAGame.instance().isRegroupe())
 		{
 			MHAGame.instance().placeTrollInHisTeam(this);
 		}

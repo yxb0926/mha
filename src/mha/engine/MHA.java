@@ -20,6 +20,7 @@
 package mha.engine;
 
 import mha.engine.core.*;
+import mha.engine.core.MHAGame.gameModes;
 
 import java.util.StringTokenizer;
 import java.awt.Color;
@@ -494,7 +495,7 @@ public class MHA extends Thread {
 		catch(Exception e){}
 		if(System.getProperty("mha.type")!=null && System.getProperty("mha.type").equals("TDM"))
 		{	
-			mha.getChatArea().getServer().getGame().setMode(MHAGame.MODE_TEAM_DEATHMATCH);
+			mha.getChatArea().getServer().getGame().setMode(gameModes.teamdeathmatch);
 			try
 			{
 				if(System.getProperty("mha.nb_equipes")!=null)
@@ -505,7 +506,7 @@ public class MHA extends Thread {
 			catch(Exception e){mha.getChatArea().getServer().getGame().setNbrTeam(5);}
 		}
 		else
-			mha.getChatArea().getServer().getGame().setMode(MHAGame.MODE_DEATHMATCH);
+			mha.getChatArea().getServer().getGame().setMode(gameModes.deathmatch);
 				
 //		mha.getControler().sendMessage("Le serveur a démarré", false, true );
 		//mha.start();

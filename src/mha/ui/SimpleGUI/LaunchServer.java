@@ -23,6 +23,8 @@ import java.awt.event.*;
 import javax.swing.*;
 import mha.engine.*;
 import mha.engine.core.*;
+import mha.engine.core.MHAGame.gameModes;
+
 import java.net.*;
 
 public class LaunchServer extends JPanel implements ActionListener {
@@ -246,11 +248,11 @@ public class LaunchServer extends JPanel implements ActionListener {
 				// System.out.println(ca.getServer().time_blitz);
 				MHAGame.instance().setNbrResu(nbR);
 				if (tdm.isSelected()) {
-					MHAGame.instance().setMode(MHAGame.MODE_TEAM_DEATHMATCH);
+					MHAGame.instance().setMode(gameModes.teamdeathmatch);
 					MHAGame.instance().setNbrTeam(nbT);
 					MHAGame.instance().setSizeArena(tA);
 				} else
-					MHAGame.instance().setMode(MHAGame.MODE_DEATHMATCH);
+					MHAGame.instance().setMode(gameModes.deathmatch);
 
 				mha.getControler().sendMessage("Le serveur a démarré", false,
 						true);

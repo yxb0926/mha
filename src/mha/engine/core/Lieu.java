@@ -21,34 +21,34 @@ package mha.engine.core;
 public class Lieu {
 
 	protected String name;
-	protected int posx;
-	protected int posy;
-	protected int posn;
+	protected int posX;
+	protected int posY;
+	protected int posN;
 	protected int id;
 	private static int nblieu = 0;
 
-	public Lieu(String na, int x, int y, int n) {
-		name = na;
-		id = nblieu++;
-		posx = x;
-		posy = y;
-		posn = n;
+	public Lieu(String name, int posX, int posY, int posN) {
+		this.name = name;
+		this.id = nblieu++;
+		this.posX = posX;
+		this.posY = posY;
+		this.posN = posN;
 	}
 
 	public int getPosX() {
-		return posx;
+		return posX;
 	}
 
 	public int getPosY() {
-		return posy;
+		return posY;
 	}
 
 	public int getPosN() {
-		return posn;
+		return posN;
 	}
 
 	public String getPos() {
-		return posx + " " + posy + " " + posn;
+		return posX + " " + posY + " " + posN;
 	}
 
 	public String getName() {

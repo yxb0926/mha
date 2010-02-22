@@ -21,6 +21,7 @@ package mha.engine;
 
 import java.util.*;
 import mha.engine.core.*;
+import mha.engine.core.MHAGame.gameModes;
 
 import java.net.*;
 import java.io.*;
@@ -86,13 +87,13 @@ public class ChatArea extends Thread {
 	ca.getServer().getGame().setTPPossible(engine.getGame().isTPPossible());
 	ca.getServer().getGame().setInviPossible(engine.getGame().isInviPossible());
 	ca.getServer().getGame().setNbrResu(engine.getGame().getNbrResu());
-	if(engine.getGame().getMode()==MHAGame.MODE_TEAM_DEATHMATCH)
+	if(engine.getGame().getMode()==gameModes.teamdeathmatch)
 	{
-		ca.getServer().getGame().setMode(MHAGame.MODE_TEAM_DEATHMATCH);
+		ca.getServer().getGame().setMode(gameModes.teamdeathmatch);
 		ca.getServer().getGame().setNbrTeam(engine.getGame().getNbrTeam());
 	}
 	else
-		ca.getServer().getGame().setMode(MHAGame.MODE_DEATHMATCH);
+		ca.getServer().getGame().setMode(gameModes.deathmatch);
 	} catch (Exception e) {e.printStackTrace();}
     }
     
