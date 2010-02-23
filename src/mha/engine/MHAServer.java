@@ -33,6 +33,7 @@ import mha.engine.core.Troll;
 import mha.engine.core.Equipement.types;
 import mha.engine.core.MHAGame.gameModes;
 import mha.engine.core.MHAGame.gameStates;
+import mha.engine.core.Troll.races;
 
 // The main child thread waits for new information in the ChatArea, and 
 // sends it out to the eagerly waiting clients
@@ -89,7 +90,8 @@ public class MHAServer extends Thread {
 		String[] liste = inputLine.trim().split(" ");
 		Troll t;
 		if (liste.length >= 4 && liste[0].toLowerCase().equals("addtroll")) {
-			int id, color, race;
+			int id, color;
+			races race;
 			try {
 				if (game.getState() == gameStates.playing) {
 					myChatArea
@@ -99,7 +101,7 @@ public class MHAServer extends Thread {
 				id = Integer.parseInt(liste[1]);
 				// color=Integer.parseInt(liste[3]);
 				color = -1;
-				race = Integer.parseInt(liste[liste.length - 1]);
+				race = races.valueOf(liste[liste.length - 1]);
 				for (int i = 3; i < liste.length - 1; i++)
 					liste[2] += " " + liste[i];
 				// race=Integer.parseInt(liste[4]);
@@ -116,15 +118,7 @@ public class MHAServer extends Thread {
 					return false;
 				}
 				tr.setTempsRestant(time_blitz);
-				String nomRace = "";
-				if (race == Troll.RACE_SKRIM)
-					nomRace = "skrim";
-				else if (race == Troll.RACE_DURAKUIR)
-					nomRace = "durakuir";
-				else if (race == Troll.RACE_KASTAR)
-					nomRace = "kastar";
-				else if (race == Troll.RACE_TOMAWAK)
-					nomRace = "tomawak";
+				String nomRace = race.name();
 				if (caracTrolls.size() <= myIndex)
 					caracTrolls.setSize(myIndex + 1);
 				caracTrolls.set(myIndex, inputLine + "\n");
@@ -267,11 +261,11 @@ public class MHAServer extends Thread {
 			Vector<Troll> list = game.getListeTrolls();
 			for (int i = 0; i < list.size(); i++)
 				myChatArea.putString(list.elementAt(i).getSocketId(), game
-						.getPosition(list.elementAt(i).getSocketId()));
+						.getTrollPosition(list.elementAt(i).getSocketId()));
 			newTurn();
 			return false;
 		} else if (liste.length == 1 && liste[0].toLowerCase().equals("getpos")) {
-			myChatArea.putString(myIndex, game.getPosition(myIndex));
+			myChatArea.putString(myIndex, game.getTrollPosition(myIndex));
 		} else if (liste.length == 1 && liste[0].toLowerCase().equals("getvue")) {
 			String s = game.getVue(myIndex);
 			if (s.indexOf("Error:") == -1)
