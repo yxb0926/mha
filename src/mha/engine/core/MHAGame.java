@@ -831,12 +831,12 @@ public class MHAGame implements Serializable {
 			int pv = 0;
 			String dead1 = "";
 			String dead2 = "";
-			if (e.getPV() > 0) {
-				pv = roll(e.getPV(), 3);
+			if (e.getSoin() > 0) {
+				pv = roll(e.getSoin(), 3);
 				t.addPVReg(Math.min(pv, t.getPVTotaux() - t.getPV()));
 				t.setPV(Math.min(t.getPVTotaux(), t.getPV() + pv));
-			} else if (e.getPV() < 0) {
-				pv = roll(e.getPV(), 3);
+			} else if (e.getSoin() < 0) {
+				pv = roll(e.getSoin(), 3);
 				t.blesse(-pv);
 				currentTroll.addDeg(-pv);
 				if (t.isDead() && t != currentTroll) {
@@ -846,17 +846,17 @@ public class MHAGame implements Serializable {
 				} else if (t.isDead() && t == currentTroll)
 					dead1 = "\nCelà vous a achevé";
 			}
-			if (e.getBMAttaque() != 0 || e.getBMEsquive() != 0
-					|| e.getBMDegat() != 0 || e.getBMDLA() != 0
-					|| e.getBMRegeneration() != 0 || e.getBMVue() != 0
-					|| e.getBMArmurePhysique() != 0
-					|| e.getBMArmureMagique() != 0 || e.getBMMM() != 0
-					|| e.getBMRM() != 0) {
-				bm = new BM(e.getName(), roll(e.getBMAttaque(), 3), roll(e
-						.getBMEsquive(), 3), e.getBMDegat(), e.getBMDLA(), e
-						.getBMRegeneration(), e.getBMVue(), 0, e
-						.getBMArmurePhysique(), e.getBMArmureMagique(), e
-						.getBMMM(), e.getBMRM(), false, duree);
+			if (e.getAtt() != 0 || e.getEsq() != 0
+					|| e.getDeg() != 0 || e.getDlaMin() != 0
+					|| e.getReg() != 0 || e.getVue() != 0
+					|| e.getArm() != 0
+					|| e.getArmM() != 0 || e.getMm() != 0
+					|| e.getRm() != 0) {
+				bm = new BM(e.getName(), roll(e.getAtt(), 3), roll(e
+						.getEsq(), 3), e.getDeg(), e.getDlaMin(), e
+						.getReg(), e.getVue(), 0, e
+						.getArm(), e.getArmM(), e
+						.getMm(), e.getRm(), false, duree);
 				t.addBM(bm);
 				events.add(current_time + " " + currentTroll.getName() + " ("
 						+ currentTroll.getId() + ") a utilisé une potion sur "
@@ -864,18 +864,18 @@ public class MHAGame implements Serializable {
 				s3 += bm.getName()
 						+ " : "
 						+ formate("PV", pv)
-						+ formate("Att", bm.getBMAttaque())
-						+ formate("Att Mag", bm.getBMMAttaque())
-						+ formate("Esq", bm.getBMEsquive())
-						+ formate("Deg", bm.getBMDegat())
-						+ formate("Deg Mag", bm.getBMMDegat())
-						+ formate("DLA", bm.getBMDLA())
-						+ formate("Reg", bm.getBMRegeneration())
-						+ formate("Vue", bm.getBMVue())
-						+ formate("Arm", bm.getBMArmureMagique()
-								+ bm.getBMArmurePhysique())
-						+ formate("MM", bm.getBMMM())
-						+ formate("RM", bm.getBMRM()) + "Durée " + duree
+						+ formate("Att", bm.getAtt())
+						+ formate("Att Mag", bm.getAttM())
+						+ formate("Esq", bm.getEsq())
+						+ formate("Deg", bm.getDeg())
+						+ formate("Deg Mag", bm.getDegM())
+						+ formate("DLA", bm.getDlaMin())
+						+ formate("Reg", bm.getReg())
+						+ formate("Vue", bm.getVue())
+						+ formate("Arm", bm.getArmM()
+								+ bm.getArm())
+						+ formate("MM", bm.getMm())
+						+ formate("RM", bm.getRm()) + "Durée " + duree
 						+ " tour(s)";
 				s3 += "\nLes effets se feront ressentir pendant " + duree
 						+ " tours.";
@@ -903,12 +903,12 @@ public class MHAGame implements Serializable {
 				int pv = 0;
 				String dead1 = "";
 				String dead2 = "";
-				if (e.getPV() > 0) {
-					pv = roll(e.getPV(), 3);
+				if (e.getSoin() > 0) {
+					pv = roll(e.getSoin(), 3);
 					t2.addPVReg(Math.min(pv, t2.getPVTotaux() - t2.getPV()));
 					t2.setPV(Math.min(t2.getPVTotaux(), t2.getPV() + pv));
-				} else if (e.getPV() < 0) {
-					pv = roll(e.getPV(), 3);
+				} else if (e.getSoin() < 0) {
+					pv = roll(e.getSoin(), 3);
 					t2.blesse(-pv);
 					currentTroll.addDeg(-pv);
 					t2.setInvisible(false);
@@ -920,18 +920,18 @@ public class MHAGame implements Serializable {
 						dead1 = "\nCelà vous a achevé";
 				}
 
-				if (e.getBMAttaque() != 0 || e.getBMEsquive() != 0
-						|| e.getBMDegat() != 0 || e.getBMDLA() != 0
-						|| e.getBMRegeneration() != 0 || e.getBMVue() != 0
-						|| e.getBMArmurePhysique() != 0
-						|| e.getBMArmureMagique() != 0 || e.getBMMM() != 0
-						|| e.getBMRM() != 0) {
-					bm = new BM(e.getName(), roll(e.getBMAttaque(), 3), roll(e
-							.getBMEsquive(), 3), e.getBMDegat(), e.getBMDLA(),
-							e.getBMRegeneration(), e.getBMVue(), 0, e
-									.getBMArmurePhysique(), e
-									.getBMArmureMagique(), e.getBMMM(), e
-									.getBMRM(), false, duree);
+				if (e.getAtt() != 0 || e.getEsq() != 0
+						|| e.getDeg() != 0 || e.getDlaMin() != 0
+						|| e.getReg() != 0 || e.getVue() != 0
+						|| e.getArm() != 0
+						|| e.getArmM() != 0 || e.getMm() != 0
+						|| e.getRm() != 0) {
+					bm = new BM(e.getName(), roll(e.getAtt(), 3), roll(e
+							.getEsq(), 3), e.getDeg(), e.getDlaMin(),
+							e.getReg(), e.getVue(), 0, e
+									.getArm(), e
+									.getArmM(), e.getMm(), e
+									.getRm(), false, duree);
 					t2.addBM(bm);
 					events.add(current_time + " " + currentTroll.getName()
 							+ " (" + currentTroll.getId()
@@ -940,16 +940,16 @@ public class MHAGame implements Serializable {
 					s3 += bm.getName()
 							+ " : "
 							+ formate("PV", pv)
-							+ formate("Att", bm.getBMAttaque())
-							+ formate("Esq", bm.getBMEsquive())
-							+ formate("Deg", bm.getBMDegat())
-							+ formate("DLA", bm.getBMDLA())
-							+ formate("Reg", bm.getBMRegeneration())
-							+ formate("Vue", bm.getBMVue())
-							+ formate("Arm", bm.getBMArmureMagique()
-									+ bm.getBMArmurePhysique())
-							+ formate("MM", bm.getBMMM())
-							+ formate("RM", bm.getBMRM()) + "Durée " + duree
+							+ formate("Att", bm.getAtt())
+							+ formate("Esq", bm.getEsq())
+							+ formate("Deg", bm.getDeg())
+							+ formate("DLA", bm.getDlaMin())
+							+ formate("Reg", bm.getReg())
+							+ formate("Vue", bm.getVue())
+							+ formate("Arm", bm.getArmM()
+									+ bm.getArm())
+							+ formate("MM", bm.getMm())
+							+ formate("RM", bm.getRm()) + "Durée " + duree
 							+ " tour(s)";
 					s3 += "\nLes effets se feront ressentir pendant " + duree
 							+ " tours.\n";
@@ -1393,7 +1393,7 @@ public class MHAGame implements Serializable {
 		if (currentTroll == t) {
 			return "Error: pas d'auto-analyse !";
 		}
-		String s = sortilege(currentTroll, Sort.AA, 1);
+		String s = sortilege(currentTroll, Sorts.AA, 1);
 		if (s.indexOf("RÉUSSI") != -1) {
 			s += "\nLes caractéristiques du Troll " + t.getName() + " ("
 					+ t.getId() + ") sont\n";
@@ -1417,7 +1417,7 @@ public class MHAGame implements Serializable {
 	}
 
 	public String armureEtheree() {
-		String s = sortilege(currentTroll, Sort.AE, 2);
+		String s = sortilege(currentTroll, Sorts.AE, 2);
 		if (s.indexOf("RÉUSSI") != -1) {
 			BM bm = new BM("Armure éthérée", 0, 0, 0, 0, 0, 0, 0, 0,
 					currentTroll.getRegeneration(), 0, 0, false, 2);
@@ -1432,7 +1432,7 @@ public class MHAGame implements Serializable {
 	}
 
 	public String augmentationDeLAttaque() {
-		String s = sortilege(currentTroll, Sort.AdA, 2);
+		String s = sortilege(currentTroll, Sorts.AdA, 2);
 		if (s.indexOf("RÉUSSI") != -1) {
 			int bonus = 1 + ((currentTroll.getAttaque() - 3) / 2);
 			BM bm;
@@ -1449,7 +1449,7 @@ public class MHAGame implements Serializable {
 	}
 
 	public String augmentationDeLEsquive() {
-		String s = sortilege(currentTroll, Sort.AdE, 2);
+		String s = sortilege(currentTroll, Sorts.AdE, 2);
 		if (s.indexOf("RÉUSSI") != -1) {
 			BM bm = new BM("Augmentation de l'esquive", 0, 1 + ((currentTroll
 					.getEsquiveTotale() - 3) / 2), 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -1466,7 +1466,7 @@ public class MHAGame implements Serializable {
 	}
 
 	public String augmentationDesDegats() {
-		String s = sortilege(currentTroll, Sort.AdD, 2);
+		String s = sortilege(currentTroll, Sorts.AdD, 2);
 		if (s.indexOf("RÉUSSI") != -1) {
 			int bonus = 1 + ((currentTroll.getDegat() - 3) / 2);
 			BM bm;
@@ -1484,7 +1484,7 @@ public class MHAGame implements Serializable {
 	}
 
 	public String bulleDAntiMagie() {
-		String s = sortilege(currentTroll, Sort.BAM, 2);
+		String s = sortilege(currentTroll, Sorts.BAM, 2);
 		if (s.indexOf("RÉUSSI") != -1) {
 			currentTroll.addBM(new BM("Bulle d'anti-magie", 0, 0, 0, 0, 0, 0,
 					0, 0, 0, 0, 100, false, 2));
@@ -1500,7 +1500,7 @@ public class MHAGame implements Serializable {
 	}
 
 	public String bulleMagique() {
-		String s = sortilege(currentTroll, Sort.BuM, 2);
+		String s = sortilege(currentTroll, Sorts.BuM, 2);
 		if (s.indexOf("RÉUSSI") != -1) {
 			currentTroll.addBM(new BM("Bulle magique", 0, 0, 0, 0, 0, 0, 0, 0,
 					0, 100, 0, false, 2));
@@ -1518,7 +1518,7 @@ public class MHAGame implements Serializable {
 	public String explosion() {
 		// if(getLieuFromPosition(currentTroll.getPosX(),currentTroll.getPosY(),currentTroll.getPosN())!=null)
 		// return "Error: Il y a un lieu sur la case";
-		String s = sortilege(currentTroll, Sort.explo, 6);
+		String s = sortilege(currentTroll, Sorts.explo, 6);
 		if (s.indexOf("RÉUSSI") != -1) {
 			int deg = 1 + ((currentTroll.getDegat() + (currentTroll
 					.getPVTotaux() / 10)) / 2);
@@ -1558,7 +1558,7 @@ public class MHAGame implements Serializable {
 		if (currentTroll == t) {
 			return "Error: Pas de flagellation !";
 		}
-		String s = sortilege(currentTroll, Sort.FP, 2);
+		String s = sortilege(currentTroll, Sorts.FP, 2);
 		if (s.indexOf("RÉUSSI") != -1) {
 			int malus = ((currentTroll.getPV() - 30) / 10 + currentTroll
 					.getDegat()) / 2;
@@ -1607,7 +1607,7 @@ public class MHAGame implements Serializable {
 	}
 
 	public String flashAveuglant() {
-		String s = sortilege(currentTroll, Sort.FA, 2);
+		String s = sortilege(currentTroll, Sorts.FA, 2);
 		if (s.indexOf("RÉUSSI") != -1) {
 			int malus = (1 + currentTroll.getVue() / 5);
 			boolean b = false;
@@ -1696,7 +1696,7 @@ public class MHAGame implements Serializable {
 		if (currentTroll == t) {
 			return "Error: Pas d'auto gluage !";
 		}
-		String s = sortilege(currentTroll, Sort.glue, 2);
+		String s = sortilege(currentTroll, Sorts.glue, 2);
 		if (s.indexOf("RÉUSSI") != -1) {
 			int seuil = calculeSeuil(currentTroll.getMM(), t.getRM());
 			String s1 = s + "\nVous avez tenté de gluer " + t.getName() + " ("
@@ -1738,7 +1738,7 @@ public class MHAGame implements Serializable {
 		if (currentTroll == t) {
 			return "Error: Pas de flagellation !";
 		}
-		String s = sortilege(currentTroll, Sort.GdS, 4);
+		String s = sortilege(currentTroll, Sorts.GdS, 4);
 		if (s.indexOf("RÉUSSI") != -1) {
 			s += "\n"
 					+ lowLevelAttaque(" avec un sortilège", currentTroll, t,
@@ -1767,11 +1767,11 @@ public class MHAGame implements Serializable {
 						.add(
 								t.getInbox().remove(t.getInbox().size() - 1)
 										+ "\nCette attaque provoque un malus de Poison de  "
-										+ Math.abs(bm.getVenin())
+										+ Math.abs(bm.getSoin())
 										+ " pour vos " + bm.getDuree()
 										+ " prochains tour(s)");
 				return s += "\nCette attaque provoque un malus de Poison de  "
-						+ Math.abs(bm.getVenin()) + " pour ses "
+						+ Math.abs(bm.getSoin()) + " pour ses "
 						+ bm.getDuree() + " prochains tour(s)";
 			}
 		}
@@ -1786,7 +1786,7 @@ public class MHAGame implements Serializable {
 		if (currentTroll == t) {
 			return "Error: Pas d'auto hypnotisme !";
 		}
-		String s = sortilege(currentTroll, Sort.hypno, 4);
+		String s = sortilege(currentTroll, Sorts.hypno, 4);
 		if (s.indexOf("RÉUSSI") != -1) {
 			int seuil = calculeSeuil(currentTroll.getMM(), t.getRM());
 			String s1 = s + "\nVous avez tenté d'hypnotiser " + t.getName()
@@ -1837,7 +1837,7 @@ public class MHAGame implements Serializable {
 	public String invisibilite() {
 		if (!useInvisibilite)
 			return "Error: utilisation d'invisibilité interdite durant cette partie";
-		String s = sortilege(currentTroll, Sort.invi, 3);
+		String s = sortilege(currentTroll, Sorts.invi, 3);
 		if (s.indexOf("RÉUSSI") != -1) {
 			currentTroll.setInvisible(true);
 			events.add(current_time + " " + currentTroll.getName() + " ("
@@ -1871,7 +1871,7 @@ public class MHAGame implements Serializable {
 		if (currentTroll == t) {
 			return "Error: Pas de flagellation !";
 		}
-		String s = sortilege(currentTroll, Sort.projo, 4);
+		String s = sortilege(currentTroll, Sorts.projo, 4);
 		if (s.indexOf("RÉUSSI") != -1) {
 			s += "\n"
 					+ lowLevelAttaque(" avec un sortilège", currentTroll, t,
@@ -1898,7 +1898,7 @@ public class MHAGame implements Serializable {
 		if (currentTroll == t) {
 			return "Error: Pas d'auto projection !";
 		}
-		String s = sortilege(currentTroll, Sort.projection, 2);
+		String s = sortilege(currentTroll, Sorts.projection, 2);
 		if (s.indexOf("RÉUSSI") != -1) {
 			int seuil = calculeSeuil(currentTroll.getMM(), t.getRM());
 			String s1 = s + "\nVous avez tenté de projeter " + t.getName()
@@ -1959,7 +1959,7 @@ public class MHAGame implements Serializable {
 		if (currentTroll == t) {
 			return "Error: Pas de flagellation !";
 		}
-		String s = sortilege(currentTroll, Sort.RP, 4);
+		String s = sortilege(currentTroll, Sorts.RP, 4);
 		if (s.indexOf("RÉUSSI") != -1) {
 			s += "\n"
 					+ lowLevelAttaque(" avec un sortilège", currentTroll, t,
@@ -1979,11 +1979,11 @@ public class MHAGame implements Serializable {
 			t.getInbox().add(
 					t.getInbox().remove(t.getInbox().size() - 1)
 							+ "\nDe plus vous aurez un malus de "
-							+ Math.abs(bm.getBMRegeneration())
+							+ Math.abs(bm.getReg())
 							+ " de régénération pendant " + bm.getDuree()
 							+ " tour(s)");
 			return s += "\nDe plus il aura un malus de "
-					+ Math.abs(bm.getBMRegeneration())
+					+ Math.abs(bm.getReg())
 					+ " de régénération pendant " + bm.getDuree() + " tour(s)";
 
 		} else
@@ -2004,7 +2004,7 @@ public class MHAGame implements Serializable {
 			return "Error: Petit malin !!!";
 		if (pv >= currentTroll.getPV() / 2)
 			return "Error: Vous ne pouvez pas sacrifier plus de la moitié de vos PV";
-		String s = sortilege(currentTroll, Sort.sacro, 2);
+		String s = sortilege(currentTroll, Sorts.sacro, 2);
 		if (s.indexOf("RÉUSSI") != -1) {
 			t.addPVReg(pv);
 			t.setPV(t.getPV() + pv);
@@ -2067,7 +2067,7 @@ public class MHAGame implements Serializable {
 			else
 				realN = n;
 		}
-		String s = sortilege(currentTroll, Sort.TP, 6);
+		String s = sortilege(currentTroll, Sorts.TP, 6);
 		if (s.indexOf("RÉUSSI") != -1) {
 			listeLieux.add(new Portail(currentTroll.getPosX(), currentTroll
 					.getPosY(), currentTroll.getPosN(), x, y, n, duree));
@@ -2091,7 +2091,7 @@ public class MHAGame implements Serializable {
 		if (currentTroll == t) {
 			return "Error: Pas de flagellation !";
 		}
-		String s = sortilege(currentTroll, Sort.vampi, 4);
+		String s = sortilege(currentTroll, Sorts.vampi, 4);
 		if (s.indexOf("RÉUSSI") != -1) {
 			int pv = t.getPV();
 			s += "\n"
@@ -2122,7 +2122,7 @@ public class MHAGame implements Serializable {
 	}
 
 	public String visionAccrue() {
-		String s = sortilege(currentTroll, Sort.VA, 2);
+		String s = sortilege(currentTroll, Sorts.VA, 2);
 		if (s.indexOf("RÉUSSI") != -1) {
 			BM bm = new BM("Vision Accrue", 0, 0, 0, 0, 0, currentTroll
 					.getVue() / 2, 0, 0, 0, 0, 0, false, 2);
@@ -2137,7 +2137,7 @@ public class MHAGame implements Serializable {
 	}
 
 	public String visionLointaine(int x, int y, int n) {
-		String s = sortilege(currentTroll, Sort.VL, 2);
+		String s = sortilege(currentTroll, Sorts.VL, 2);
 		if (s.indexOf("RÉUSSI") != -1) {
 			for (int i = 0; i < trolls.size(); i++) {
 				if (trolls.elementAt(i).isVisibleFrom(x, y, n,
@@ -2152,7 +2152,7 @@ public class MHAGame implements Serializable {
 	}
 
 	public String voirLeCache(int x, int y, int n) {
-		String s = sortilege(currentTroll, Sort.VlC, 2);
+		String s = sortilege(currentTroll, Sorts.VlC, 2);
 		if (s.indexOf("RÉUSSI") != -1) {
 			for (int i = 0; i < trolls.size(); i++) {
 				Troll tmpTroll = trolls.elementAt(i);
@@ -2177,7 +2177,7 @@ public class MHAGame implements Serializable {
 		if (currentTroll == t) {
 			return "Error: Pas de flagellation !";
 		}
-		String s = sortilege(currentTroll, Sort.VT, 2);
+		String s = sortilege(currentTroll, Sorts.VT, 2);
 		if (s.indexOf("RÉUSSI") != -1) {
 			int seuil = calculeSeuil(currentTroll.getMM(), t.getRM());
 			String s1 = s
@@ -2236,8 +2236,8 @@ public class MHAGame implements Serializable {
 		return Math.max((rm * 50) / mm, 10);
 	}
 
-	protected String sortilege(Troll t, Sort sort, int cout) {
-		int seuil = t.getReussiteSort(sort);
+	protected String sortilege(Troll t, Sorts sorts, int cout) {
+		int seuil = t.getReussiteSort(sorts);
 		int con = t.getConcentration();
 		if (t.getPA() < cout) {
 			return "Error: Vous avez besoin de " + cout
@@ -2245,10 +2245,10 @@ public class MHAGame implements Serializable {
 		}
 		if (seuil == 0)
 			return "Error: Vous ne connaissez pas ce sortilège";
-		if (sort.isReserved() && t.getSortReserve())
+		if (sorts.isReserved() && t.getSortReserve())
 			return "Error: Vous avez déja lancé un sortilège réservé ce tour ci";
 		t.setConcentration(0);
-		if (sort.isReserved())
+		if (sorts.isReserved())
 			t.setSortReserve(true);
 		int jet = roll(1, 100);
 		String s = "";
@@ -2267,7 +2267,7 @@ public class MHAGame implements Serializable {
 					jet = roll(1, 3);
 					s += "Vous avez donc réussi à améliorer ce sortilège de "
 							+ jet + " %.";
-					t.augmentSort(sort, jet);
+					t.augmentSort(sorts, jet);
 				} else
 					s += "Vous n'avez donc pas réussi à améliorer ce sortilège.";
 			} else {
@@ -2277,7 +2277,7 @@ public class MHAGame implements Serializable {
 					jet = roll(1, 6);
 					s += "Vous avez donc réussi à améliorer ce sortilège de "
 							+ jet + " %.";
-					t.augmentSort(sort, jet);
+					t.augmentSort(sorts, jet);
 				} else
 					s += "Vous n'avez donc pas réussi à améliorer ce sortilège.";
 			}
@@ -2296,7 +2296,7 @@ public class MHAGame implements Serializable {
 				s += "Votre Jet d'amélioration est de " + jet + ".\n";
 				if (jet > seuil) {
 					s += "Vous avez donc réussi à améliorer ce sortilège de 1 %.";
-					t.augmentSort(sort, 1);
+					t.augmentSort(sorts, 1);
 				} else
 					s += "Vous n'avez donc pas réussi à améliorer ce sortilège.";
 			}
@@ -2580,8 +2580,8 @@ public class MHAGame implements Serializable {
 				+ n
 				+ ".\n"
 				+ "Vous êtes désorienté et subirez donc les malus suivants pendant 1 tour : Attaque : -"
-				+ (dist / 10) + "D6 (" + bm.getBMAttaque() + ") | Esquive : -"
-				+ (dist / 10) + "D6 (" + bm.getBMEsquive() + ").\n"
+				+ (dist / 10) + "D6 (" + bm.getAtt() + ") | Esquive : -"
+				+ (dist / 10) + "D6 (" + bm.getEsq() + ").\n"
 				+ "Cela vous a couté 4 PA et il vous en reste "
 				+ currentTroll.getPA();
 		l = getLieuFromPosition(currentTroll.getPosX(), currentTroll.getPosY(),

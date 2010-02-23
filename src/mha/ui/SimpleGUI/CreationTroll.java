@@ -1759,18 +1759,18 @@ public class CreationTroll extends JPanel implements ActionListener,
 										.toString())) {
 							addEquipLine += j + " ";
 						}
-					addEquipLine += equipements.elementAt(i).getBMAttaque()
-							+ " " + equipements.elementAt(i).getBMMAttaque()
-							+ " " + equipements.elementAt(i).getBMEsquive()
-							+ " " + equipements.elementAt(i).getBMDegat() + " "
-							+ equipements.elementAt(i).getBMMDegat() + " "
-							+ equipements.elementAt(i).getBMDLA() + " "
-							+ equipements.elementAt(i).getBMRegeneration()
-							+ " " + equipements.elementAt(i).getPV() + " "
-							+ equipements.elementAt(i).getBMVue() + " "
-							+ equipements.elementAt(i).getBMArmurePhysique()
+					addEquipLine += equipements.elementAt(i).getAtt()
+							+ " " + equipements.elementAt(i).getAttM()
+							+ " " + equipements.elementAt(i).getEsq()
+							+ " " + equipements.elementAt(i).getDeg() + " "
+							+ equipements.elementAt(i).getDegM() + " "
+							+ equipements.elementAt(i).getDlaMin() + " "
+							+ equipements.elementAt(i).getReg()
+							+ " " + equipements.elementAt(i).getSoin() + " "
+							+ equipements.elementAt(i).getVue() + " "
+							+ equipements.elementAt(i).getArm()
 							+ " "
-							+ equipements.elementAt(i).getBMArmureMagique()
+							+ equipements.elementAt(i).getArmM()
 							+ " ";
 					if (equipements.elementAt(i).isZone())
 						addEquipLine += "1 ";
@@ -1781,8 +1781,8 @@ public class CreationTroll extends JPanel implements ActionListener,
 					else
 						addEquipLine += "0 ";
 					addEquipLine += equipements.elementAt(i).getPoids() + " "
-							+ equipements.elementAt(i).getBMMM() + " "
-							+ equipements.elementAt(i).getBMRM() + " ";
+							+ equipements.elementAt(i).getMm() + " "
+							+ equipements.elementAt(i).getRm() + " ";
 
 					if (equipementTable.getValueAt(i, 4).toString().equals(
 							"Oui"))

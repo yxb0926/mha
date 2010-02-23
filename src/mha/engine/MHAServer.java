@@ -30,7 +30,7 @@ import mha.engine.core.Competences;
 import mha.engine.core.Equipement;
 import mha.engine.core.MHAGame;
 import mha.engine.core.Mouche;
-import mha.engine.core.Sort;
+import mha.engine.core.Sorts;
 import mha.engine.core.Troll;
 import mha.engine.core.Equipement.types;
 import mha.engine.core.MHAGame.gameModes;
@@ -309,8 +309,8 @@ public class MHAServer extends Thread {
 				return false;
 			}
 			String s = "Sort: ";
-			for (Sort sort : Sort.values())
-				s += t.getReussiteSort(sort) + ";";
+			for (Sorts sorts : Sorts.values())
+				s += t.getReussiteSort(sorts) + ";";
 			myChatArea.putString(myIndex, s);
 		} else if (liste.length == 1
 				&& liste[0].toLowerCase().equals("getlieux")) {
@@ -428,24 +428,24 @@ public class MHAServer extends Thread {
 				return false;
 			}
 			try {
-				Sort sort = Sort.valueOf(liste[1]);
+				Sorts sorts = Sorts.valueOf(liste[1]);
 				int pourSort = Math.abs(Integer.parseInt(liste[2]));
 				caracTrolls.set(myIndex, caracTrolls.get(myIndex) + inputLine
 						+ "\n");
-				if (sort == null) {
+				if (sorts == null) {
 					myChatArea.putString(myIndex,
 							"Error: Ce sortilège n'existe pas");
 					return false;
 				}
-				if (t.addSort(sort, pourSort))
+				if (t.addSort(sorts, pourSort))
 					myChatArea.putString(myIndex,
 							"Vous connaissez maintenant le sortilège "
-									+ sort + " à "
+									+ sorts + " à "
 									+ pourSort + "%");
 				else
 					myChatArea.putString(myIndex,
 							"Vous ne pouvez pas apprendre le sortilège "
-									+ sort + " à "
+									+ sorts + " à "
 									+ pourSort + "%");
 				return false;
 			} catch (NumberFormatException e) {
@@ -648,7 +648,7 @@ public class MHAServer extends Thread {
 					nomMouche = liste[2];
 				for (int i = 3; i < liste.length; i++)
 					nomMouche += " " + liste[i];
-				t.addMouche(new Mouche(nomMouche, typeMouche));
+				t.addMouche(Mouche.values()[typeMouche]);
 				caracTrolls.set(myIndex, caracTrolls.get(myIndex) + inputLine
 						+ "\n");
 				myChatArea.putString(myIndex, "La mouche " + nomMouche
