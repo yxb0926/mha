@@ -31,20 +31,20 @@ import java.util.Vector;
 public class Troll {
 
 	public static enum races {
-			skrim(Sort.hypno, Competences.BS),
-			durakuir(Sort.RP, Competences.RA),
-			kastar(Sort.vampi, Competences.AM),
-			tomawak(Sort.projo, Competences.camou);
+			skrim(Sorts.hypno, Competences.BS),
+			durakuir(Sorts.RP, Competences.RA),
+			kastar(Sorts.vampi, Competences.AM),
+			tomawak(Sorts.projo, Competences.camou);
 
-		protected Sort sortReserve;
+		protected Sorts sortReserve;
 		protected Competences compReserve;
 
-		races(Sort sortReserve, Competences compReserve) {
+		races(Sorts sortReserve, Competences compReserve) {
 			this.sortReserve = sortReserve;
 			this.compReserve = compReserve;
 		}
 
-		public Sort sortReserve() {
+		public Sorts sortReserve() {
 			return sortReserve;
 		}
 
@@ -54,7 +54,7 @@ public class Troll {
 	};
 
 	private Hashtable<Competences, Hashtable<Integer, Integer>> pourcentagesComp = new Hashtable<Competences, Hashtable<Integer, Integer>>();
-	private Map<Sort, Integer> pourcentagesSort = new HashMap<Sort, Integer>();
+	private Map<Sorts, Integer> pourcentagesSort = new HashMap<Sorts, Integer>();
 	private int deginflig = 0;
 	private int kill = 0;
 	private int nbPA_utile = 0;
@@ -64,6 +64,7 @@ public class Troll {
 	private int id;
 	private int idSocket;
 	private int team;
+	
 	private races race;
 	private int niveau = 1;
 	private int tempsRestant = 0;
@@ -75,6 +76,14 @@ public class Troll {
 	private int des_Regeneration = 1;
 	private int vue = 3;
 	private int duree_tour = 12 * 60;
+	private int rm = 25;
+	private int mm = 25;
+	
+	protected BM bmExternals = new BM();
+	protected BM bmMouches = new BM();
+	protected BM bmEquip = new BM();
+	protected BM bmTurnFull = new BM();
+	
 	private int date_jeu; // en minutes depuis le début
 	private int debut_tour; // en minutes depuis le début
 	private boolean isCreated = false; // Est ce que le joueur a validé son
@@ -86,34 +95,12 @@ public class Troll {
 	private boolean isCertif = false;
 	private String icon = "";
 
-	private int malus_des_esquive = 0;
-	private int malus_des_attaque = 0;
-	private int bmAttaque = 0;
-	private int bmmAttaque = 0;
-	private int bmEsquive = 0;
-	private int bmmEsquive = 0;
-	private int bmDegat = 0;
-	private int bmmDegat = 0;
-	private int bmRegeneration = 0;
-	private int bmmRegeneration = 0;
-	private int bmVue = 0;
-	private int bmmVue = 0;
-	private int bmDLA = 0;
-	private int bmMM = 0;
-	private int bmRM = 0;
-	private int venin = 0;
-	private int glue = 0;
-	private int nbParade = 0;
-	private int nbCA = 0;
-
-	private int rm = 25;
-	private int mm = 25;
 
 	private int armure_phy = 0;
 	private int armure_mag = 0;
 
 	private int fatigue = 0;
-	private int pa;
+	private int pa = 0;
 	private int posx = 0;
 	private int posy = 0;
 	private int posn = 0;
@@ -191,27 +178,7 @@ public class Troll {
 
 	public void addBM(BM bm) {
 		listeBM.add(bm);
-		if (bm.getBMAttaque() != 0) bmAttaque += bm.getBMAttaque();
-		if (bm.getBMMAttaque() != 0) bmmAttaque += bm.getBMMAttaque();
-		if (bm.getBMEsquive() != 0) bmEsquive += bm.getBMEsquive();
-		if (bm.getBMMEsquive() != 0) bmmEsquive += bm.getBMMEsquive();
-		if (bm.getBMDegat() != 0) bmDegat += bm.getBMDegat();
-		if (bm.getBMMDegat() != 0) bmmDegat += bm.getBMMDegat();
-		if (bm.getBMMRegeneration() != 0)
-			bmRegeneration += bm.getBMMRegeneration();
-		if (bm.getBMRegeneration() != 0)
-			bmmRegeneration += bm.getBMRegeneration();
-		if (bm.getBMVue() != 0) bmVue += bm.getBMVue();
-		if (bm.getBMMVue() != 0) bmmVue += bm.getBMMVue();
-		if (bm.getBMDLA() != 0) bmDLA += bm.getBMDLA();
-		if (bm.getBMArmurePhysique() != 0)
-			armure_phy += bm.getBMArmurePhysique();
-		if (bm.getBMArmureMagique() != 0)
-			armure_mag += bm.getBMArmureMagique();
-		if (bm.isGlue()) glue++;
-		if (bm.getVenin() != 0) venin += bm.getVenin();
-		if (bm.getBMMM() != 0) bmMM += bm.getBMMM();
-		if (bm.getBMRM() != 0) bmRM += bm.getBMRM();
+		bmExternals.addOtherBM(bm, 0);
 
 	}
 
@@ -246,34 +213,7 @@ public class Troll {
 	}
 
 	public void addMouche(Mouche m) {
-		switch (m.getType()) {
-		case Mouche.CROBATE:
-			bmmAttaque++;
-			break;
-		case Mouche.VERTIE:
-			bmmEsquive++;
-			break;
-		case Mouche.LUNETTES:
-			bmmVue++;
-			break;
-		case Mouche.MIEL:
-			bmmRegeneration++;
-			break;
-		case Mouche.XIDANT:
-			armure_mag++;
-			break;
-		case Mouche.RIVATANT:
-			bmDLA -= 20;
-			break;
-		case Mouche.HEROS:
-			break;
-		case Mouche.CARNATION:
-			break;
-		case Mouche.NABOLISANT:
-			bmmDegat++;
-			break;
-
-		}
+		bmMouches.addOtherBM(m.getEffet());
 		// System.out.println("Mouche de type "+m.getType()+" ajoutée");
 		listeMouches.add(m);
 	}
@@ -331,56 +271,25 @@ public class Troll {
 	}
 
 	private void removeBMs() {
-		for (int i = 0; i < listeBM.size(); i++) {
-			BM bm = listeBM.elementAt(i);
-			if (bm.newTurn()) {
-				listeBM.remove(i);
-				i--;
-				bmAttaque -= bm.getBMAttaque();
-				bmmAttaque -= bm.getBMMAttaque();
-				bmEsquive -= bm.getBMEsquive();
-				bmmEsquive -= bm.getBMMEsquive();
-				bmDegat -= bm.getBMDegat();
-				bmmDegat -= bm.getBMMDegat();
-				bmRegeneration -= bm.getBMRegeneration();
-				bmmRegeneration -= bm.getBMMRegeneration();
-				bmVue -= bm.getBMVue();
-				bmmVue -= bm.getBMMVue();
-				bmDLA -= bm.getBMDLA();
-				armure_phy -= bm.getBMArmurePhysique();
-				armure_mag -= bm.getBMArmureMagique();
-				bmMM -= bm.getBMMM();
-				bmRM -= bm.getBMRM();
-				if (bm.isGlue()) glue--;
-				venin -= bm.getVenin();
-
+		bmExternals = new BM();
+		for (BM toPass : listeBM) {
+			if (toPass.newTurn()) {
+				listeBM.remove(toPass);
+			} else {
+				bmExternals.addOtherBM(toPass);
 			}
 		}
+		updateBmTurn();
 	}
 
 	private void removeAllBMs() {
-		for (int i = 0; i < listeBM.size(); i++) {
-			BM bm = listeBM.elementAt(i);
-			listeBM.remove(i);
-			i--;
-			bmAttaque -= bm.getBMAttaque();
-			bmmAttaque -= bm.getBMMAttaque();
-			bmEsquive -= bm.getBMEsquive();
-			bmmEsquive -= bm.getBMMEsquive();
-			bmDegat -= bm.getBMDegat();
-			bmmDegat -= bm.getBMMDegat();
-			bmRegeneration -= bm.getBMRegeneration();
-			bmmRegeneration -= bm.getBMMRegeneration();
-			bmVue -= bm.getBMVue();
-			bmmVue -= bm.getBMMVue();
-			bmDLA -= bm.getBMDLA();
-			armure_phy -= bm.getBMArmurePhysique();
-			armure_mag -= bm.getBMArmureMagique();
-			bmMM -= bm.getBMMM();
-			bmRM -= bm.getBMRM();
-			if (bm.isGlue()) glue--;
-			venin -= bm.getVenin();
-		}
+		listeBM.clear();
+		bmExternals = new BM();
+		updateBmTurn();
+	}
+	
+	protected void updateBmTurn() {
+		
 	}
 
 	public void addEquipement(Equipement e) {
@@ -398,23 +307,11 @@ public class Troll {
 	}
 
 	private void bonusEquip(Equipement e, boolean equip) {
-		int coeff = 1;
-		if (!equip) coeff = -1;
-		bmAttaque += e.getBMAttaque() * coeff;
-		bmmAttaque += e.getBMMAttaque() * coeff;
-		bmEsquive += e.getBMEsquive() * coeff;
-		bmmEsquive += e.getBMMEsquive() * coeff;
-		bmDegat += e.getBMDegat() * coeff;
-		bmmDegat += e.getBMMDegat() * coeff;
-		bmRegeneration += e.getBMRegeneration() * coeff;
-		bmmRegeneration += e.getBMMRegeneration() * coeff;
-		bmVue += e.getBMVue() * coeff;
-		bmmVue += e.getBMMVue() * coeff;
-		bmDLA += e.getBMDLA() * coeff;
-		armure_phy += e.getBMArmurePhysique() * coeff;
-		armure_mag += e.getBMArmureMagique() * coeff;
-		bmMM += e.getBMMM() * coeff;
-		bmRM += e.getBMRM() * coeff;
+		if (equip) {
+			bmEquip.addOtherBM(e);
+		} else {
+			bmEquip.remove(e);
+		}
 	}
 
 	public void setProfil(int niv, int att, int esq, int deg, int reg, int pv,
@@ -468,22 +365,22 @@ public class Troll {
 	public String getProfil() {
 		String returnstring = "Nom : " + name + "\n" + "Niveau " + niveau
 				+ "\n" + "Race : " + race.name() + "\n\n" + "Attaque : "
-				+ des_Attaque + "D6 + " + bmAttaque;
-		returnstring += "/" + bmmAttaque;
-		returnstring += "\n" + "Esquive : " + des_Esquive + "D6 + " + bmEsquive
-				+ "/" + bmmEsquive + "\n" + "Dégats : " + des_Degat + "D3 + "
-				+ bmDegat;
-		returnstring += "/" + bmmDegat;
+				+ des_Attaque + "D6 + " + bmTurnFull.att;
+		returnstring += "/" + bmTurnFull.attM;
+		returnstring += "\n" + "Esquive : " + des_Esquive + "D6 + " + bmTurnFull.esq
+				+ "/" + bmTurnFull.esqM + "\n" + "Dégats : " + des_Degat + "D3 + "
+				+ bmTurnFull.deg;
+		returnstring += "/" + bmTurnFull.degM;
 		returnstring += "\n" + "Régénération : " + des_Regeneration + "D3 + "
-				+ bmRegeneration + "/" + bmmRegeneration + "\n" + "Vue : "
-				+ vue + " cases + " + bmVue + "/" + bmmVue + "\n" + "PV : "
+				+ bmTurnFull.reg + "/" + bmTurnFull.regM + "\n" + "Vue : "
+				+ vue + " cases + " + bmTurnFull.vue + "/" + bmTurnFull.vueM + "\n" + "PV : "
 				+ pv_actuels + "/" + pv_totaux + "\n\n" + "Durée DLA : "
 				+ convertTime(duree_tour) + "\n" + "Poids équipement : "
 				+ convertTime(poids) + "\n" + "Bonus/malus DLA : "
-				+ convertTime(bmDLA) + "\n\n" + "Armure : " + armure_phy
+				+ convertTime(bmTurnFull.dlaMin) + "\n\n" + "Armure : " + armure_phy
 				+ " + " + armure_mag + "\n" + "MM : " + mm + " + "
-				+ ((mm * bmMM) / 100) + "\n" + "RM : " + rm + " + "
-				+ ((rm * bmRM) / 100) + "\n";
+				+ ((mm * bmTurnFull.mm) / 100) + "\n" + "RM : " + rm + " + "
+				+ ((rm * bmTurnFull.rm) / 100) + "\n";
 
 		returnstring += "Compétences : \n";
 
@@ -503,9 +400,9 @@ public class Troll {
 			}
 		}
 		returnstring += "Sorts : \n";
-		for (Sort sort : Sort.values()) {
-			if (pourcentagesSort.get(sort) > 0) {
-				returnstring += sort + " : " + pourcentagesSort.get(sort)
+		for (Sorts sorts : Sorts.values()) {
+			if (pourcentagesSort.get(sorts) > 0) {
+				returnstring += sorts + " : " + pourcentagesSort.get(sorts)
 						+ "%\n";
 			}
 		}
@@ -515,21 +412,21 @@ public class Troll {
 	}
 
 	public String getFullProfil() {
-		String s = debut_tour + ";" + duree_tour + ";" + bmDLA + ";"
+		String s = debut_tour + ";" + duree_tour + ";" + bmTurnFull.dlaMin + ";"
 				+ (250 * (pv_totaux - pv_actuels) / pv_totaux) + ";" + poids
 				+ ";" + posx + ";" + posy + ";" + posn + ";" + vue + ";"
-				+ formateCarac(bmVue) + "/" + formateCarac(bmmVue) + ";"
+				+ formateCarac(vue) + "/" + formateCarac(bmTurnFull.vueM) + ";"
 				+ niveau + ";" + pv_actuels + ";" + pv_totaux + ";"
-				+ des_Regeneration + ";" + formateCarac(bmRegeneration) + "/"
-				+ formateCarac(bmmRegeneration) + ";" + fatigue + ";"
+				+ des_Regeneration + ";" + formateCarac(bmTurnFull.reg) + "/"
+				+ formateCarac(bmTurnFull.regM) + ";" + fatigue + ";"
 				+ des_Attaque + ";";
-		s += formateCarac(bmAttaque) + "/" + formateCarac(bmmAttaque) + ";";
-		s += des_Esquive + ";" + formateCarac(bmEsquive) + "/"
-				+ formateCarac(bmmEsquive) + ";" + des_Degat + ";";
-		s += formateCarac(bmDegat) + "/" + formateCarac(bmmDegat) + ";";
-		s += armure_phy + ";" + armure_mag + ";" + malus_des_esquive + ";"
-				+ nbParade + ";" + nbCA + ";" + rm + ";" + bmRM + ";" + mm
-				+ ";" + bmMM + ";" + concentration + ";";
+		s += formateCarac(bmTurnFull.att) + "/" + formateCarac(bmTurnFull.attM) + ";";
+		s += des_Esquive + ";" + formateCarac(bmTurnFull.esq) + "/"
+				+ formateCarac(bmTurnFull.esqM) + ";" + des_Degat + ";";
+		s += formateCarac(bmTurnFull.deg) + "/" + formateCarac(bmTurnFull.degM) + ";";
+		s += armure_phy + ";" + armure_mag + ";" + bmTurnFull.esqD + ";"
+				+ bmTurnFull.parades + ";" + bmTurnFull.CA + ";" + rm + ";" + bmTurnFull.rm + ";" + mm
+				+ ";" + bmTurnFull.mm + ";" + concentration + ";";
 		if (camoufle) s += "1;";
 		else s += "0;";
 		if (invisible) s += "1";
@@ -550,11 +447,11 @@ public class Troll {
 		return true;
 	}
 
-	public boolean addSort(Sort sort, int pour) {
-		if (sort.isReserved() && sort != race.sortReserve()) return false;
+	public boolean addSort(Sorts sorts, int pour) {
+		if (sorts.isReserved() && sorts != race.sortReserve()) return false;
 		if (pour > 85) return false;
 		pourcentagesSort.put(
-			sort,
+			sorts,
 			pour);
 		return true;
 	}
@@ -776,51 +673,51 @@ public class Troll {
 	}
 
 	public int getBMAttaque() {
-		return bmAttaque;
+		return bmTurnFull.att;
 	}
 
 	public int getBMMAttaque() {
-		return bmmAttaque;
+		return bmTurnFull.attM;
 	}
 
 	public int getBMEsquive() {
-		return bmEsquive;
+		return bmTurnFull.esq;
 	}
 
 	public int getBMMEsquive() {
-		return bmmEsquive;
+		return bmTurnFull.esqM;
 	}
 
 	public int getBMDegat() {
-		return bmDegat;
+		return bmTurnFull.deg;
 	}
 
 	public int getBMMDegat() {
-		return bmmDegat;
+		return bmTurnFull.degM;
 	}
 
 	public int getBMVue() {
-		return bmVue;
+		return bmTurnFull.vue;
 	}
 
 	public int getBMMVue() {
-		return bmmVue;
+		return bmTurnFull.vueM;
 	}
 
 	public int getRM() {
-		return rm + ((rm * bmRM) / 100);
+		return rm * ((100 + bmTurnFull.rm) / 100);
 	}
 
 	public int getMM() {
-		return mm + ((mm * bmMM) / 100);
+		return mm * ((100 + bmTurnFull.mm) / 100);
 	}
 
 	public boolean isGlue() {
-		return glue > 0;
+		return bmTurnFull.glued;
 	}
 
-	public int getReussiteSort(Sort sort) {
-		return pourcentagesSort.get(sort);
+	public int getReussiteSort(Sorts sorts) {
+		return pourcentagesSort.get(sorts);
 	}
 
 	public int getLevelComp(Competences comp) {
@@ -853,14 +750,14 @@ public class Troll {
 			i + pour);
 	}
 
-	public void augmentSort(Sort sort, int i) {
-		int val = pourcentagesSort.get(sort);
+	public void augmentSort(Sorts sorts, int i) {
+		int val = pourcentagesSort.get(sorts);
 		val += i;
 		if (val > 80) {
 			val = 80;
 		}
 		pourcentagesSort.put(
-			sort,
+			sorts,
 			val);
 	}
 
@@ -912,7 +809,7 @@ public class Troll {
 	public int getAttaque() {
 		return Math.max(
 			0,
-			des_Attaque - malus_des_attaque);
+			des_Attaque + bmTurnFull.attD);
 	}
 
 	public boolean isDead() {
@@ -922,7 +819,7 @@ public class Troll {
 	public int getEsquive() {
 		return Math.max(
 			0,
-			des_Esquive - malus_des_esquive);
+			des_Esquive + bmTurnFull.esqD);
 	}
 
 	public int getEsquiveTotale() {
@@ -938,12 +835,12 @@ public class Troll {
 	}
 
 	public void getTouch() {
-		malus_des_esquive++;
+		bmTurnFull.esqD--;
 	}
 
 	public void getParade() {
-		malus_des_attaque++;
-		malus_des_esquive++;
+		bmTurnFull.attD--;
+		bmTurnFull.esqD--;
 	}
 
 	public String getName() {
@@ -1099,16 +996,16 @@ public class Troll {
 		} else {
 			while (debut_tour <= current) {
 				if (poids + (250 * (pv_totaux - pv_actuels) / pv_totaux)
-						+ bmDLA < 0) {
+						+ bmTurnFull.dlaMin < 0) {
 					debut_tour += duree_tour;
 					dureeTourTotale = duree_tour;
 				} else {
 					debut_tour += duree_tour + poids
 							+ (250 * (pv_totaux - pv_actuels) / pv_totaux)
-							+ bmDLA;
+							+ bmTurnFull.dlaMin;
 					dureeTourTotale = duree_tour + poids
 							+ (250 * (pv_totaux - pv_actuels) / pv_totaux)
-							+ bmDLA;
+							+ bmTurnFull.dlaMin;
 				}
 			}
 			removeBMs();
@@ -1116,16 +1013,16 @@ public class Troll {
 			if (pv_totaux - pv_actuels != 0
 					&& (250 * (pv_totaux - pv_actuels) / pv_totaux) + Math.min(
 						0,
-						poids + bmDLA) > 0)
+						poids + bmTurnFull.dlaMin) > 0)
 				s += "\nSa durée est augmentée de "
 						+ convertTime((250 * (pv_totaux - pv_actuels) / pv_totaux)
 								+ Math.min(
 									0,
-									poids + bmDLA))
+									poids + bmTurnFull.dlaMin))
 						+ " à cause de vos blessures.";
-			if (poids + bmDLA > 0) {
+			if (poids + bmTurnFull.dlaMin > 0) {
 				s += "\nSa durée est augmentée de "
-						+ convertTime(poids + bmDLA)
+						+ convertTime(poids + bmTurnFull.dlaMin)
 						+ " à cause du poids de votre Equipement.";
 			}
 		}
@@ -1134,9 +1031,9 @@ public class Troll {
 		int i = Math.max(
 			MHAGame.instance().roll(
 				des_Regeneration,
-				3) + bmRegeneration + bmmRegeneration,
+				3) + bmTurnFull.reg + bmTurnFull.regM,
 			0);
-		int j = i - venin;
+		int j = i + bmTurnFull.soin;
 		if (pv_actuels < pv_totaux) {
 			s += "\nVous aviez " + pv_actuels + " Points de Vie.";
 			s += "\nVous avez régénéré de " + i + " Points de Vie.";
@@ -1148,8 +1045,8 @@ public class Troll {
 		pv_actuels = Math.min(
 			pv_totaux,
 			pv_actuels + j);
-		if (venin > 0) {
-			s += "\nLe venin vous fait perdre " + venin + " Points de Vie.";
+		if (bmTurnFull.soin < 0) {
+			s += "\nLe venin vous fait perdre " + bmTurnFull.soin + " Points de Vie.";
 			if (pv_actuels <= 0) {
 				s += "\nVous êtes mort !!!!";
 				return s.substring(1);
@@ -1174,10 +1071,10 @@ public class Troll {
 		compReservee = false;
 		sortReserve = false;
 		frenetique = false;
-		malus_des_esquive = 0;
-		malus_des_attaque = 0;
-		nbParade = 0;
-		nbCA = 0;
+		bmTurnFull.esqD = 0;
+		bmTurnFull.attD = 0;
+		bmTurnFull.parades = 0;
+		bmTurnFull.CA = 0;
 		pa = 6;
 		return s.substring(1);
 	}
@@ -1207,19 +1104,19 @@ public class Troll {
 	}
 
 	public int getNbCA() {
-		return nbCA;
+		return bmTurnFull.CA;
 	}
 
 	public void setNbCA(int i) {
-		nbCA = i;
+		bmTurnFull.CA = i;
 	}
 
 	public int getNbParade() {
-		return nbParade;
+		return bmTurnFull.parades;
 	}
 
 	public void setNbParade(int i) {
-		nbParade = i;
+		bmTurnFull.parades = i;
 	}
 
 	public int getTempsRestant() {

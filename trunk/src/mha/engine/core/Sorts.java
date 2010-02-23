@@ -1,6 +1,6 @@
 package mha.engine.core;
 
-public enum Sort {
+public enum Sorts {
 		hypno("Hypnotisme"),
 		RP("Rafale Psychique"),
 		vampi("Vampirisme"),
@@ -28,7 +28,7 @@ public enum Sort {
 
 	protected String name;
 
-	Sort(String name) {
+	Sorts(String name) {
 		this.name = name;
 	}
 
@@ -36,10 +36,10 @@ public enum Sort {
 		return name;
 	}
 
-	protected static Sort reserved[] = { hypno, projo, vampi, RP };
+	protected static Sorts reserved[] = { hypno, projo, vampi, RP };
 
 	public boolean isReserved() {
-		for (Sort s : reserved) {
+		for (Sorts s : reserved) {
 			if (s.equals(this)) { return true; }
 		}
 		return false;

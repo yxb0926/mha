@@ -90,7 +90,7 @@ import mha.engine.MHAAdapter;
 import mha.engine.MHAFileFilter;
 import mha.engine.MHAServer;
 import mha.engine.core.Competences;
-import mha.engine.core.Sort;
+import mha.engine.core.Sorts;
 import mha.engine.core.Troll;
 import mha.engine.core.Equipement.types;
 import mha.engine.core.MHAGame.gameModes;
@@ -147,7 +147,7 @@ public class MHAGUI extends JFrame implements MouseInputListener {
 	protected boolean popNext = false;
 	protected boolean updateEquip = false;
 	protected boolean dead = false;
-	protected int[] sortsPrct = new int[Sort.values().length];
+	protected int[] sortsPrct = new int[Sorts.values().length];
 	protected Hashtable<Integer, Hashtable<Integer, Integer>> compsPrct = new Hashtable<Integer, Hashtable<Integer, Integer>>();
 	protected Vector<String[]> parchemins;
 	protected Vector<String[]> potions;
@@ -782,7 +782,7 @@ public class MHAGUI extends JFrame implements MouseInputListener {
 							output,
 							"Sort: ").split(
 							";");
-						if (ls.length != Sort.values().length) return;
+						if (ls.length != Sorts.values().length) return;
 						for (int i = 0; i < ls.length; i++)
 							sortsPrct[i] = Integer.parseInt(ls[i]);
 						return;
@@ -1581,7 +1581,7 @@ public class MHAGUI extends JFrame implements MouseInputListener {
 		dlaActive = false;
 		popNext = false;
 		updateEquip = false;
-		sortsPrct = new int[Sort.values().length];
+		sortsPrct = new int[Sorts.values().length];
 		compsPrct = new Hashtable<Integer, Hashtable<Integer, Integer>>();
 		Vector<String[]> parchemins;
 		Vector<String[]> potions;
@@ -1696,13 +1696,13 @@ public class MHAGUI extends JFrame implements MouseInputListener {
 			if (comp.minPaRequired() <= nbPA && compsPrct.get(comp) != null)
 				actionComboBox.addItem(comp.toString());
 		actionComboBox.addItem(SEPARATOR);
-		for (Sort sort : Sort.values()) {
+		for (Sorts sorts : Sorts.values()) {
 			// int i=convertCheck2Sort[j]-1;
-			int i = sort.ordinal();
+			int i = sorts.ordinal();
 			// System.out.println(i+" "+j+" "+COUT_SORT.length+" "+sorts.length);
 			if (COUT_SORT[i] <= nbPA && sortsPrct[i] > 0)
 				if ((i != 16 || useInvi) && (i != 19 || useTP))
-					actionComboBox.addItem(sort.toString());
+					actionComboBox.addItem(sorts.toString());
 		}
 		if (nbPA == 0) {
 			Object[] options = { "Oui, j'ai fini", "Non, plus tard" };
@@ -2794,9 +2794,9 @@ public class MHAGUI extends JFrame implements MouseInputListener {
 			} else if (id == 11) dialogTrollPopo(true);
 			return;
 		}
-		for (Sort sort : Sort.values()) {
-			if (s.equals(sort.toString())) {
-				id = sort.ordinal();
+		for (Sorts sorts : Sorts.values()) {
+			if (s.equals(sorts.toString())) {
+				id = sorts.ordinal();
 				break;
 			}
 		}

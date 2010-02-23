@@ -22,38 +22,83 @@ import java.lang.reflect.Field;
 
 public class BM implements Cloneable {
 
-	protected String name;
-	protected int bmAttaque = 0;
-	protected int bmmAttaque = 0;
-	protected int bmEsquive = 0;
-	protected int bmmEsquive = 0;
-	protected int bmDegat = 0;
-	protected int bmmDegat = 0;
-	protected int bmDLA = 0;
-	protected int bmRegeneration = 0;
-	protected int bmmRegeneration = 0;
-	protected int bmVue = 0;
-	protected int bmmVue = 0;
-	protected int bmVenin = 0;
-	protected int bmArmurePhysique = 0;
-	protected int bmArmureMagique = 0;
-	protected int bmMM = 0;
-	protected int bmRM = 0;
-	protected boolean glue = false;
-	protected boolean levitation = false;
+	protected String name = "";
+	protected int att = 0;
+	protected int attM = 0;
+	protected int attD = 0;
+	protected int esq = 0;
+	protected int esqM = 0;
+	protected int esqD = 0;
+	protected int deg = 0;
+	protected int degM = 0;
+	protected int dlaMin = 0;
+	protected int reg = 0;
+	protected int regM = 0;
+	protected int vue = 0;
+	protected int vueM = 0;
+	protected int soin = 0;
+	protected int pvMax = 0;
+	protected int arm = 0;
+	protected int armM = 0;
+	protected int mm = 0;
+	protected int rm = 0;
+	protected boolean glued = false;
+	protected boolean levite = false;
 	protected int parades = 0;
+	protected int CA = 0;
 	protected int retraites = 0;
-	protected int retraiteX = 0;
-	protected int retraiteY = 0;
-	protected int retraiteZ = 0;
+	protected int dirX = 0;
+	protected int dirY = 0;
+	protected int dirZ = 0;
 
 	protected int duree = 0;
 
+	/**
+	 * Big constructor
+	 */
+	public BM(String name, int att, int attM, int attD, int esq, int esqM,
+			int esqD, int deg, int degM, int dlaMin, int reg, int regM,
+			int vue, int vueM, int soin, int pvMax, int arm, int armM, int mm,
+			int rm, boolean glued, boolean levitate, int parades, int CA,
+			int retraites, int dirX, int dirY, int dirZ, int duree) {
+
+		this.name = name;
+		this.att = att;
+		this.attM = attM;
+		this.attD = attD;
+		this.esq = esq;
+		this.esqM = esqM;
+		this.esqD = esqD;
+		this.deg = deg;
+		this.degM = degM;
+		this.dlaMin = dlaMin;
+		this.reg = reg;
+		this.regM = regM;
+		this.vue = vue;
+		this.vueM = vueM;
+		this.soin = soin;
+		this.pvMax = pvMax;
+		this.arm = arm;
+		this.armM = armM;
+		this.mm = mm;
+		this.rm = rm;
+		this.glued = glued;
+		this.levite = levitate;
+		this.parades = parades;
+		this.CA = CA;
+		this.retraites = retraites;
+		this.dirX = dirX;
+		this.dirY = dirY;
+		this.dirZ = dirZ;
+
+		this.duree = duree;
+	}
+
 	public BM(String name, int att, int esq, int deg, int dlaMalus, int reg,
-			int vue, int venin, int arm, int armM, int mm, int rm,
+			int vue, int soin, int arm, int armM, int mm, int rm,
 			boolean glued, int duree) {
-		this(name, att, 0, esq, 0, deg, 0, dlaMalus, reg, 0, vue, 0, venin,
-				arm, armM, mm, rm, glued, false, 0, 0, 0, 0, 0, duree);
+		this(name, att, 0, 0, esq, 0, 0, deg, 0, dlaMalus, reg, 0, vue, 0,
+			soin, 0, arm, armM, mm, rm, glued, false, 0, 0, 0, 0, 0, 0, duree);
 	}
 
 	/**
@@ -62,53 +107,33 @@ public class BM implements Cloneable {
 	 * @param name
 	 * @param duree
 	 */
-	public BM(String name, int duree) {
-		this.name = name;
-		this.duree = duree;
+	public BM() {
 	}
 
 	public BM(String name, int att, int attM, int esq, int deg, int degM,
-			int dla, int reg, int vue, int venin, int arm, int armM, int mm,
+			int dla, int reg, int vue, int soin, int arm, int armM, int mm,
 			int rm, boolean glued, int duree) {
-		this(name, att, attM, esq, 0, deg, degM, dla, reg, 0, vue, 0, venin, arm, armM, mm, rm,
-				glued, false, 0, 0, 0, 0, 0, duree);
+		this(name, att, attM, 0, esq, 0, 0, deg, degM, dla, reg, 0, vue, 0,
+			soin, 0, arm, armM, mm, rm, glued, false, 0, 0, 0, 0, 0, 0, duree);
 	}
 
 	/**
-	 * full definition of a BM.
+	 * constructor used for Mouches
+	 */
+	public BM(int attM, int esqM, int degM, int dla, int regM, int vueM,
+			int armM, int PvsMax) {
+		this("", 0, attM, 0, 0, esqM, 0, 0, degM, dla, 0, regM, 0, vueM, 0, 0,
+			0, armM, 0, 0, false, false, 0, 0, 0, 0, 0, 0, 0);
+	}
+
+	/**
+	 * constructor for Equips
 	 */
 	public BM(String name, int att, int attM, int esq, int esqM, int deg,
-			int degM, int dlaMalus, int reg, int regM, int vue, int vueM,
-			int venin, int arm, int armM, int mm, int rm, boolean glued, boolean levitation,
-			int parades, int retraites, int retraiteX, int retraiteY,
-			int retraiteZ, int duree) {
-
-		this.name = name;
-		this.bmAttaque = att;
-		this.bmmAttaque = attM;
-		this.bmEsquive = esq;
-		this.bmmEsquive = esqM;
-		this.bmDegat = deg;
-		this.bmmDegat = degM;
-		this.bmDLA = dlaMalus;
-		this.bmRegeneration = reg;
-		this.bmmRegeneration = regM;
-		this.bmVue = vue;
-		this.bmmVue = vueM;
-		this.bmVenin = venin;
-		this.bmArmurePhysique = arm;
-		this.bmArmureMagique = armM;
-		this.bmMM = mm;
-		this.bmRM = rm;
-		this.glue = glued;
-		this.levitation = levitation;
-		this.parades = parades;
-		this.retraites = retraites;
-		this.retraiteX = retraiteX;
-		this.retraiteY = retraiteY;
-		this.retraiteZ = retraiteZ;
-
-		this.duree = duree;
+			int degM, int dlaMin, int reg, int regM, int vue, int vueM,
+			int arm, int armM, int mm, int rm) {
+		this(name, att, attM, 0, esq, esqM, 0, deg, degM, dlaMin, reg, regM,
+			vue, vueM, 0, 0, arm, armM, mm, rm, false, false, 0, 0, 0, 0, 0, 0, 0);
 	}
 
 	/**
@@ -136,15 +161,16 @@ public class BM implements Cloneable {
 	 * @return how the bonus to the carac is to be shown to user.
 	 */
 	public static String formate(String description, int physical, int magical) {
-		if (physical == 0 && magical == 0)
-			return "";
+		if (physical == 0 && magical == 0) { return ""; }
 		String ret = description;
-		if (physical >= 0)
+		if (physical >= 0) {
 			ret += " +" + physical;
-		else
+		} else {
 			ret += " " + physical;
-		if (magical != 0)
+		}
+		if (magical != 0) {
 			ret += "/" + (magical > 0 ? "+" : "") + magical;
+		}
 		return ret;
 	}
 
@@ -160,21 +186,32 @@ public class BM implements Cloneable {
 	 * @return how the bonus is supposed to be shown to the user.
 	 */
 	public static String formate(String description, int value, String postdesc) {
-		if (value == 0) {
-			return "";
-		}
+		if (value == 0) { return ""; }
 		return formate(description, value, 0) + postdesc;
 	}
 
+	public static String formate(String description, int bmD, int bm, int bmm) {
+		if (bmD == 0 && bm == 0 && bmm == 0) { return ""; }
+		String ret = description;
+		if (bmD != 0) {
+			ret += (bmD > 0 ? " +" + bmD : " " + bmD) + "D";
+		}
+		if (bm != 0 || bmm != 0) {
+			ret += (bm > 0 ? " +" + bm : " " + bm);
+		}
+		if (bmm != 0) {
+			ret += "/" + (bmm > 0 ? " +" + bmm : " " + bmm);
+		}
+		return ret;
+	}
+
 	public String toString() {
-		return name + " : " + formate("Att", bmAttaque, bmmAttaque)
-				+ formate("Esq", bmEsquive, bmmEsquive)
-				+ formate("Deg", bmDegat, bmmDegat)
-				+ formate("Vue", bmVue, bmmVue) + formate("DLA", bmDLA)
-				+ formate("Reg", bmRegeneration, bmmRegeneration)
-				+ formate("Venin", bmVenin)
-				+ formate("Arm", bmArmurePhysique + bmArmureMagique)
-				+ formate("MM", bmMM, "%, ") + formate("RM", bmRM, "%, ")
+		return name + " : " + formate("Att", attD, att, attM)
+				+ formate("Esq", esqD, esq, esqM) + formate("Deg", deg, degM)
+				+ formate("Vue", vue, vueM) + formate("DLA", dlaMin)
+				+ formate("Reg", reg, regM) + formate("PV", soin)
+				+ formate("PVMax", pvMax) + formate("Arm", arm + armM)
+				+ formate("MM", mm, "%, ") + formate("RM", rm, "%, ")
 				+ ", Durée " + duree + " tour(s)";
 	}
 
@@ -186,84 +223,120 @@ public class BM implements Cloneable {
 		return duree;
 	}
 
+	/**
+	 * a turn has ended
+	 * 
+	 * @return is the bm to be suppessed?
+	 */
 	public boolean newTurn() {
-		if (duree <= 0)
-			return true;
+		if (duree <= 0) return true;
 		duree--;
 		return false;
 	}
 
-	public boolean isGlue() {
-		return glue;
+	public int getAtt() {
+		return att;
 	}
 
-	public int getBMAttaque() {
-		return bmAttaque;
+	public int getAttM() {
+		return attM;
 	}
 
-	public int getBMMAttaque() {
-		return bmmAttaque;
+	public int getAttD() {
+		return attD;
 	}
 
-	public int getBMEsquive() {
-		return bmEsquive;
+	public int getEsq() {
+		return esq;
 	}
 
-	public int getBMMEsquive() {
-		return bmmEsquive;
+	public int getEsqM() {
+		return esqM;
 	}
 
-	public int getBMDegat() {
-		return bmDegat;
+	public int getEsqD() {
+		return esqD;
 	}
 
-	public int getBMMDegat() {
-		return bmmDegat;
+	public int getDeg() {
+		return deg;
 	}
 
-	public int getBMDLA() {
-		return bmDLA;
+	public int getDegM() {
+		return degM;
 	}
 
-	public int getBMRegeneration() {
-		return bmRegeneration;
+	public int getDlaMin() {
+		return dlaMin;
 	}
 
-	public int getBMMRegeneration() {
-		return bmmRegeneration;
+	public int getReg() {
+		return reg;
 	}
 
-	public int getVenin() {
-		return bmVenin;
+	public int getRegM() {
+		return regM;
 	}
 
-	public int getBMVue() {
-		return bmVue;
+	public int getVue() {
+		return vue;
 	}
 
-	public int getBMMVue() {
-		return bmmVue;
+	public int getVueM() {
+		return vueM;
 	}
 
-	public int getBMArmurePhysique() {
-		return bmArmurePhysique;
+	public int getSoin() {
+		return soin;
+	}
+	
+	public int getPvMax() {
+		return pvMax;
 	}
 
-	public int getBMArmureMagique() {
-		return bmArmureMagique;
+	public int getArm() {
+		return arm;
 	}
 
-	public int getBMMM() {
-		return bmMM;
+	public int getArmM() {
+		return armM;
 	}
 
-	public int getBMRM() {
-		return bmRM;
+	public int getMm() {
+		return mm;
+	}
+
+	public int getRm() {
+		return rm;
+	}
+
+	public boolean isGlued() {
+		return glued;
+	}
+
+	public boolean isLevite() {
+		return levite;
+	}
+
+	public int retraitesDone() {
+		return retraites;
+	}
+
+	public int getDirX() {
+		return dirX;
+	}
+
+	public int getDirY() {
+		return dirY;
+	}
+
+	public int getDirZ() {
+		return dirZ;
 	}
 
 	/**
-	 * add the effect of another BM to this. Remove the sense o the retraite
-	 * directions and duree.
+	 * add the effect of another BM to this. Remove the sense of the retraite,
+	 * directions and duree fileds.
 	 * 
 	 * @param other
 	 *            the BM to add to this
@@ -271,9 +344,7 @@ public class BM implements Cloneable {
 	 *            the minimum duree for other to be considered
 	 */
 	public void addOtherBM(BM other, int minturn) {
-		if (other.duree < minturn) {
-			return;
-		}
+		if (other.duree < minturn) { return; }
 		for (Field f : BM.class.getDeclaredFields()) {
 			if (f.getName().equals("duree")) {
 				continue;
@@ -292,6 +363,35 @@ public class BM implements Cloneable {
 			if (boolean.class == f.getType() || Boolean.class == f.getType()) {
 				try {
 					f.set(this, (boolean) ((Boolean) f.get(this) || (Boolean) f
+							.get(other)));
+				} catch (IllegalArgumentException e) {
+					e.printStackTrace();
+				} catch (IllegalAccessException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+
+	public void addOtherBM(BM other) {
+		addOtherBM(other, 0);
+	}
+
+	/**
+	 * remove the integer values contained in another BM.
+	 * 
+	 * @param other
+	 *            the BM we want to remove to this
+	 */
+	public void remove(BM other) {
+		for (Field f : BM.class.getDeclaredFields()) {
+			if (f.getName().equals("duree")) {
+				continue;
+			}
+			f.setAccessible(true);
+			if (f.getType() == int.class || Integer.class == f.getType()) {
+				try {
+					f.set(this, (int) ((Integer) f.get(this) - (Integer) f
 							.get(other)));
 				} catch (IllegalArgumentException e) {
 					e.printStackTrace();

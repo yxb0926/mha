@@ -36,8 +36,8 @@ public class  Test{
 	MHAGameTest.getTrollById(12345).setProfil(50,3,9,18,4,80,6,600,50,30);
 	for(Competences comp : Competences.values())
 		MHAGameTest.getTrollById(12345).addComp(comp,90,1);
-	for(Sort sort : Sort.values())
-		MHAGameTest.getTrollById(12345).addSort(sort,80);
+	for(Sorts sorts : Sorts.values())
+		MHAGameTest.getTrollById(12345).addSort(sorts,80);
 	if(MHAGameTest.getTrollById(12345).verifNiveau()){System.out.println("Upload du profil ok");}
         if(MHAGameTest.addTroll(new Troll("TUTU",23456,1,0,races.skrim))){System.out.println("création troll 2 ok");}
     }
