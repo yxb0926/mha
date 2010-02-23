@@ -22,126 +22,39 @@ import mha.engine.MHABot;
 import mha.engine.core.Equipement.types;
 import mha.engine.core.MHAGame.gameModes;
 
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Vector;
 
 public class Troll {
 
 	public static enum races {
-		skrim(SORT_HYPNOTISME, comps.BS),
-		durakuir(SORT_RAFALE_PSYCHIQUE, comps.RA),
-		kastar(SORT_VAMPIRISME, comps.AM),
-		tomawak(SORT_PROJECTILE_MAGIQUE, comps.camou);
-		
-		
-		protected int sortReserve;
-		protected comps compReserve;
-		races(int sortReserve, comps compReserve) {
+			skrim(Sort.hypno, Competences.BS),
+			durakuir(Sort.RP, Competences.RA),
+			kastar(Sort.vampi, Competences.AM),
+			tomawak(Sort.projo, Competences.camou);
+
+		protected Sort sortReserve;
+		protected Competences compReserve;
+
+		races(Sort sortReserve, Competences compReserve) {
 			this.sortReserve = sortReserve;
 			this.compReserve = compReserve;
 		}
-		
-		public int sortReserve() { return sortReserve;}
-		public comps compReserve() { return compReserve;}
+
+		public Sort sortReserve() {
+			return sortReserve;
+		}
+
+		public Competences compReserve() {
+			return compReserve;
+		}
 	};
-	
-	public static enum comps {
-		BS("botte secrete", 0),
-		RA("regeneration accrue", 0),
-		AM("acceleration du metabolisme", 0),
-		camou("camouflage", 0),
-		AP("attaque precise", 5),
-		charge("charger",5),
-		PaF("piege a feu",5),
-		CA("contre-attaquer",2),
-		CdB("coup de boutoir", 5),
-		DE("deplacement eclair",0),
-		frenzy("frenesie",10),
-		LdP("lancer de potions",3),
-		parer("parer",2),
-		pistage("pistage",1),
-		retraite("retraite",5)
-		;
-		
-		
-		protected final String name;
-		protected final int lvlRequired;
-		comps(String name, int trollLvlRequired) {
-			this.name = name;
-			this.lvlRequired = trollLvlRequired;
-		}
-		@Override
-		public String toString() {
-			return this.name;
-		}
-		
-	}
 
-	public final static int NB_COMP = comps.values().length;
-	public final static int RA = 2;
-	public final static int AM = 3;
-	public final static int camou = 4;
-	public final static int AP = 5;
-	public final static int charge = 6;
-	public final static int piege_feu = 7;
-	public final static int CA = 8;
-	public final static int CdB = 9;
-	public final static int DE = 10;
-	public final static int frenzy = 11;
-	public final static int LdP = 12;
-	public final static int parer = 13;
-	public final static int pistage = 14;
-	public final static int retraite = 15;
-	
-	
-
-	private final int[] coutPX = { 0, 1, 1, 1, 1, 5, 5, 5, 2, 5, 2, 10, 3, 2, 1 };
-
-	public final static String[] NOM_COMP = { "Botte secrète",
-			"Régénération accrue", "Accélération du métabolisme", "Camouflage",
-			"Attaque précise", "Charger", "Poser un piège", "Contre-attaque",
-			"Coup de butoir", "Déplacement éclair", "Frénésie",
-			"Lancer de potion", "Parer", "Pistage" };
-
-	public final static int NB_SORT = 24;
-	public final static int SORT_HYPNOTISME = 1;
-	public final static int SORT_RAFALE_PSYCHIQUE = 2;
-	public final static int SORT_VAMPIRISME = 3;
-	public final static int SORT_PROJECTILE_MAGIQUE = 4;
-	public final static int SORT_AA = 5;
-	public final static int SORT_AE = 6;
-	public final static int SORT_ADA = 7;
-	public final static int SORT_ADE = 8;
-	public final static int SORT_ADD = 9;
-	public final static int SORT_BAM = 10;
-	public final static int SORT_BUM = 11;
-	public final static int SORT_EXPLOSION = 12;
-	public final static int SORT_FP = 13;
-	public final static int SORT_FA = 14;
-	public final static int SORT_GLUE = 15;
-	public final static int SORT_GDS = 16;
-	public final static int SORT_INVISIBILITE = 17;
-	public final static int SORT_PROJECTION = 18;
-	public final static int SORT_SACRIFICE = 19;
-	public final static int SORT_TELEPORTATION = 20;
-	public final static int SORT_VA = 21;
-	public final static int SORT_VL = 22;
-	public final static int SORT_VLC = 23;
-	public final static int SORT_VT = 24;
-
-	public final static String[] NOM_SORT = { "Hypnotisme", "Rafale Psychique",
-			"Vampirisme", "Projectile magique", "Analyse anatomique",
-			"Armure éthérée", "Augmentation de l'attaque",
-			"Augmentation de l'esquive", "Augmentation des dégats",
-			"Bulle Anti-magie", "Bulle magique", "Explosion",
-			"Faiblesse passagère", "Flash aveuglant", "Glue",
-			"Griffe du sorcier", "Invisibilité", "Projection", "Sacrifice",
-			"Téléportation", "Vision accrue", "Vision lointaine",
-			"Voir le caché", "Vue troublée" };
-
-	private Hashtable<Integer, Hashtable<Integer, Integer>> pourcentagesComp = new Hashtable<Integer, Hashtable<Integer, Integer>>();
-	private int[] pourcentagesSort = new int[NB_SORT + 1];
+	private Hashtable<Competences, Hashtable<Integer, Integer>> pourcentagesComp = new Hashtable<Competences, Hashtable<Integer, Integer>>();
+	private Map<Sort, Integer> pourcentagesSort = new HashMap<Sort, Integer>();
 	private int deginflig = 0;
 	private int kill = 0;
 	private int nbPA_utile = 0;
@@ -165,10 +78,10 @@ public class Troll {
 	private int date_jeu; // en minutes depuis le début
 	private int debut_tour; // en minutes depuis le début
 	private boolean isCreated = false; // Est ce que le joueur a validé son
-										// troll
+	// troll
 	private boolean isActive = false; // Est ce que la DLA est jouée ?
 	private boolean compReservee = false; // A t il déja essayer de faire une
-											// comp réservée ?
+	// comp réservée ?
 	private boolean sortReserve = false;
 	private boolean isCertif = false;
 	private String icon = "";
@@ -236,11 +149,18 @@ public class Troll {
 		team = c;
 		idSocket = s;
 		pa = 0;
-		debut_tour = MHAGame.instance().roll(1, duree_tour) - 1;
+		debut_tour = MHAGame.instance().roll(
+			1,
+			duree_tour) - 1;
 		date_jeu = debut_tour;
 		this.race = race;
-		setComp(race.compReserve().ordinal(), 25, 1);//TODO pass the comp
-		pourcentagesSort[race.sortReserve()] = 25;
+		setComp(
+			race.compReserve(),
+			25,
+			1);
+		pourcentagesSort.put(
+			race.sortReserve(),
+			25);
 		switch (race) {
 		case skrim:
 			this.race = race;
@@ -256,7 +176,8 @@ public class Troll {
 			vue = 4;
 			break;
 		default:
-			System.err.println("error : race : "+race+"not handled in troll creation");
+			System.err.println("error : race : " + race
+					+ "not handled in troll creation");
 		}
 	}
 
@@ -270,66 +191,57 @@ public class Troll {
 
 	public void addBM(BM bm) {
 		listeBM.add(bm);
-		if (bm.getBMAttaque() != 0)
-			bmAttaque += bm.getBMAttaque();
-		if (bm.getBMMAttaque() != 0)
-			bmmAttaque += bm.getBMMAttaque();
-		if (bm.getBMEsquive() != 0)
-			bmEsquive += bm.getBMEsquive();
-		if (bm.getBMMEsquive() != 0)
-			bmmEsquive += bm.getBMMEsquive();
-		if (bm.getBMDegat() != 0)
-			bmDegat += bm.getBMDegat();
-		if (bm.getBMMDegat() != 0)
-			bmmDegat += bm.getBMMDegat();
+		if (bm.getBMAttaque() != 0) bmAttaque += bm.getBMAttaque();
+		if (bm.getBMMAttaque() != 0) bmmAttaque += bm.getBMMAttaque();
+		if (bm.getBMEsquive() != 0) bmEsquive += bm.getBMEsquive();
+		if (bm.getBMMEsquive() != 0) bmmEsquive += bm.getBMMEsquive();
+		if (bm.getBMDegat() != 0) bmDegat += bm.getBMDegat();
+		if (bm.getBMMDegat() != 0) bmmDegat += bm.getBMMDegat();
 		if (bm.getBMMRegeneration() != 0)
 			bmRegeneration += bm.getBMMRegeneration();
 		if (bm.getBMRegeneration() != 0)
 			bmmRegeneration += bm.getBMRegeneration();
-		if (bm.getBMVue() != 0)
-			bmVue += bm.getBMVue();
-		if (bm.getBMMVue() != 0)
-			bmmVue += bm.getBMMVue();
-		if (bm.getBMDLA() != 0)
-			bmDLA += bm.getBMDLA();
+		if (bm.getBMVue() != 0) bmVue += bm.getBMVue();
+		if (bm.getBMMVue() != 0) bmmVue += bm.getBMMVue();
+		if (bm.getBMDLA() != 0) bmDLA += bm.getBMDLA();
 		if (bm.getBMArmurePhysique() != 0)
 			armure_phy += bm.getBMArmurePhysique();
 		if (bm.getBMArmureMagique() != 0)
 			armure_mag += bm.getBMArmureMagique();
-		if (bm.isGlue())
-			glue++;
-		if (bm.getVenin() != 0)
-			venin += bm.getVenin();
-		if (bm.getBMMM() != 0)
-			bmMM += bm.getBMMM();
-		if (bm.getBMRM() != 0)
-			bmRM += bm.getBMRM();
+		if (bm.isGlue()) glue++;
+		if (bm.getVenin() != 0) venin += bm.getVenin();
+		if (bm.getBMMM() != 0) bmMM += bm.getBMMM();
+		if (bm.getBMRM() != 0) bmRM += bm.getBMRM();
 
 	}
 
-	private void setComp(int idComp, int pourcentage, int level) {
-		Hashtable<Integer, Integer> comp = pourcentagesComp.get(idComp);
-		if (comp == null)
-			pourcentagesComp.put(idComp,
-					comp = new Hashtable<Integer, Integer>());
-		comp.put(level, pourcentage);
+	private void setComp(Competences comp, int pourcentage, int level) {
+		Hashtable<Integer, Integer> compLvls = pourcentagesComp.get(comp);
+		if (compLvls == null) pourcentagesComp.put(
+			comp,
+			compLvls = new Hashtable<Integer, Integer>());
+		compLvls.put(
+			level,
+			pourcentage);
 	}
 
 	public String getBM() {
-		if (listeBM.size() == 0)
-			return "";
-		String s = listeBM.elementAt(0).toString();
+		if (listeBM.size() == 0) return "";
+		String s = listeBM.elementAt(
+			0).toString();
 		for (int i = 1; i < listeBM.size(); i++)
-			s += "\n" + listeBM.elementAt(i).toString();
+			s += "\n" + listeBM.elementAt(
+				i).toString();
 		return s;
 	}
 
 	public String getMouches() {
-		if (listeMouches.size() == 0)
-			return "";
-		String s = listeMouches.elementAt(0).toString();
+		if (listeMouches.size() == 0) return "";
+		String s = listeMouches.elementAt(
+			0).toString();
 		for (int i = 1; i < listeMouches.size(); i++)
-			s += "\n" + listeMouches.elementAt(i).toString();
+			s += "\n" + listeMouches.elementAt(
+				i).toString();
 		return s;
 	}
 
@@ -439,8 +351,7 @@ public class Troll {
 				armure_mag -= bm.getBMArmureMagique();
 				bmMM -= bm.getBMMM();
 				bmRM -= bm.getBMRM();
-				if (bm.isGlue())
-					glue--;
+				if (bm.isGlue()) glue--;
 				venin -= bm.getVenin();
 
 			}
@@ -467,8 +378,7 @@ public class Troll {
 			armure_mag -= bm.getBMArmureMagique();
 			bmMM -= bm.getBMMM();
 			bmRM -= bm.getBMRM();
-			if (bm.isGlue())
-				glue--;
+			if (bm.isGlue()) glue--;
 			venin -= bm.getVenin();
 		}
 	}
@@ -489,8 +399,7 @@ public class Troll {
 
 	private void bonusEquip(Equipement e, boolean equip) {
 		int coeff = 1;
-		if (!equip)
-			coeff = -1;
+		if (!equip) coeff = -1;
 		bmAttaque += e.getBMAttaque() * coeff;
 		bmmAttaque += e.getBMMAttaque() * coeff;
 		bmEsquive += e.getBMEsquive() * coeff;
@@ -523,20 +432,20 @@ public class Troll {
 	}
 
 	public String getInfosTroll() {
-		if (!isCreated)
-			return "Error: Le troll n'a pas encore été validé !";
-		String r = ("Numéro      : " + id + "\n" + "Nom         : " + name + "\n"
-				+ "Race        : " + race.name() + "\n" + "Niveau      : " + niveau
-				+ "\n" + "Mouches     : " + listeMouches.size() + "\n"
-				+ formatEquipePorte(tete) + formatEquipePorte(cou)
-				+ formatEquipePorte(mainDroite) + formatEquipePorte(mainGauche)
-				+ formatEquipePorte(torse) + formatEquipePorte(pieds));
-		return r.substring(0, r.length() - 1);
+		if (!isCreated) return "Error: Le troll n'a pas encore été validé !";
+		String r = ("Numéro      : " + id + "\n" + "Nom         : " + name
+				+ "\n" + "Race        : " + race.name() + "\n"
+				+ "Niveau      : " + niveau + "\n" + "Mouches     : "
+				+ listeMouches.size() + "\n" + formatEquipePorte(tete)
+				+ formatEquipePorte(cou) + formatEquipePorte(mainDroite)
+				+ formatEquipePorte(mainGauche) + formatEquipePorte(torse) + formatEquipePorte(pieds));
+		return r.substring(
+			0,
+			r.length() - 1);
 	}
 
 	private String formatEquipePorte(Equipement e) {
-		if (e == null)
-			return "";
+		if (e == null) return "";
 		switch (e.getType()) {
 		case armure:
 			return "Torse       : " + e.getId() + " " + e.getName() + "\n";
@@ -558,8 +467,8 @@ public class Troll {
 
 	public String getProfil() {
 		String returnstring = "Nom : " + name + "\n" + "Niveau " + niveau
-				+ "\n" + "Race : " + race.name() + "\n\n" + "Attaque : " + des_Attaque
-				+ "D6 + " + bmAttaque;
+				+ "\n" + "Race : " + race.name() + "\n\n" + "Attaque : "
+				+ des_Attaque + "D6 + " + bmAttaque;
 		returnstring += "/" + bmmAttaque;
 		returnstring += "\n" + "Esquive : " + des_Esquive + "D6 + " + bmEsquive
 				+ "/" + bmmEsquive + "\n" + "Dégats : " + des_Degat + "D3 + "
@@ -578,27 +487,31 @@ public class Troll {
 
 		returnstring += "Compétences : \n";
 
-		Iterator<Integer> it = pourcentagesComp.keySet().iterator();
+		Iterator<Competences> it = pourcentagesComp.keySet().iterator();
 		while (it.hasNext()) {
-			int idComp = it.next();
-			Iterator<Integer> it2 = pourcentagesComp.get(idComp).keySet()
-					.iterator();
+			Competences idComp = it.next();
+			Iterator<Integer> it2 = pourcentagesComp.get(
+				idComp).keySet().iterator();
 			while (it2.hasNext()) {
 				int level = it2.next();
-				int pour = pourcentagesComp.get(idComp).get(level);
+				int pour = pourcentagesComp.get(
+					idComp).get(
+					level);
 				if (pour > 0)
-					returnstring += NOM_COMP[idComp - 1] + " : " + pour
+					returnstring += idComp.toString() + " : " + pour
 							+ "% (Niveau " + level + ")\n";
 			}
 		}
 		returnstring += "Sorts : \n";
-		for (int i = 0; i < NB_SORT; i++) {
-			if (pourcentagesSort[i] > 0) {
-				returnstring += NOM_SORT[i - 1] + " : " + pourcentagesSort[i]
+		for (Sort sort : Sort.values()) {
+			if (pourcentagesSort.get(sort) > 0) {
+				returnstring += sort + " : " + pourcentagesSort.get(sort)
 						+ "%\n";
 			}
 		}
-		return returnstring.substring(0, returnstring.length() - 1);
+		return returnstring.substring(
+			0,
+			returnstring.length() - 1);
 	}
 
 	public String getFullProfil() {
@@ -617,38 +530,32 @@ public class Troll {
 		s += armure_phy + ";" + armure_mag + ";" + malus_des_esquive + ";"
 				+ nbParade + ";" + nbCA + ";" + rm + ";" + bmRM + ";" + mm
 				+ ";" + bmMM + ";" + concentration + ";";
-		if (camoufle)
-			s += "1;";
-		else
-			s += "0;";
-		if (invisible)
-			s += "1";
-		else
-			s += "0";
+		if (camoufle) s += "1;";
+		else s += "0;";
+		if (invisible) s += "1";
+		else s += "0";
 		return s;
 	}
 
-	public boolean addComp(int id, int prctSuccess, int level) {
-		if (id < 1 || id > NB_COMP)
-			return false;
-		if (id <= 4 && id != race.compReserve().ordinal())//TODO use the comp
-			return false;
-		if (prctSuccess > 95)
-			return false;
-		if ((id != 5 && id != 9) || level < 1 || level > 5)
-			level = 1;
-		setComp(id, prctSuccess, level);
+	public boolean addComp(Competences comp, int prctSuccess, int level) {
+		if (comp.isReserved() && comp != race.compReserve()) return false;
+		if (prctSuccess > 95) return false;
+		if (level < 1 || level > comp.maxCompLvl) {
+			level = comp.maxCompLvl;
+		}
+		setComp(
+			comp,
+			prctSuccess,
+			level);
 		return true;
 	}
 
-	public boolean addSort(int id, int pour) {
-		if (id < 1 || id > NB_SORT)
-			return false;
-		if (id <= 4 && id != race.sortReserve())
-			return false;
-		if (pour > 85)
-			return false;
-		pourcentagesSort[id] = pour;
+	public boolean addSort(Sort sort, int pour) {
+		if (sort.isReserved() && sort != race.sortReserve()) return false;
+		if (pour > 85) return false;
+		pourcentagesSort.put(
+			sort,
+			pour);
 		return true;
 	}
 
@@ -657,8 +564,7 @@ public class Troll {
 	}
 
 	public boolean valideTroll() {
-		if (!verifNiveau())
-			return false;
+		if (!verifNiveau()) return false;
 		isCreated = true;
 		return true;
 	}
@@ -668,29 +574,20 @@ public class Troll {
 	}
 
 	private String formateCarac(int carac) {
-		if (carac > 0)
-			return "+" + carac;
+		if (carac > 0) return "+" + carac;
 		return "" + carac;
 	}
 
 	public boolean verifNiveau() {
 		int px = 0;
-		if (race == races.skrim)
-			px += somme(des_Attaque - 4) * 12;
-		else
-			px += somme(des_Attaque - 3) * 16;
-		if (race == races.durakuir)
-			px += somme((pv_totaux - 40) / 10) * 12;
-		else
-			px += somme((pv_totaux - 30) / 10) * 16;
-		if (race == races.kastar)
-			px += somme(des_Degat - 4) * 12;
-		else
-			px += somme(des_Degat - 3) * 16;
-		if (race == races.tomawak)
-			px += somme(vue - 4) * 12;
-		else
-			px += somme(vue - 3) * 16;
+		if (race == races.skrim) px += somme(des_Attaque - 4) * 12;
+		else px += somme(des_Attaque - 3) * 16;
+		if (race == races.durakuir) px += somme((pv_totaux - 40) / 10) * 12;
+		else px += somme((pv_totaux - 30) / 10) * 16;
+		if (race == races.kastar) px += somme(des_Degat - 4) * 12;
+		else px += somme(des_Degat - 3) * 16;
+		if (race == races.tomawak) px += somme(vue - 4) * 12;
+		else px += somme(vue - 3) * 16;
 		px += somme(des_Esquive - 3) * 16;
 		px += somme(des_Regeneration - 1) * 30;
 		switch (duree_tour) {
@@ -727,26 +624,26 @@ public class Troll {
 			px += 55 * 18;
 			break;
 		default:
-			if (duree_tour > 555)
-				return false;
+			if (duree_tour > 555) return false;
 			px += (somme((555 - duree_tour) * 2 / 5) + 55 + 10 * ((555 - duree_tour) * 2 / 5)) * 18;
 		}
-		Iterator<Integer> it = pourcentagesComp.keySet().iterator();
+		Iterator<Competences> it = pourcentagesComp.keySet().iterator();
 		while (it.hasNext()) {
-			int idComp = it.next();
+			Competences ownedComp = it.next();
 			int level = 0;
-			Iterator<Integer> it2 = pourcentagesComp.get(idComp).keySet()
-					.iterator();
+			Iterator<Integer> it2 = pourcentagesComp.get(
+				ownedComp).keySet().iterator();
 			while (it2.hasNext()) {
 				int lev = it2.next();
-				if (lev > level)
-					level = lev;
+				if (lev > level) level = lev;
 			}
 			for (int i = 1; i < level; i++)
-				if (pourcentagesComp.get(idComp).get(i) == null
-						|| pourcentagesComp.get(idComp).get(i) < 75)
-					return false;
-			px += coutPX[idComp] * ((level * (level + 1)) / 2);
+				if (pourcentagesComp.get(
+					ownedComp).get(
+					i) == null || pourcentagesComp.get(
+					ownedComp).get(
+					i) < 75) return false;
+			px += ownedComp.minTrollLvl() * ((level * (level + 1)) / 2);
 		}
 		// if((niveau)*(niveau+3)*5<=px)
 		// System.out.println("Problème : Un niveau "+niveau+" a au max "+((niveau)*(niveau+3)*5)+" et vous en avez dépensé "+px);
@@ -754,58 +651,82 @@ public class Troll {
 	}
 
 	public void equipe(Equipement e) {
-		if (!listeEquipement.contains(e))
-			return;
+		if (!listeEquipement.contains(e)) return;
 		switch (e.getType()) {
 		case armure:
-			if (torse != null)
-				bonusEquip(torse, false);
+			if (torse != null) bonusEquip(
+				torse,
+				false);
 			torse = e;
-			bonusEquip(e, true);
+			bonusEquip(
+				e,
+				true);
 			return;
 		case bouclier:
-			if (mainGauche != null)
-				bonusEquip(mainGauche, false);
+			if (mainGauche != null) bonusEquip(
+				mainGauche,
+				false);
 			if (mainDroite != null && mainDroite.getType() == types.arme2h) {
-				bonusEquip(mainDroite, false);
+				bonusEquip(
+					mainDroite,
+					false);
 				mainDroite = null;
 			}
 			mainGauche = e;
-			bonusEquip(e, true);
+			bonusEquip(
+				e,
+				true);
 			return;
 		case casque:
-			if (tete != null)
-				bonusEquip(tete, false);
+			if (tete != null) bonusEquip(
+				tete,
+				false);
 			tete = e;
-			bonusEquip(e, true);
+			bonusEquip(
+				e,
+				true);
 			return;
 		case arme1H:
-			if (mainDroite != null)
-				bonusEquip(mainDroite, false);
+			if (mainDroite != null) bonusEquip(
+				mainDroite,
+				false);
 			mainDroite = e;
-			bonusEquip(e, true);
+			bonusEquip(
+				e,
+				true);
 			return;
 		case talisman:
-			if (cou != null)
-				bonusEquip(cou, false);
+			if (cou != null) bonusEquip(
+				cou,
+				false);
 			cou = e;
-			bonusEquip(e, true);
+			bonusEquip(
+				e,
+				true);
 			return;
 		case bottes:
-			if (pieds != null)
-				bonusEquip(pieds, false);
+			if (pieds != null) bonusEquip(
+				pieds,
+				false);
 			pieds = e;
-			bonusEquip(e, true);
+			bonusEquip(
+				e,
+				true);
 			return;
 		case arme2h:
-			if (mainDroite != null)
-				bonusEquip(mainDroite, false);
+			if (mainDroite != null) bonusEquip(
+				mainDroite,
+				false);
 			if (mainGauche != null) {
-				bonusEquip(mainGauche, false);
+				bonusEquip(
+					mainGauche,
+					false);
 				mainGauche = null;
 			}
 			mainDroite = e;
-			bonusEquip(e, true);
+			bonusEquip(
+				e,
+				true);
 			return;
 		}
 		return;
@@ -813,8 +734,8 @@ public class Troll {
 
 	public Equipement getEquipementById(int id) {
 		for (int i = 0; i < listeEquipement.size(); i++) {
-			if (listeEquipement.elementAt(i).getId() == id)
-				return listeEquipement.elementAt(i);
+			if (listeEquipement.elementAt(
+				i).getId() == id) return listeEquipement.elementAt(i);
 		}
 		return null;
 	}
@@ -825,14 +746,14 @@ public class Troll {
 			int equip = 0;
 			Equipement e = listeEquipement.elementAt(i);
 			if (e == torse || e == mainGauche || e == mainDroite || e == tete
-					|| e == cou || e == pieds)
-				equip = 1;
+					|| e == cou || e == pieds) equip = 1;
 			s += e.getId() + ";" + e.getType() + ";" + equip + ";"
 					+ e.getDescr() + ";" + e.getName() + "\n";
 		}
-		if (s.equals(""))
-			return "Aucun équipement";
-		return s.substring(0, s.length() - 1);
+		if (s.equals("")) return "Aucun équipement";
+		return s.substring(
+			0,
+			s.length() - 1);
 	}
 
 	public boolean isEquipe(Equipement e) {
@@ -898,56 +819,49 @@ public class Troll {
 		return glue > 0;
 	}
 
-	public int getReussiteSort(int id) {
-		if (id < 1 || id > NB_SORT)
-			return 0;
-		return pourcentagesSort[id];
+	public int getReussiteSort(Sort sort) {
+		return pourcentagesSort.get(sort);
 	}
 
-	public int getLevelComp(int id) {
-		Hashtable<Integer, Integer> h = pourcentagesComp.get(id);
-		if (h == null)
-			return 0;
+	public int getLevelComp(Competences comp) {
+		Hashtable<Integer, Integer> h = pourcentagesComp.get(comp);
+		if (h == null) return 0;
 		int level = 0;
 		Iterator<Integer> it = h.keySet().iterator();
 		while (it.hasNext()) {
 			int lev = it.next();
-			if (lev > level)
-				level = lev;
+			if (lev > level) level = lev;
 		}
 		return level;
 	}
 
-	public int getReussiteComp(int id, int level) {
-		if (id < 1 || id > NB_COMP)
-			return 0;
-		Hashtable<Integer, Integer> h = pourcentagesComp.get(id);
-		if (h == null)
-			return 0;
+	public int getReussiteComp(Competences comp, int level) {
+		Hashtable<Integer, Integer> h = pourcentagesComp.get(comp);
+		if (h == null) return 0;
 		Integer i = h.get(level);
-		if (i == null)
-			return 0;
+		if (i == null) return 0;
 		return i;
 	}
 
-	public void augmentComp(int id, int level, int pour) {
-		if (id < 1 || id > NB_COMP)
-			return;
-		Hashtable<Integer, Integer> h = pourcentagesComp.get(id);
-		if (h == null)
-			return;
+	public void augmentComp(Competences comp, int level, int pour) {
+		Hashtable<Integer, Integer> h = pourcentagesComp.get(comp);
+		if (h == null) return;
 		Integer i = h.get(level);
-		if (i == null)
-			return;
-		h.put(level, i + pour);
+		if (i == null) return;
+		h.put(
+			level,
+			i + pour);
 	}
 
-	public void augmentSort(int id, int i) {
-		if (id < 1 || id > NB_SORT)
-			return;
-		pourcentagesSort[id] += i;
-		if (pourcentagesSort[id] > 80)
-			pourcentagesSort[id] = 80;
+	public void augmentSort(Sort sort, int i) {
+		int val = pourcentagesSort.get(sort);
+		val += i;
+		if (val > 80) {
+			val = 80;
+		}
+		pourcentagesSort.put(
+			sort,
+			val);
 	}
 
 	public void setPos(int x, int y, int n) {
@@ -996,7 +910,9 @@ public class Troll {
 	}
 
 	public int getAttaque() {
-		return Math.max(0, des_Attaque - malus_des_attaque);
+		return Math.max(
+			0,
+			des_Attaque - malus_des_attaque);
 	}
 
 	public boolean isDead() {
@@ -1004,7 +920,9 @@ public class Troll {
 	}
 
 	public int getEsquive() {
-		return Math.max(0, des_Esquive - malus_des_esquive);
+		return Math.max(
+			0,
+			des_Esquive - malus_des_esquive);
 	}
 
 	public int getEsquiveTotale() {
@@ -1160,14 +1078,18 @@ public class Troll {
 					+ nbResu + " résurrection(s)\n";
 			if (MHAGame.instance().getMode() == gameModes.teamdeathmatch
 					&& MHAGame.instance().isRegroupe()) {
-				MHAGame.instance().placeTrollInHisTeam(this);
-			} else
-				setPos(MHAGame.instance().roll(1,
-						MHAGame.instance().getSizeArena()) - 1,
-						MHAGame.instance().roll(1,
-								MHAGame.instance().getSizeArena()) - 1,
-						-MHAGame.instance().roll(1,
-								(MHAGame.instance().getSizeArena() + 1) / 2));
+				MHAGame.instance().placeTrollInHisTeam(
+					this);
+			} else setPos(
+				MHAGame.instance().roll(
+					1,
+					MHAGame.instance().getSizeArena()) - 1,
+				MHAGame.instance().roll(
+					1,
+					MHAGame.instance().getSizeArena()) - 1,
+				-MHAGame.instance().roll(
+					1,
+					(MHAGame.instance().getSizeArena() + 1) / 2));
 			pv_actuels = (pv_totaux * 50) / 100;
 			s += "Vous réapparaissez en X=" + posx + " Y=" + posy + " N="
 					+ posn + " avec seulement " + pv_actuels + "PV";
@@ -1192,11 +1114,14 @@ public class Troll {
 			removeBMs();
 			s += "\nVotre tour de jeu et votre nouvelle date limite d'action ont été calculés.";
 			if (pv_totaux - pv_actuels != 0
-					&& (250 * (pv_totaux - pv_actuels) / pv_totaux)
-							+ Math.min(0, poids + bmDLA) > 0)
+					&& (250 * (pv_totaux - pv_actuels) / pv_totaux) + Math.min(
+						0,
+						poids + bmDLA) > 0)
 				s += "\nSa durée est augmentée de "
 						+ convertTime((250 * (pv_totaux - pv_actuels) / pv_totaux)
-								+ Math.min(0, poids + bmDLA))
+								+ Math.min(
+									0,
+									poids + bmDLA))
 						+ " à cause de vos blessures.";
 			if (poids + bmDLA > 0) {
 				s += "\nSa durée est augmentée de "
@@ -1206,16 +1131,23 @@ public class Troll {
 		}
 		s += "\nVotre nouvelle date limite d'action est le "
 				+ hour2string(debut_tour);
-		int i = Math.max(MHAGame.instance().roll(des_Regeneration, 3)
-				+ bmRegeneration + bmmRegeneration, 0);
+		int i = Math.max(
+			MHAGame.instance().roll(
+				des_Regeneration,
+				3) + bmRegeneration + bmmRegeneration,
+			0);
 		int j = i - venin;
 		if (pv_actuels < pv_totaux) {
 			s += "\nVous aviez " + pv_actuels + " Points de Vie.";
 			s += "\nVous avez régénéré de " + i + " Points de Vie.";
-			nbPVRegen += Math.min(pv_totaux - pv_actuels, i);
+			nbPVRegen += Math.min(
+				pv_totaux - pv_actuels,
+				i);
 			modify = true;
 		}
-		pv_actuels = Math.min(pv_totaux, pv_actuels + j);
+		pv_actuels = Math.min(
+			pv_totaux,
+			pv_actuels + j);
 		if (venin > 0) {
 			s += "\nLe venin vous fait perdre " + venin + " Points de Vie.";
 			if (pv_actuels <= 0) {
@@ -1299,21 +1231,16 @@ public class Troll {
 	}
 
 	public boolean isVisibleFrom(int x, int y, int n, int v) {
-		if (v < 0)
-			v = 0;
-		if (invisible || isDead())
-			return false;
-		if (camoufle)
-			return x == posx && y == posy && n == posn && v >= 0;
+		if (v < 0) v = 0;
+		if (invisible || isDead()) return false;
+		if (camoufle) return x == posx && y == posy && n == posn && v >= 0;
 		return Math.abs(x - posx) <= v && Math.abs(y - posy) <= v
 				&& Math.abs(n - posn) <= (v + 1) / 2;
 	}
 
 	public static String convertTime(int t) {
-		if (t >= 0)
-			return (t / 60) + " heures et " + (t % 60) + " minutes";
-		else
-			return "-" + (-t / 60) + " heures et -" + ((-t) % 60) + " minutes";
+		if (t >= 0) return (t / 60) + " heures et " + (t % 60) + " minutes";
+		else return "-" + (-t / 60) + " heures et -" + ((-t) % 60) + " minutes";
 	}
 
 	public static String hour2string(int t) {
