@@ -19,6 +19,8 @@
 
 package mha.engine.core;
 
+import mha.engine.core.Troll.races;
+
 
 public class  Test{
 
@@ -30,14 +32,14 @@ public class  Test{
     }
 
     private void addtroll (){
-        if(MHAGameTest.addTroll(new Troll("TOTO",12345,1,0,Troll.RACE_KASTAR))){System.out.println("création troll 1 ok");}
+        if(MHAGameTest.addTroll(new Troll("TOTO",12345,1,0,races.kastar))){System.out.println("création troll 1 ok");}
 	MHAGameTest.getTrollById(12345).setProfil(50,3,9,18,4,80,6,600,50,30);
 	for(int i=1;i<=14;i++)
 		MHAGameTest.getTrollById(12345).addComp(i,90,1);
 	for(int i=1;i<=44;i++)
 		MHAGameTest.getTrollById(12345).addSort(i,80);
 	if(MHAGameTest.getTrollById(12345).verifNiveau()){System.out.println("Upload du profil ok");}
-        if(MHAGameTest.addTroll(new Troll("TUTU",23456,1,0,Troll.RACE_SKRIM))){System.out.println("création troll 2 ok");}
+        if(MHAGameTest.addTroll(new Troll("TUTU",23456,1,0,races.skrim))){System.out.println("création troll 2 ok");}
     }
 
     private void newTurn(){
@@ -59,8 +61,8 @@ public class  Test{
     private void attaque(boolean aMort){
         Troll T1=MHAGameTest.getTrollById(12345);
         Troll T2=MHAGameTest.getTrollById(23456);
-        T1.addComp(Troll.COMP_LDP, 90,1);
-        T2.addComp(Troll.COMP_LDP, 90,1);
+        T1.addComp(Troll.LdP, 90,1);
+        T2.addComp(Troll.LdP, 90,1);
         T1.setPV(100);
         T2.setPV(100);
         Equipement e1 = new Equipement(123456,"potion zone",Equipement.types.potion,1,2,3,4,5,6,7,8,9,123,456,true,false,5);

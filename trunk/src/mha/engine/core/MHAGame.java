@@ -21,6 +21,9 @@ package mha.engine.core;
 import java.util.*;
 import java.io.*;
 
+import mha.engine.core.Troll.comps;
+import mha.engine.core.Troll.races;
+
 //C'est mal !!!
 
 public class MHAGame implements Serializable {
@@ -187,18 +190,26 @@ public class MHAGame implements Serializable {
 	public boolean addTroll(Troll trollToAdd) {
 		if (gamestate != gameStates.newGame)
 			return false;
-		for (Troll presentTroll : trolls) {
-			if (trollToAdd.sameNameOrId(presentTroll))
-				return false;
+		if(trolls.contains(trollToAdd)) {
+			return false;
 		}
+//		for (Troll presentTroll : trolls) {
+//			if (trollToAdd.sameNameOrId(presentTroll))
+//				return false;
+//		}
 		trolls.add(trollToAdd);
-		if (trollToAdd.getRace() == Troll.RACE_TOMAWAK) {
+		if (trollToAdd.getRace() == races.tomawak) {
 			trollToAdd.setCamouflage(isTomCamoufle());
 		}
 		trollToAdd.setResu(nbRespawn);
 		return true;
 	}
 
+	/**
+	 * return a troll existing in the game with the socketid sepcified
+	 * @param id the socketid of the troll we want
+	 * @return a troll with such a socketid in the game, or null
+	 */
 	public Troll getTrollBySocketId(int id) {
 		for (Troll troll : trolls) {
 			if (id == troll.getSocketId())
@@ -207,6 +218,11 @@ public class MHAGame implements Serializable {
 		return null;
 	}
 
+	/**
+	 * return a troll existing in the game with the id sepcified
+	 * @param id the id of the troll we want
+	 * @return a troll with such an id in the game, or null
+	 */
 	public Troll getTrollById(int id) {
 		for (Troll troll : trolls) {
 			if (id == troll.getId())
@@ -370,6 +386,16 @@ public class MHAGame implements Serializable {
 	}
 
 	public boolean startGame() {
+		if(!canBeStarted()) {
+			return false;
+		}
+		gamestate = gameStates.playing;
+		updateSizeArena();
+		placeTrolls();
+		return true;
+	}
+	
+	protected boolean canBeStarted() {
 		if (gamestate != gameStates.newGame)
 			return false;
 		if (gameMode == gameModes.teamdeathmatch) {
@@ -379,10 +405,16 @@ public class MHAGame implements Serializable {
 					return false;
 			}
 		}
-		gamestate = gameStates.playing;
-		if (sizeArena < 1) {
-			sizeArena = trolls.size() * 3;
+		return true;
+	}
+	
+	protected void updateSizeArena() {
+		if(sizeArena<1) {
+			sizeArena = trolls.size()*3;
 		}
+	}
+	
+	protected void placeTrolls() {
 		if (gameMode == gameModes.teamdeathmatch && regroupe) {
 			for (int i = 0; i < trolls.size(); i++) {
 				placeTrollInHisTeam(trolls.elementAt(i));
@@ -393,10 +425,11 @@ public class MHAGame implements Serializable {
 						roll(1, sizeArena) - 1, -roll(1, (sizeArena + 1) / 2));
 			}
 		}
-		return true;
+		
 	}
 
 	public void newTurn() {
+		//XXX weird
 		if (gamestate != gameStates.playing)
 			return;
 		int ct = 5000000;
@@ -457,10 +490,10 @@ public class MHAGame implements Serializable {
 		return currentTroll;
 	}
 
-	public String getPosition(int id) {
+	public String getTrollPosition(int trollId) {
 		if (gamestate != gameStates.playing)
 			return "Error: The game is not started";
-		Troll t = getTrollBySocketId(id);
+		Troll t = getTrollBySocketId(trollId);
 		if (t == null)
 			return "Error: unknown troll";
 		return "Position: " + t.getPos();
@@ -951,7 +984,7 @@ public class MHAGame implements Serializable {
 				|| decale > currentTroll.getDureeTourTotale())
 			return "Vous ne pouvez pas sacrifier autant de PV";
 		Object[] lo = competence(currentTroll,
-				Troll.COMP_ACCELERATION_DU_METABOLISME, 2);
+				Troll.AM, 2);
 		if (((Integer) lo[0]) > 0) {
 			currentTroll.setPV(currentTroll.getPV() - pv_sacrifies);
 			currentTroll.setNouveauTour(currentTroll.getNouveauTour() - decale);
@@ -975,7 +1008,7 @@ public class MHAGame implements Serializable {
 		if (currentTroll == t) {
 			return "Error: Pas de flagellation !";
 		}
-		Object[] lo = competence(currentTroll, Troll.COMP_AP, 4);
+		Object[] lo = competence(currentTroll, Troll.AP, 4);
 		String s = lo[1].toString();
 		if (((Integer) lo[0]) > 0)
 			return s
@@ -1002,7 +1035,7 @@ public class MHAGame implements Serializable {
 		if (currentTroll == t) {
 			return "Error: Pas de flagellation !";
 		}
-		Object[] lo = competence(currentTroll, Troll.COMP_BOTTE_SECRETE, 2);
+		Object[] lo = competence(currentTroll, comps.BS.ordinal(), 2);//TODO use the comp directly
 		String s = lo[1].toString();
 		if (((Integer) lo[0]) > 0)
 			return s
@@ -1022,7 +1055,7 @@ public class MHAGame implements Serializable {
 	public String camouflage() {
 		if (currentTroll.getCamouflage())
 			return "Vous êtes déja camouflé";
-		Object[] lo = competence(currentTroll, Troll.COMP_CAMOUFLAGE, 2);
+		Object[] lo = competence(currentTroll, Troll.camou, 2);
 		String s = lo[1].toString();
 		if (((Integer) lo[0]) > 0) {
 			currentTroll.setCamouflage(true);
@@ -1060,7 +1093,7 @@ public class MHAGame implements Serializable {
 		int nbpa = 4;
 		if (currentTroll.isGlue())
 			nbpa = 6;
-		Object[] lo = competence(currentTroll, Troll.COMP_CHARGER, nbpa);
+		Object[] lo = competence(currentTroll, Troll.charge, nbpa);
 		String s = lo[1].toString();
 		if (((Integer) lo[0]) > 0) {
 			currentTroll.setPos(t.getPosX(), t.getPosY(), t.getPosN());
@@ -1090,7 +1123,7 @@ public class MHAGame implements Serializable {
 		if (getLieuFromPosition(currentTroll.getPosX(), currentTroll.getPosY(),
 				currentTroll.getPosN()) != null)
 			return "Error: Il y a déja un lieu sur la case";
-		Object[] lo = competence(currentTroll, Troll.COMP_PIEGE, 4);
+		Object[] lo = competence(currentTroll, Troll.piege_feu, 4);
 		String s = lo[1].toString();
 		if (((Integer) lo[0]) > 0) {
 			listeLieux
@@ -1109,7 +1142,7 @@ public class MHAGame implements Serializable {
 	}
 
 	public String contreAttaque() {
-		Object[] lo = competence(currentTroll, Troll.COMP_CONTREATTAQUE, 2);
+		Object[] lo = competence(currentTroll, Troll.CA, 2);
 		String s = lo[1].toString();
 		if (((Integer) lo[0]) > 0) {
 			currentTroll.setNbCA(currentTroll.getNbCA() + 1);
@@ -1128,7 +1161,7 @@ public class MHAGame implements Serializable {
 		if (currentTroll == t) {
 			return "Error: Pas de flagellation !";
 		}
-		Object[] lo = competence(currentTroll, Troll.COMP_CDB, 4);
+		Object[] lo = competence(currentTroll, Troll.CdB, 4);
 		String s = lo[1].toString();
 		if (((Integer) lo[0]) > 0)
 			return s
@@ -1179,7 +1212,7 @@ public class MHAGame implements Serializable {
 		if (nbpa > currentTroll.getPA())
 			return "Error: Vous avez besoin de " + nbpa
 					+ " PA pour réaliser ce mouvement";
-		Object[] lo = competence(currentTroll, Troll.COMP_DE, nbpa);
+		Object[] lo = competence(currentTroll, Troll.DE, nbpa);
 		String s = lo[1].toString();
 		if (((Integer) lo[0]) > 0) {
 			s += "\n" + deplace(x, y, n, true);
@@ -1196,7 +1229,7 @@ public class MHAGame implements Serializable {
 		if (currentTroll == t) {
 			return "Error: Pas de flagellation !";
 		}
-		Object[] lo = competence(currentTroll, Troll.COMP_FRENESIE, 6);
+		Object[] lo = competence(currentTroll, Troll.frenzy, 6);
 		String s = lo[1].toString();
 		if (((Integer) lo[0]) > 0) {
 			s += "\n"
@@ -1238,14 +1271,14 @@ public class MHAGame implements Serializable {
 			return "Error: Cible hors de portée";
 		}
 
-		Object[] lo = competence(currentTroll, Troll.COMP_LDP, 2);
+		Object[] lo = competence(currentTroll, Troll.LdP, 2);
 		String s = lo[1].toString();
 		if (((Integer) lo[0]) > 0) {
 
 			int bonustoucher = Math.min(10 * (1 - distance)
 					+ currentTroll.getVue() + currentTroll.getBMVue(), 10);
 
-			if (roll(1, 100) < currentTroll.getReussiteComp(Troll.COMP_LDP, 1)
+			if (roll(1, 100) < currentTroll.getReussiteComp(Troll.LdP, 1)
 					+ currentTroll.getConcentration() + bonustoucher) {
 				s += lowLevelPotionParchemin(e, t, portee);
 				currentTroll.removeEquipement(e);
@@ -1268,7 +1301,7 @@ public class MHAGame implements Serializable {
 	}
 
 	public String parer() {
-		Object[] lo = competence(currentTroll, Troll.COMP_PARER, 2);
+		Object[] lo = competence(currentTroll, Troll.parer, 2);
 		String s = lo[1].toString();
 		if (((Integer) lo[0]) > 0) {
 			currentTroll.setNbParade(currentTroll.getNbParade()
@@ -1281,7 +1314,7 @@ public class MHAGame implements Serializable {
 	}
 
 	public String pistage(Troll t) {
-		Object[] lo = competence(currentTroll, Troll.COMP_PISTAGE, 1);
+		Object[] lo = competence(currentTroll, Troll.pistage, 1);
 		String s = lo[1].toString();
 		if (((Integer) lo[0]) > 0) {
 			events.add(current_time + " " + currentTroll.getName() + " ("
@@ -1328,7 +1361,7 @@ public class MHAGame implements Serializable {
 	public String regenerationAccrue() {
 		if (currentTroll.getPV() == currentTroll.getPVTotaux())
 			return "Vous avez tous vos points de vie";
-		Object[] lo = competence(currentTroll, Troll.COMP_REGENERATION_ACCRUE,
+		Object[] lo = competence(currentTroll, Troll.RA,
 				2);
 		String s = lo[1].toString();
 		if (((Integer) lo[0]) > 0) {
@@ -2411,7 +2444,7 @@ public class MHAGame implements Serializable {
 
 		}
 		if (levelSuccess != 0) {
-			if (Troll.COMP_DE != id_comp) {
+			if (Troll.DE != id_comp) {
 				currentTroll.setPA(currentTroll.getPA() - cout);
 				currentTroll.addPAUtil(cout);
 			}
@@ -2420,7 +2453,7 @@ public class MHAGame implements Serializable {
 				jet = 2;
 			else
 				jet = (cout + 1) / 2;
-			if (Troll.COMP_DE == id_comp)
+			if (Troll.DE == id_comp)
 				jet = 1;
 			s += "Celà vous a néanmoins couté "
 					+ jet
@@ -2621,7 +2654,7 @@ public class MHAGame implements Serializable {
 		}
 		if (t.getCamouflage()) {
 			int roll = roll(1, 100);
-			if (roll <= t.getReussiteComp(Troll.COMP_CAMOUFLAGE, 1))
+			if (roll <= t.getReussiteComp(Troll.camou, 1))
 				s += "\nDe plus votre camouflage est resté actif";
 			else {
 				s += "\nDe plus votre camouflage a été annulé";
