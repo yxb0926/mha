@@ -18,9 +18,10 @@
 
 package mha.engine;
 
+import mha.engine.core.Competences;
 import mha.engine.core.MHAGame;
+import mha.engine.core.Sort;
 import mha.engine.core.Troll;
-import mha.engine.core.Troll.comps;
 
 // The main child thread waits for new information in the ChatArea, and 
 // sends it out to the eagerly waiting clients
@@ -42,8 +43,7 @@ public class MHABot {
 	}
 
 	public void play() {
-		if (game.getCurrentTroll() != t)
-			return;
+		if (game.getCurrentTroll() != t) return;
 		synchronized (this) {
 			try {
 				wait(3000);
@@ -55,8 +55,9 @@ public class MHABot {
 		dejaFrappe = false;
 		isCibleTom = false;
 		firstTime = true;
-		if (t.getReussiteComp(Troll.camou, 1) != 0 && nbTrollsCase == 1
-				&& !t.getCamouflage()) {
+		if (t.getReussiteComp(
+			Competences.camou,
+			1) != 0 && nbTrollsCase == 1 && !t.getCamouflage()) {
 			t.beginTurn(game.getTime());
 			if (t.getPV() <= 0) {
 				game.events.add(game.getTime() + " " + t.getName() + " ("
@@ -65,8 +66,9 @@ public class MHABot {
 				return;
 			}
 			game.camouflage();
-		} else if (t.getReussiteComp(Troll.AM, 1) != 0 && nbTrollsCase > 1
-				&& t.getFatigue() < 5
+		} else if (t.getReussiteComp(
+			Competences.AM,
+			1) != 0 && nbTrollsCase > 1 && t.getFatigue() < 5
 				&& t.getDureeTourTotale() / 15 <= t.getPV()) {
 			// System.out.println("J'accélère");
 			t.beginTurn(game.getTime());
@@ -77,8 +79,9 @@ public class MHABot {
 				return;
 			}
 			game.accelerationDuMetabolisme(t.getDureeTourTotale() / 30);
-		} else if (t.getReussiteComp(Troll.RA, 1) != 0
-				&& t.getPV() < (30 * t.getPVTotaux()) / 100) {
+		} else if (t.getReussiteComp(
+			Competences.RA,
+			1) != 0 && t.getPV() < (30 * t.getPVTotaux()) / 100) {
 			t.beginTurn(game.getTime());
 			if (t.getPV() <= 0) {
 				game.events.add(game.getTime() + " " + t.getName() + " ("
@@ -89,7 +92,8 @@ public class MHABot {
 			game.regenerationAccrue();
 		} else {
 			if (nbTrollsCase == 1 && t.getNouveauTour() == game.getTime()) {
-				String[] s = t.getFullProfil().split(";");
+				String[] s = t.getFullProfil().split(
+					";");
 				try {
 					t.decale(Integer.parseInt(s[1]) - 1);
 				} catch (Exception e) {
@@ -106,14 +110,11 @@ public class MHABot {
 			}
 		}
 		// Si j'ai pas assez de PV, je fuis
-		if (t.getPV() < t.getPVTotaux() / 10)
-			deplace();
+		if (t.getPV() < t.getPVTotaux() / 10) deplace();
 		// Si y a du troll à frapper, je frappe
-		else if (nbTrollsCase > 1)
-			frappe();
+		else if (nbTrollsCase > 1) frappe();
 		// Sinon je me cherche une cible
-		else
-			findCible();
+		else findCible();
 		t.endTurn();
 	}
 
@@ -133,8 +134,7 @@ public class MHABot {
 				// System.out.println(trolls[i]+"\n"+x+"=="+pos[1]+" "+y+"=="+pos[2]+" "+n+"=="+pos[3]+" "+(Integer.parseInt(pos[1])==x
 				// && Integer.parseInt(pos[2])==y &&
 				// Integer.parseInt(pos[3])==n));
-				if (dx == x && dy == y && dn == n)
-					nbidentique++;
+				if (dx == x && dy == y && dn == n) nbidentique++;
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -173,7 +173,9 @@ public class MHABot {
 								* d.getBMMEsquive() <= (7 * t.getAttaque()) / 2
 								+ t.getBMAttaque() + t.getBMMAttaque())
 							deg += t.getDegat();
-						deg = Math.max(1, deg / 4);
+						deg = Math.max(
+							1,
+							deg / 4);
 						if (maxDegats < deg) {
 							maxDegats = deg;
 							meilleureAttaque = 1;
@@ -182,25 +184,29 @@ public class MHABot {
 					}
 				}
 				if (dx == x && dy == y && dn == n && di != t.getId()
-						&& t.getReussiteComp(Troll.CdB, 1) != 0 && pa >= 4) {
+						&& t.getReussiteComp(
+							Competences.CdB,
+							1) != 0 && pa >= 4) {
 					Troll d = game.getTrollById(di);
 					if ((7 * d.getEsquive()) / 2 + d.getBMEsquive()
 							+ d.getBMMEsquive() <= (7 * t.getAttaque()) / 2
 							+ t.getBMAttaque() + t.getBMMAttaque()) {
-						int level = t.getLevelComp(Troll.CdB);
+						int level = t.getLevelComp(Competences.CdB);
 						for (int j = 1; j <= level; j++) {
-							int deg = 2
-									* t.getDegat()
-									+ (2 * Math
-											.min(3 * level, t.getDegat() / 2))
-									+ t.getBMDegat() + t.getBMMDegat()
-									- t.getArmurePhy() - t.getArmureMag();
+							int deg = 2 * t.getDegat() + (2 * Math.min(
+								3 * level,
+								t.getDegat() / 2)) + t.getBMDegat()
+									+ t.getBMMDegat() - t.getArmurePhy()
+									- t.getArmureMag();
 							if ((7 * d.getEsquive()) + 2 * d.getBMEsquive() + 2
 									* d.getBMMEsquive() <= (7 * t.getAttaque())
 									/ 2 + t.getBMAttaque() + t.getBMMAttaque())
 								deg += t.getDegat();
-							deg = Math.max(1, (deg * t.getReussiteComp(
-									Troll.CdB, j)) / 400);
+							deg = Math.max(
+								1,
+								(deg * t.getReussiteComp(
+									Competences.CdB,
+									j)) / 400);
 							if (maxDegats < deg) {
 								maxDegats = deg;
 								meilleureAttaque = 2;
@@ -210,25 +216,30 @@ public class MHABot {
 					}
 				}
 				if (dx == x && dy == y && dn == n && di != t.getId()
-						&& t.getReussiteComp(Troll.AP, 1) != 0 && pa >= 4) {
+						&& t.getReussiteComp(
+							Competences.AP,
+							1) != 0 && pa >= 4) {
 					Troll d = game.getTrollById(di);
 					if ((7 * d.getEsquive()) / 2 + t.getBMEsquive()
 							+ t.getBMMEsquive() <= (21 * t.getAttaque()) / 4
 							+ t.getBMAttaque() + t.getBMMAttaque()) {
-						int level = t.getLevelComp(Troll.AP);
+						int level = t.getLevelComp(Competences.AP);
 						for (int j = 1; j <= level; j++) {
 							int deg = 2 * t.getDegat() + t.getBMDegat()
 									+ t.getBMMDegat() - t.getArmurePhy()
 									- t.getArmureMag();
 							if ((7 * d.getEsquive()) + 2 * d.getBMEsquive() + 2
 									* d.getBMMEsquive() <= (7 * t.getAttaque())
-									/ 2
-									+ (7 * Math.min(3 * level,
-											t.getAttaque() / 2) / 2)
+									/ 2 + (7 * Math.min(
+										3 * level,
+										t.getAttaque() / 2) / 2)
 									+ t.getBMAttaque() + t.getBMMAttaque())
 								deg += t.getDegat();
-							deg = Math.max(1, (deg * t.getReussiteComp(
-									Troll.AP, j)) / 400);
+							deg = Math.max(
+								1,
+								(deg * t.getReussiteComp(
+									Competences.AP,
+									j)) / 400);
 							if (maxDegats < deg) {
 								maxDegats = deg;
 								meilleureAttaque = 3;
@@ -238,7 +249,9 @@ public class MHABot {
 					}
 				}
 				if (dx == x && dy == y && dn == n && di != t.getId()
-						&& t.getReussiteComp(Troll.frenzy, 1) != 0 && pa >= 6) {
+						&& t.getReussiteComp(
+							Competences.frenzy,
+							1) != 0 && pa >= 6) {
 					Troll d = game.getTrollById(di);
 					if ((7 * d.getEsquive()) / 2 + d.getBMEsquive()
 							+ d.getBMMEsquive() <= (7 * t.getAttaque()) / 2
@@ -251,8 +264,11 @@ public class MHABot {
 								+ t.getBMAttaque() + t.getBMMAttaque())
 							deg += t.getDegat();
 						deg = deg * 2;
-						deg = Math.max(1, (deg * t.getReussiteComp(
-								Troll.frenzy, 1)) / 600);
+						deg = Math.max(
+							1,
+							(deg * t.getReussiteComp(
+								Competences.frenzy,
+								1)) / 600);
 						if (maxDegats < deg) {
 							maxDegats = deg;
 							meilleureAttaque = 4;
@@ -261,8 +277,9 @@ public class MHABot {
 					}
 				}
 				if (dx == x && dy == y && dn == n && di != t.getId() && pa >= 2
-						&& t.getReussiteComp(comps.BS.ordinal(), 1) != 0
-						&& !t.getCompReservee()) {
+						&& t.getReussiteComp(
+							Competences.BS,
+							1) != 0 && !t.getCompReservee()) {
 					Troll d = game.getTrollById(di);
 					if ((7 * d.getEsquive()) / 2 + d.getBMEsquive()
 							+ d.getBMMEsquive() <= (7 * t.getAttaque()) / 4
@@ -275,8 +292,11 @@ public class MHABot {
 								+ (t.getBMAttaque() + t.getBMMAttaque()) / 2)
 							deg += t.getDegat();
 						deg = deg / 2;
-						deg = Math.max(1,
-								(deg * t.getReussiteComp(comps.BS.ordinal(), 1)) / 200);
+						deg = Math.max(
+							1,
+							(deg * t.getReussiteComp(
+								Competences.BS,
+								1)) / 200);
 						if (maxDegats < deg) {
 							maxDegats = deg;
 							meilleureAttaque = 5;
@@ -285,16 +305,16 @@ public class MHABot {
 					}
 				}
 				if (dx == x && dy == y && dn == n && di != t.getId()
-						&& t.getReussiteSort(Troll.SORT_RAFALE_PSYCHIQUE) != 0
-						&& pa >= 4 && !t.getSortReserve()) {
+						&& t.getReussiteSort(Sort.RP) != 0 && pa >= 4
+						&& !t.getSortReserve()) {
 					Troll d = game.getTrollById(di);
 					int deg = 3 * t.getDegat() + t.getBMMDegat()
 							- t.getArmureMag();
 					deg = Math
 							.max(
-									1,
-									(deg * t
-											.getReussiteSort(Troll.SORT_RAFALE_PSYCHIQUE)) / 400);
+								1,
+								(deg * t
+										.getReussiteSort(Sort.RP)) / 400);
 					if (maxDegats < deg) {
 						maxDegats = deg;
 						meilleureAttaque = 6;
@@ -302,7 +322,7 @@ public class MHABot {
 					}
 				}
 				if (dx == x && dy == y && dn == n && di != t.getId() && pa >= 4
-						&& t.getReussiteSort(Troll.SORT_VAMPIRISME) != 0
+						&& t.getReussiteSort(Sort.vampi) != 0
 						&& !t.getSortReserve()) {
 					Troll d = game.getTrollById(di);
 					if ((7 * d.getEsquive()) / 2 + d.getBMEsquive()
@@ -312,10 +332,12 @@ public class MHABot {
 								- t.getArmureMag();
 						if ((7 * d.getEsquive()) + 2 * d.getBMEsquive() + 2
 								* d.getBMMEsquive() <= (7 * t.getDegat()) / 3
-								+ t.getBMMAttaque())
-							deg += t.getDegat();
-						deg = Math.max(1, (deg * t
-								.getReussiteSort(Troll.SORT_VAMPIRISME)) / 400);
+								+ t.getBMMAttaque()) deg += t.getDegat();
+						deg = Math
+								.max(
+									1,
+									(deg * t
+											.getReussiteSort(Sort.vampi)) / 400);
 						if (maxDegats < deg) {
 							maxDegats = deg;
 							meilleureAttaque = 7;
@@ -324,7 +346,7 @@ public class MHABot {
 					}
 				}
 				if (dx == x && dy == y && dn == n && di != t.getId() && pa >= 4
-						&& t.getReussiteSort(Troll.SORT_GDS) != 0) {
+						&& t.getReussiteSort(Sort.GdS) != 0) {
 					Troll d = game.getTrollById(di);
 					if ((7 * d.getEsquive()) / 2 + d.getBMEsquive()
 							+ d.getBMMEsquive() <= (7 * t.getAttaque()) / 2
@@ -335,10 +357,10 @@ public class MHABot {
 								- t.getArmureMag();
 						if ((7 * d.getEsquive()) + 2 * d.getBMEsquive() + 2
 								* d.getBMMEsquive() <= (7 * t.getAttaque()) / 2
-								+ t.getBMMAttaque())
-							deg += t.getDegat() / 2;
-						deg = Math.max(1, (deg * t
-								.getReussiteSort(Troll.SORT_GDS)) / 400);
+								+ t.getBMMAttaque()) deg += t.getDegat() / 2;
+						deg = Math.max(
+							1,
+							(deg * t.getReussiteSort(Sort.GdS)) / 400);
 						if (maxDegats < deg) {
 							maxDegats = deg;
 							meilleureAttaque = 8;
@@ -347,10 +369,10 @@ public class MHABot {
 					}
 				}
 				if (dx == x && dy == y && dn == n && di != t.getId() && pa >= 6
-						&& t.getReussiteSort(Troll.SORT_EXPLOSION) != 0) {
+						&& t.getReussiteSort(Sort.explo) != 0) {
 					Troll d = game.getTrollById(di);
 					degExplo += (((2 + (t.getDegat() - 3 + (t.getPVTotaux() / 10 - 3)))) * t
-							.getReussiteSort(Troll.SORT_EXPLOSION)) / 600;
+							.getReussiteSort(Sort.explo)) / 600;
 					if (maxDegats < degExplo) {
 						maxDegats = degExplo;
 						meilleureAttaque = 9;
@@ -365,10 +387,14 @@ public class MHABot {
 					add++;
 					porteeCharge++;
 				}
-				if (t.getReussiteComp(Troll.charge, 1) != 0
-						&& Math.max(Math.abs(dx - x), Math.abs(dy - y)) <= porteeCharge
-						&& Math.max(Math.abs(dx - x), Math.abs(dy - y)) > 0
-						&& dn == n && di != t.getId() && pa >= 4) {
+				if (t.getReussiteComp(
+					Competences.charge,
+					1) != 0 && Math.max(
+					Math.abs(dx - x),
+					Math.abs(dy - y)) <= porteeCharge && Math.max(
+					Math.abs(dx - x),
+					Math.abs(dy - y)) > 0 && dn == n && di != t.getId()
+						&& pa >= 4) {
 					Troll d = game.getTrollById(di);
 					if ((7 * d.getEsquive()) / 2 + d.getBMEsquive()
 							+ d.getBMMEsquive() <= (7 * t.getAttaque()) / 2
@@ -380,8 +406,11 @@ public class MHABot {
 								* d.getBMMEsquive() <= (7 * t.getAttaque()) / 2
 								+ t.getBMAttaque() + t.getBMMAttaque())
 							deg += t.getDegat();
-						deg = Math.max(1, (deg * t.getReussiteComp(
-								Troll.charge, 1)) / 400);
+						deg = Math.max(
+							1,
+							(deg * t.getReussiteComp(
+								Competences.charge,
+								1)) / 400);
 						if (maxDegats < deg) {
 							maxDegats = deg;
 							meilleureAttaque = 10;
@@ -398,10 +427,11 @@ public class MHABot {
 					add++;
 					portee++;
 				}
-				if (t.getReussiteSort(Troll.SORT_PROJECTILE_MAGIQUE) != 0
-						&& Math.max(Math.abs(dx - x), Math.abs(dy - y)) <= portee
-						&& dn == n && di != t.getId() && pa >= 4
-						&& !t.getSortReserve()) {
+				if (t.getReussiteSort(Sort.projo) != 0
+						&& Math.max(
+							Math.abs(dx - x),
+							Math.abs(dy - y)) <= portee && dn == n
+						&& di != t.getId() && pa >= 4 && !t.getSortReserve()) {
 					Troll d = game.getTrollById(di);
 					if ((7 * d.getEsquive()) / 2 + d.getBMEsquive()
 							+ d.getBMMEsquive() <= (7 * t.getVue()) / 2
@@ -410,13 +440,12 @@ public class MHABot {
 								- t.getArmureMag();
 						if ((7 * d.getEsquive()) + 2 * d.getBMEsquive() + 2
 								* d.getBMMEsquive() <= (7 * t.getVue()) / 2
-								+ t.getBMMAttaque())
-							deg += t.getVue() / 2;
+								+ t.getBMMAttaque()) deg += t.getVue() / 2;
 						deg = Math
 								.max(
-										1,
-										(deg * t
-												.getReussiteSort(Troll.SORT_PROJECTILE_MAGIQUE)) / 400);
+									1,
+									(deg * t
+											.getReussiteSort(Sort.projo)) / 400);
 						if (maxDegats < deg) {
 							maxDegats = deg;
 							meilleureAttaque = 11;
@@ -441,41 +470,51 @@ public class MHABot {
 		// j'ai une chance de me booster un peu
 		if (pa == 6
 				&& meilleureAttaque == 3
-				&& (t.getReussiteSort(Troll.SORT_ADA) != 0 || t
-						.getReussiteSort(Troll.SORT_ADD) != 0)
-				&& t.getReussiteComp(comps.BS.ordinal(), 1) == 0) {
-			if (t.getReussiteSort(Troll.SORT_ADA) != 0
-					&& MHAGame.instance().roll(1, 160) < t
-							.getReussiteSort(Troll.SORT_ADA))
-				game.augmentationDeLAttaque();
-			else if (t.getReussiteSort(Troll.SORT_ADD) != 0
-					&& MHAGame.instance().roll(1, 160) < t
-							.getReussiteSort(Troll.SORT_ADD))
+				&& (t.getReussiteSort(Sort.AdA) != 0 || t
+						.getReussiteSort(Sort.AdD) != 0)
+				&& t.getReussiteComp(
+					Competences.BS,
+					1) == 0) {
+			if (t.getReussiteSort(Sort.AdA) != 0
+					&& MHAGame.instance().roll(
+						1,
+						160) < t.getReussiteSort(Sort.AdA)) game
+					.augmentationDeLAttaque();
+			else if (t.getReussiteSort(Sort.AdD) != 0
+					&& MHAGame.instance().roll(
+						1,
+						160) < t.getReussiteSort(Sort.AdD))
 				game.augmentationDesDegats();
 			pa = t.getPA();
 		} else if (pa == 6
 				&& meilleureAttaque == 2
-				&& (t.getReussiteSort(Troll.SORT_ADA) != 0 || t
-						.getReussiteSort(Troll.SORT_ADD) != 0)
-				&& t.getReussiteComp(comps.BS.ordinal(), 1) == 0) {
-			if (t.getReussiteSort(Troll.SORT_ADD) != 0
-					&& MHAGame.instance().roll(1, 160) < t
-							.getReussiteSort(Troll.SORT_ADD))
-				game.augmentationDesDegats();
-			else if (t.getReussiteSort(Troll.SORT_ADA) != 0
-					&& MHAGame.instance().roll(1, 160) < t
-							.getReussiteSort(Troll.SORT_ADA))
+				&& (t.getReussiteSort(Sort.AdA) != 0 || t
+						.getReussiteSort(Sort.AdD) != 0)
+				&& t.getReussiteComp(
+					Competences.BS,
+					1) == 0) {
+			if (t.getReussiteSort(Sort.AdD) != 0
+					&& MHAGame.instance().roll(
+						1,
+						160) < t.getReussiteSort(Sort.AdD)) game
+					.augmentationDesDegats();
+			else if (t.getReussiteSort(Sort.AdA) != 0
+					&& MHAGame.instance().roll(
+						1,
+						160) < t.getReussiteSort(Sort.AdA))
 				game.augmentationDeLAttaque();
 			pa = t.getPA();
 		} else if (pa == 6
 				&& (meilleureAttaque == 6 || meilleureAttaque == 7 || meilleureAttaque == 8)
-				&& t.getReussiteSort(Troll.SORT_BUM) != 0
-				&& t.getReussiteComp(comps.BS.ordinal(), 1) == 0) {
-			if (MHAGame.instance().roll(1, 100) < t
-					.getReussiteSort(Troll.SORT_BUM)
-					* (100 - game.calculeSeuil(t.getMM(), meilleureCible
-							.getRM())) / 100)
-				game.bulleMagique();
+				&& t.getReussiteSort(Sort.BuM) != 0 && t.getReussiteComp(
+					Competences.BS,
+					1) == 0) {
+			if (MHAGame.instance().roll(
+				1,
+				100) < t.getReussiteSort(Sort.BuM)
+					* (100 - game.calculeSeuil(
+						t.getMM(),
+						meilleureCible.getRM())) / 100) game.bulleMagique();
 			pa = t.getPA();
 		}
 		switch (meilleureAttaque) {
@@ -516,8 +555,7 @@ public class MHABot {
 			return;
 		}
 		dejaFrappe = true;
-		if (meilleureCible.getRace() == Troll.races.tomawak)
-			isCibleTom = true;
+		if (meilleureCible.getRace() == Troll.races.tomawak) isCibleTom = true;
 		// System.out.println(s);
 		updateVue();
 		frappe();
@@ -532,13 +570,14 @@ public class MHABot {
 		int distMin = 500;
 		Troll cible = null;
 		if (pa >= 2
-				&& (t.getReussiteSort(Troll.SORT_AE) != 0 || t
-						.getReussiteSort(Troll.SORT_ADE) != 0)) {
-			if (MHAGame.instance().roll(1, 160) < t
-					.getReussiteSort(Troll.SORT_AE))
-				game.armureEtheree();
-			else if (MHAGame.instance().roll(1, 160) < t
-					.getReussiteSort(Troll.SORT_ADE))
+				&& (t.getReussiteSort(Sort.AE) != 0 || t
+						.getReussiteSort(Sort.AdE) != 0)) {
+			if (MHAGame.instance().roll(
+				1,
+				160) < t.getReussiteSort(Sort.AE)) game.armureEtheree();
+			else if (MHAGame.instance().roll(
+				1,
+				160) < t.getReussiteSort(Sort.AdE))
 				game.augmentationDeLEsquive();
 			pa = t.getPA();
 		}
@@ -554,8 +593,11 @@ public class MHABot {
 				int porteeCharge = 0;
 				int max = 0;
 				int add = 4;
-				int dist = (Math.max(Math.max(Math.abs(dx - x), Math
-						.abs(dy - y)), Math.abs(dn - n)) + Math.abs(dn - n));
+				int dist = (Math.max(
+					Math.max(
+						Math.abs(dx - x),
+						Math.abs(dy - y)),
+					Math.abs(dn - n)) + Math.abs(dn - n));
 				if (di != t.getId() && distMin > dist) {
 					distMin = dist;
 					cible = game.getTrollById(di);
@@ -565,10 +607,14 @@ public class MHABot {
 					add++;
 					porteeCharge++;
 				}
-				if (t.getReussiteComp(Troll.charge, 1) != 0
-						&& Math.max(Math.abs(dx - x), Math.abs(dy - y)) <= porteeCharge
-						&& Math.max(Math.abs(dx - x), Math.abs(dy - y)) > 0
-						&& dn == n && di != t.getId() && pa >= 4 && firstTime) {
+				if (t.getReussiteComp(
+					Competences.charge,
+					1) != 0 && Math.max(
+					Math.abs(dx - x),
+					Math.abs(dy - y)) <= porteeCharge && Math.max(
+					Math.abs(dx - x),
+					Math.abs(dy - y)) > 0 && dn == n && di != t.getId()
+						&& pa >= 4 && firstTime) {
 					firstTime = false;
 					frappe();
 					return;
@@ -582,30 +628,42 @@ public class MHABot {
 					add++;
 					portee++;
 				}
-				if (t.getReussiteSort(Troll.SORT_PROJECTILE_MAGIQUE) != 0
-						&& Math.max(Math.abs(dx - x), Math.abs(dy - y)) <= portee
-						&& dn == n && di != t.getId() && pa >= 4
-						&& !t.getSortReserve()) {
+				if (t.getReussiteSort(Sort.projo) != 0
+						&& Math.max(
+							Math.abs(dx - x),
+							Math.abs(dy - y)) <= portee && dn == n
+						&& di != t.getId() && pa >= 4 && !t.getSortReserve()) {
 					frappe();
 					return;
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-		if (t.getReussiteComp(Troll.piege_feu, 1) != 0
-				&& pa >= 4
-				&& game.getLieuFromPosition(x, y, n) == null
-				&& MHAGame.instance().roll(1, 160) < t.getReussiteComp(
-						Troll.piege_feu, 1)) {
+		if (t.getReussiteComp(
+			Competences.PaF,
+			1) != 0 && pa >= 4 && game.getLieuFromPosition(
+			x,
+			y,
+			n) == null && MHAGame.instance().roll(
+			1,
+			160) < t.getReussiteComp(
+			Competences.PaF,
+			1)) {
 			game.construireUnPiege();
 			findCible();
 			return;
 		}
-		if (t.getReussiteComp(Troll.RA, 1) != 0
+		if (t.getReussiteComp(
+			Competences.RA,
+			1) != 0
 				&& pa >= 2
 				&& !t.getCompReservee()
-				&& ((MHAGame.instance().roll(1, 50) + 90) * t.getPV())
-						/ t.getPVTotaux() < t.getReussiteComp(Troll.RA, 1)) {
+				&& ((MHAGame.instance().roll(
+					1,
+					50) + 90) * t.getPV()) / t.getPVTotaux() < t
+						.getReussiteComp(
+							Competences.RA,
+							1)) {
 			game.regenerationAccrue();
 			findCible();
 			return;
@@ -613,8 +671,7 @@ public class MHABot {
 		// System.out.println("Je cherche une cible");
 		if (cible == null) {
 			if (deplaceOnce()) {
-				if (nbTrollsCase > 1)
-					frappe();
+				if (nbTrollsCase > 1) frappe();
 				findCible();
 				return;
 			}
@@ -632,7 +689,9 @@ public class MHABot {
 			// On va alors se booster un peu
 			finishPA();
 		}
-		boolean de = (t.getReussiteComp(Troll.DE, 1) != 0);
+		boolean de = (t.getReussiteComp(
+			Competences.DE,
+			1) != 0);
 		int nbpa = paDeplacement();
 		// if(nbTrollsCase>1)
 		// return;
@@ -647,19 +706,21 @@ public class MHABot {
 				finishPA();
 				return;
 			}
-			if (de)
-				result = game.deplacementEclair(sens(cible.getPosX() - x),
-						sens(cible.getPosY() - y), ((nbpa
-								+ ((t.isGlue()) ? 2 : 1)
+			if (de) result = game
+					.deplacementEclair(
+						sens(cible.getPosX() - x),
+						sens(cible.getPosY() - y),
+						((nbpa + ((t.isGlue()) ? 2 : 1)
 								* sens(nbTrollsCase - 1) == pa) ? 0
 								: sens(cible.getPosN() - n)));
-			else
-				result = game.deplace(sens(cible.getPosX() - x), sens(cible
-						.getPosY()
-						- y), ((nbpa + ((t.isGlue()) ? 2 : 1)
-						* sens(nbTrollsCase - 1) == pa) ? 0 : sens(cible
-						.getPosN()
-						- n)), false);
+			else result = game
+					.deplace(
+						sens(cible.getPosX() - x),
+						sens(cible.getPosY() - y),
+						((nbpa + ((t.isGlue()) ? 2 : 1)
+								* sens(nbTrollsCase - 1) == pa) ? 0
+								: sens(cible.getPosN() - n)),
+						false);
 			if (pa == t.getPA()) {
 				System.out.println(result);
 				return;
@@ -668,10 +729,10 @@ public class MHABot {
 			findCible();
 			return;
 		}
-		if (firstTime
-				&& nbTrollsCase > 1
-				&& (pa >= 4 || pa >= 2 && t.getReussiteComp(comps.BS.ordinal(), 1) != 0
-						&& !t.getCompReservee())) {
+		if (firstTime && nbTrollsCase > 1
+				&& (pa >= 4 || pa >= 2 && t.getReussiteComp(
+					Competences.BS,
+					1) != 0 && !t.getCompReservee())) {
 			firstTime = false;
 			frappe();
 			return;
@@ -683,18 +744,17 @@ public class MHABot {
 		// System.out.println("Je fuis");
 		// Bon faudrait penser à se camoufler quand même !!!
 		while (deplaceOnce())
-			if (t.getPA() >= 2 && t.getReussiteComp(Troll.camou, 1) != 0
-					&& nbTrollsCase == 1 && !t.getCamouflage()
+			if (t.getPA() >= 2 && t.getReussiteComp(
+				Competences.camou,
+				1) != 0 && nbTrollsCase == 1 && !t.getCamouflage()
 					&& !t.getCompReservee()) {
 				game.camouflage();
 			}
 	}
 
 	private int sens(int i) {
-		if (i < 0)
-			return -1;
-		if (i == 0)
-			return 0;
+		if (i < 0) return -1;
+		if (i == 0) return 0;
 		return 1;
 	}
 
@@ -702,15 +762,17 @@ public class MHABot {
 		int pa = t.getPA();
 		// if(pa<=1)
 		// return;
-		if (pa >= 2 && t.getReussiteComp(Troll.camou, 1) != 0
-				&& nbTrollsCase == 1 && !t.getCamouflage()
+		if (pa >= 2 && t.getReussiteComp(
+			Competences.camou,
+			1) != 0 && nbTrollsCase == 1 && !t.getCamouflage()
 				&& !t.getCompReservee()) {
 			game.camouflage();
 			finishPA();
 			return;
 		}
-		if (pa >= 2 && t.getReussiteComp(Troll.RA, 1) != 0
-				&& t.getPV() < t.getPVTotaux() && !t.getCompReservee()) {
+		if (pa >= 2 && t.getReussiteComp(
+			Competences.RA,
+			1) != 0 && t.getPV() < t.getPVTotaux() && !t.getCompReservee()) {
 			game.regenerationAccrue();
 			finishPA();
 			return;
@@ -720,43 +782,59 @@ public class MHABot {
 	}
 
 	private int paDeplacement() {
-		boolean de = (t.getReussiteComp(Troll.DE, 1) != 0);
+		boolean de = (t.getReussiteComp(
+			Competences.DE,
+			1) != 0);
 		int nbpa = 2;
-		if (t.isGlue())
-			nbpa = nbpa * 2;
-		if (de)
-			nbpa--;
-		nbpa = Math.min(6, nbpa);
+		if (t.isGlue()) nbpa = nbpa * 2;
+		if (de) nbpa--;
+		nbpa = Math.min(
+			6,
+			nbpa);
 		return nbpa;
 	}
 
 	private boolean deplaceOnce() {
-		if (t.getPV() <= 0)
-			return false;
+		if (t.getPV() <= 0) return false;
 		t.getPosX();
 		t.getPosY();
 		t.getPosN();
 		int pa = t.getPA();
-		boolean de = (t.getReussiteComp(Troll.DE, 1) != 0);
+		boolean de = (t.getReussiteComp(
+			Competences.DE,
+			1) != 0);
 
 		int nbpa = paDeplacement() + ((t.isGlue()) ? 2 : 1)
 				* sens(nbTrollsCase - 1);
 
-		if (nbpa > pa)
-			return false;
+		if (nbpa > pa) return false;
 		String result;
 		do {
-			int dx = MHAGame.instance().roll(1, 3) - 2;
-			int dy = MHAGame.instance().roll(1, 3) - 2;
-			int dn = ((nbpa == pa) ? 0 : MHAGame.instance().roll(1, 3) - 2);
+			int dx = MHAGame.instance().roll(
+				1,
+				3) - 2;
+			int dy = MHAGame.instance().roll(
+				1,
+				3) - 2;
+			int dn = ((nbpa == pa) ? 0 : MHAGame.instance().roll(
+				1,
+				3) - 2);
 			// System.out.println("J'essaie d'aller en "+(x+dx)+" "+(y+dy)+" "+(n+dn));
-			if (de)
-				result = game.deplacementEclair(dx, dy, dn);
-			else
-				result = game.deplace(dx, dy, dn, false);
+			if (de) result = game.deplacementEclair(
+				dx,
+				dy,
+				dn);
+			else result = game.deplace(
+				dx,
+				dy,
+				dn,
+				false);
 			// if(result.substring(0,6).equals("Error:"))
 			// System.out.println("J'essaie d'aller en "+(x+dx)+" "+(y+dy)+" "+(n+dn)+"\n"+result);
-		} while (result.substring(0, 6).equals("Error:"));
+		} while (result.substring(
+			0,
+			6).equals(
+			"Error:"));
 		updateVue();
 		return true;
 	}

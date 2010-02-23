@@ -26,9 +26,11 @@ import java.util.Vector;
 
 import javax.swing.Timer;
 
+import mha.engine.core.Competences;
 import mha.engine.core.Equipement;
 import mha.engine.core.MHAGame;
 import mha.engine.core.Mouche;
+import mha.engine.core.Sort;
 import mha.engine.core.Troll;
 import mha.engine.core.Equipement.types;
 import mha.engine.core.MHAGame.gameModes;
@@ -290,11 +292,11 @@ public class MHAServer extends Thread {
 			}
 			String s = "Comp: ";
 
-			for (int i = 1; i <= Troll.NB_COMP; i++) {
-				int level = t.getLevelComp(i);
-				s += t.getReussiteComp(i, 1);
+			for (Competences comp : Competences.values()) {
+				int level = t.getLevelComp(comp);
+				s += t.getReussiteComp(comp, 1);
 				for (int j = 2; j <= level; j++)
-					s += "|" + t.getReussiteComp(i, j);
+					s += "|" + t.getReussiteComp(comp, j);
 				s += ";";
 			}
 			myChatArea.putString(myIndex, s.substring(0, s.length() - 1));
@@ -307,9 +309,9 @@ public class MHAServer extends Thread {
 				return false;
 			}
 			String s = "Sort: ";
-			for (int i = 1; i < Troll.NB_SORT; i++)
-				s += t.getReussiteSort(i) + ";";
-			myChatArea.putString(myIndex, s + t.getReussiteSort(Troll.NB_SORT));
+			for (Sort sort : Sort.values())
+				s += t.getReussiteSort(sort) + ";";
+			myChatArea.putString(myIndex, s);
 		} else if (liste.length == 1
 				&& liste[0].toLowerCase().equals("getlieux")) {
 			myChatArea.putString(myIndex, "Lieux: " + game.getLieux(myIndex));
@@ -426,24 +428,24 @@ public class MHAServer extends Thread {
 				return false;
 			}
 			try {
-				int idSort = Math.abs(Integer.parseInt(liste[1]));
+				Sort sort = Sort.valueOf(liste[1]);
 				int pourSort = Math.abs(Integer.parseInt(liste[2]));
 				caracTrolls.set(myIndex, caracTrolls.get(myIndex) + inputLine
 						+ "\n");
-				if (idSort <= 0 || idSort > Troll.NB_SORT + 1) {
+				if (sort == null) {
 					myChatArea.putString(myIndex,
 							"Error: Ce sortilège n'existe pas");
 					return false;
 				}
-				if (t.addSort(idSort, pourSort))
+				if (t.addSort(sort, pourSort))
 					myChatArea.putString(myIndex,
 							"Vous connaissez maintenant le sortilège "
-									+ Troll.NOM_SORT[idSort - 1] + " à "
+									+ sort + " à "
 									+ pourSort + "%");
 				else
 					myChatArea.putString(myIndex,
 							"Vous ne pouvez pas apprendre le sortilège "
-									+ Troll.NOM_SORT[idSort - 1] + " à "
+									+ sort + " à "
 									+ pourSort + "%");
 				return false;
 			} catch (NumberFormatException e) {
@@ -465,28 +467,28 @@ public class MHAServer extends Thread {
 				return false;
 			}
 			try {
-				int idComp = Math.abs(Integer.parseInt(liste[1]));
+				Competences usedComp = Competences.valueOf(liste[1]);
 				int pourComp = Math.abs(Integer.parseInt(liste[2]));
 				int level = 1;
 				if (liste.length == 4)
 					level = Math.abs(Integer.parseInt(liste[3]));
 				caracTrolls.set(myIndex, caracTrolls.get(myIndex) + inputLine
 						+ "\n");
-				if (idComp <= 0 || idComp > Troll.NB_COMP + 1) {
+				if (usedComp==null) {
 					myChatArea.putString(myIndex,
 							"Error: Cete compétence n'existe pas");
 					return false;
 				}
-				if (t.addComp(idComp, pourComp, level))
+				if (t.addComp(usedComp, pourComp, level))
 					myChatArea.putString(myIndex,
 							"Vous connaissez maintenant la compétence "
-									+ Troll.NOM_COMP[idComp - 1]
+									+ usedComp
 									+ " au niveau " + level + " à " + pourComp
 									+ "%");
 				else
 					myChatArea.putString(myIndex,
 							"Vous ne pouvez pas apprendre la compétence "
-									+ Troll.NOM_COMP[idComp - 1]
+									+ usedComp
 									+ " au niveau " + level + " à " + pourComp
 									+ "%");
 				return false;

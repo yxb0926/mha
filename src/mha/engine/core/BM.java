@@ -70,10 +70,8 @@ public class BM implements Cloneable {
 	public BM(String name, int att, int attM, int esq, int deg, int degM,
 			int dla, int reg, int vue, int venin, int arm, int armM, int mm,
 			int rm, boolean glued, int duree) {
-		this(name, att, esq, deg, dla, reg, vue, venin, arm, armM, mm, rm,
-				glued, duree);
-		this.bmmDegat = degM;
-		this.bmmAttaque = attM;
+		this(name, att, attM, esq, 0, deg, degM, dla, reg, 0, vue, 0, venin, arm, armM, mm, rm,
+				glued, false, 0, 0, 0, 0, 0, duree);
 	}
 
 	/**
