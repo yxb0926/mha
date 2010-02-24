@@ -20,6 +20,8 @@ package mha.engine.core;
 
 public class Equipement extends BM {
 
+	private static final long serialVersionUID = 1L;
+	
 	protected int id;
 	protected types type;
 	protected boolean zone;
@@ -60,9 +62,9 @@ public class Equipement extends BM {
 	public Equipement(int id, String name, boolean zone, boolean droppable,
 			int poidsMins, types type, int att, int attM, int esq, int esqM,
 			int deg, int degM, int dlaMin, int reg, int regM, int vue,
-			int vueM, int PVs, int arm, int armM, int mm, int rm) {
+			int vueM, int soin, int pvMax, int arm, int armM, int mm, int rm) {
 		super(name, att, attM, esq, esqM, deg, degM, dlaMin, reg, regM, vue,
-			vueM, arm, armM, mm, rm);
+			vueM, soin, pvMax, arm, armM, mm, rm);
 		this.id = id;
 		this.zone = zone;
 		this.droppable = droppable;
@@ -71,26 +73,26 @@ public class Equipement extends BM {
 	}
 
 	public Equipement(int id, String name, types type, int att, int esq,
-			int deg, int dla, int reg, int vue, int PVs, int arm, int armM,
+			int deg, int dla, int reg, int vue, int soin, int arm, int armM,
 			int mm, int rm, boolean zone, boolean drop, int poids) {
 		this(id, name, zone, drop, poids, type, att, 0, esq, 0, deg, 0, dla,
-			reg, 0, vue, 0, PVs, arm, armM, mm, rm);
+			reg, 0, vue, 0, soin, 0, arm, armM, mm, rm);
 	}
 
 	public Equipement(int id, String name, types type, int att, int attM,
-			int esq, int deg, int degM, int dla, int reg, int vue, int PVs,
+			int esq, int deg, int degM, int dla, int reg, int vue, int soin,
 			int arm, int armM, int mm, int rm, boolean zone, boolean drop,
 			int poids) {
 		this(id, name, zone, drop, poids, type, att, 0, esq, 0, deg, degM, dla,
-			reg, 0, vue, 0, PVs, arm, armM, mm, rm);
+			reg, 0, vue, 0, soin, 0, arm, armM, mm, rm);
 	}
 
 	public Equipement(int id, String name, types type, int att, int attM,
 			int esq, int esqM, int deg, int degM, int dla, int reg, int regM,
-			int vue, int vueM, int PVs, int arm, int armM, int mm, int rm,
+			int vue, int vueM, int soin, int arm, int armM, int mm, int rm,
 			boolean zone, boolean drop, int poids) {
 		this(id, name, zone, drop, poids, type, att, attM, esq, esqM, deg,
-			degM, dla, reg, regM, vue, vueM, PVs, arm, armM, mm, rm);
+			degM, dla, reg, regM, vue, vueM, soin, 0, arm, armM, mm, rm);
 	}
 
 	public static String formate(String s, int v) {

@@ -21,12 +21,14 @@ public enum Competences {
 	protected final int minTrollLvl;
 	protected final int maxCompLvl;
 	protected final int minPaCost;
+	protected boolean isReserved; 
 
 	Competences(String name, int minTrollLvl, int maxCompLvl, int minPaCost) {
 		this.name = name;
 		this.minTrollLvl = minTrollLvl;
 		this.maxCompLvl = maxCompLvl;
 		this.minPaCost = minPaCost;
+		isReserved = false;
 	}
 
 	@Override
@@ -45,14 +47,16 @@ public enum Competences {
 	public int minPaRequired() {
 		return this.minPaCost;
 	}
-
-	protected static final Competences reservedComp[] = { BS, RA, AM, camou };
-
+	
 	public boolean isReserved() {
-		for (Competences c : reservedComp) {
-			if (c.equals(this)) { return true; }
+		return isReserved;
+	}
+
+	public static final Competences reserved[] = { BS, RA, AM, camou };
+	static {
+		for(Competences c : reserved) {
+			c.isReserved = true;
 		}
-		return false;
 	}
 
 }

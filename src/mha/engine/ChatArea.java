@@ -19,12 +19,15 @@
 
 package mha.engine;
 
-import java.util.*;
-import mha.engine.core.*;
-import mha.engine.core.MHAGame.gameModes;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.LinkedList;
+import java.util.NoSuchElementException;
+import java.util.Vector;
 
-import java.net.*;
-import java.io.*;
+import mha.engine.core.MHAGame.gameModes;
 
 
 public class ChatArea extends Thread {
