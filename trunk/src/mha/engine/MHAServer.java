@@ -293,7 +293,7 @@ public class MHAServer extends Thread {
 			String s = "Comp: ";
 
 			for (Competences comp : Competences.values()) {
-				int level = t.getLevelComp(comp);
+				int level = t.getHighestCompLevel(comp);
 				s += t.getReussiteComp(comp, 1);
 				for (int j = 2; j <= level; j++)
 					s += "|" + t.getReussiteComp(comp, j);
@@ -730,7 +730,7 @@ public class MHAServer extends Thread {
 							regMEquip, vueEquip, vueMEquip, pvEquip, apEquip,
 							amEquip, mmEquip, rmEquip, zoneEquip, dropEquip,
 							poidsEquip);
-					t.addEquipement(equip);
+					t.addEquipementEffect(equip);
 					caracTrolls.set(myIndex, caracTrolls.get(myIndex)
 							+ inputLine + "\n");
 					if (liste[22].equals("1"))
@@ -772,7 +772,7 @@ public class MHAServer extends Thread {
 							typeEquip, attEquip, esqEquip, degEquip, dlaEquip,
 							regEquip, vueEquip, pvEquip, apEquip, amEquip,
 							mmEquip, rmEquip, zoneEquip, dropEquip, poidsEquip);
-					t.addEquipement(equip);
+					t.addEquipementEffect(equip);
 					caracTrolls.set(myIndex, caracTrolls.get(myIndex)
 							+ inputLine + "\n");
 					if (liste[17].equals("1"))
@@ -816,7 +816,7 @@ public class MHAServer extends Thread {
 							degMEquip, dlaEquip, regEquip, vueEquip, pvEquip,
 							apEquip, amEquip, mmEquip, rmEquip, zoneEquip,
 							dropEquip, poidsEquip);
-					t.addEquipement(equip);
+					t.addEquipementEffect(equip);
 					caracTrolls.set(myIndex, caracTrolls.get(myIndex)
 							+ inputLine + "\n");
 					if (liste[19].equals("1"))

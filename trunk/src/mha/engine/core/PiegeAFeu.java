@@ -18,49 +18,37 @@
 
 package mha.engine.core;
 
-public class Lieu {
+public class PiegeAFeu extends Lieu {
 
-	protected String name;
-	protected Case position;
-	protected final int id = newId();
+	private Troll createur;
+	private int degat;
+	private int bmmDegat = 0;
 
-	private static int nblieu = 0;
-
-	private final static int newId() {
-		nblieu++ ;
-		return nblieu;
+	public PiegeAFeu( int x, int y, int n, Troll c, int d ) {
+		super( "Piège à feu", x, y, n );
+		createur = c;
+		degat = d;
 	}
 
-	public Lieu( String name, int posX, int posY, int posN ) {
-		this.name = name;
-		position = new Case( posX, posY, posN );
+	public PiegeAFeu( int x, int y, int n, Troll c, int d, int dm ) {
+		this( x, y, n, c, d );
+		bmmDegat = dm;
 	}
 
-	public Lieu( String name, Case position ) {
-		this.name = name;
+	public Troll getCreateur() {
+		return createur;
 	}
 
-	public Case getPosition() {
-		return position;
+	public int getDegat() {
+		return degat;
 	}
 
-	public String getPos() {
-		return position.toString();
+	public int getBMMDegat() {
+		return bmmDegat;
 	}
 
-	public String getName() {
-		return name;
-	}
-
+	@Override
 	public String getInfos() {
-		return toString();
-	}
-
-	public String toString() {
-		return id + " " + name + " " + getPos();
-	}
-
-	final public int getId() {
-		return id;
+		return "Vous vous trouvez sur la même case qu'un piège\nIl fait pas très bon de rester proche d'un lieu comme cela.";
 	}
 }

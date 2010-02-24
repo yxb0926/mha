@@ -1,26 +1,17 @@
 /*********************************************************************************
- *    This file is part of Mountyhall Arena                                       *
- *                                                                                *
- *    Mountyhall Arena is free software; you can redistribute it and/or modify    *
- *    it under the terms of the GNU General Public License as published by        *
- *    the Free Software Foundation; either version 2 of the License, or           *
- *    (at your option) any later version.                                         *
- *                                                                                *
- *    Mountyhall Arena is distributed in the hope that it will be useful,         *
- *    but WITHOUT ANY WARRANTY; without even the implied warranty of              *
- *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the               *
- *    GNU General Public License for more details.                                *
- *                                                                                *
- *    You should have received a copy of the GNU General Public License           *
- *    along with Mountyzilla; if not, write to the Free Software                  *
- *    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA  *
+ * This file is part of Mountyhall Arena * * Mountyhall Arena is free software;
+ * you can redistribute it and/or modify * it under the terms of the GNU General
+ * Public License as published by * the Free Software Foundation; either version
+ * 2 of the License, or * (at your option) any later version. * * Mountyhall
+ * Arena is distributed in the hope that it will be useful, * but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of * MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the * GNU General Public License for more
+ * details. * * You should have received a copy of the GNU General Public
+ * License * along with Mountyzilla; if not, write to the Free Software *
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA *
  *********************************************************************************/
 
 package mha.engine.core;
-
-import mha.engine.MHABot;
-import mha.engine.core.Equipement.types;
-import mha.engine.core.MHAGame.gameModes;
 
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -28,18 +19,22 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Vector;
 
+import mha.engine.MHABot;
+import mha.engine.core.Equipement.types;
+import mha.engine.core.MHAGame.gameModes;
+
 public class Troll {
 
 	public static enum races {
-			skrim(Sorts.hypno, Competences.BS),
-			durakuir(Sorts.RP, Competences.RA),
-			kastar(Sorts.vampi, Competences.AM),
-			tomawak(Sorts.projo, Competences.camou);
+			skrim( Sorts.hypno, Competences.BS ),
+			durakuir( Sorts.RP, Competences.RA ),
+			kastar( Sorts.vampi, Competences.AM ),
+			tomawak( Sorts.projo, Competences.camou );
 
 		protected Sorts sortReserve;
 		protected Competences compReserve;
 
-		races(Sorts sortReserve, Competences compReserve) {
+		races( Sorts sortReserve, Competences compReserve ) {
 			this.sortReserve = sortReserve;
 			this.compReserve = compReserve;
 		}
@@ -51,120 +46,117 @@ public class Troll {
 		public Competences compReserve() {
 			return compReserve;
 		}
-	};
+	}
 
-	private Hashtable<Competences, Hashtable<Integer, Integer>> pourcentagesComp = new Hashtable<Competences, Hashtable<Integer, Integer>>();
-	private Map<Sorts, Integer> pourcentagesSort = new HashMap<Sorts, Integer>();
-	private int deginflig = 0;
-	private int kill = 0;
-	private int nbPA_utile = 0;
-	private int nbPVRegen = 0;
+	public static enum bodyPositions {
+		tete, maingauche, maindroite, armure, cou, bottes;
+	}
 
-	private String name;
-	private int id;
-	private int idSocket;
-	private int team;
-	
-	private races race;
-	private int niveau = 1;
-	private int tempsRestant = 0;
-	private int des_Attaque = 3;
-	private int des_Esquive = 3;
-	private int des_Degat = 3;
-	private int pv_totaux = 30;
-	private int pv_actuels = 30;
-	private int des_Regeneration = 1;
-	private int vue = 3;
-	private int duree_tour = 12 * 60;
-	private int rm = 25;
-	private int mm = 25;
-	
+	protected Map<Competences, Hashtable<Integer, Integer>> pourcentagesComp = new Hashtable<Competences, Hashtable<Integer, Integer>>();
+	protected Map<Competences, Integer> maxPrctComp = new HashMap<Competences, Integer>();
+
+	protected Map<Sorts, Integer> pourcentagesSort = new HashMap<Sorts, Integer>();
+	protected Map<Sorts, Integer> maxPrctSort = new HashMap<Sorts, Integer>();
+
+	protected int deginflig = 0;
+	protected int kill = 0;
+	protected int nbPA_utile = 0;
+	protected int nbPVRegen = 0;
+
+	protected String name;
+	protected int id;
+	protected int idSocket;
+	protected int team;
+
+	protected races race;
+	protected int niveau = 1;
+	protected int tempsRestant = 0;
+	protected int attD = 3;
+	protected int esqD = 3;
+	protected int degD = 3;
+	protected int pvMax = 30;
+	protected int pvRestant = 30;
+	protected int regD = 1;
+	protected int vue = 3;
+	protected int dlaMinutes = 12 * 60;
+	protected int rm = 25;
+	protected int mm = 25;
+
 	protected BM bmExternals = new BM();
 	protected BM bmMouches = new BM();
 	protected BM bmEquip = new BM();
 	protected BM bmTurnFull = new BM();
-	
-	private int date_jeu; // en minutes depuis le début
-	private int debut_tour; // en minutes depuis le début
-	private boolean isCreated = false; // Est ce que le joueur a validé son
+
+	protected int date_jeu; // en minutes depuis le début
+	protected int debut_tour; // en minutes depuis le début
+	protected boolean isCreated = false; // Est ce que le joueur a validé son
 	// troll
-	private boolean isActive = false; // Est ce que la DLA est jouée ?
-	private boolean compReservee = false; // A t il déja essayer de faire une
-	// comp réservée ?
-	private boolean sortReserve = false;
-	private boolean isCertif = false;
-	private String icon = "";
+	protected boolean isActive = false; // DLA de ce tour activée
+	protected boolean reservedCompTryed = false; // comp réservée déjà tentée
+	protected boolean reservedSortTryed = false;// sort réservé déjà tenté
+	protected boolean isCertif = false;
+	protected String icon = "";
 
+	protected int arm = 0;
+	protected int armM = 0;
 
-	private int armure_phy = 0;
-	private int armure_mag = 0;
+	protected int fatigue = 0;
+	protected int pa = 0;
+	protected int posX = 0;
+	protected int posY = 0;
+	protected int posN = 0;
+	protected int concentration = 0;
+	protected int poids = 0;
 
-	private int fatigue = 0;
-	private int pa = 0;
-	private int posx = 0;
-	private int posy = 0;
-	private int posn = 0;
-	private int concentration = 0;
-	private int poids = 0;
+	protected int dureeTourTotale = 0;
 
-	private int dureeTourTotale = 0;
-
-	private boolean camoufle = false;
-	private boolean invisible = false;
-	private boolean frenetique = false;
-	private int nbResu = 0;
-	private Vector<String> inbox = new Vector<String>();
-	private Vector<BM> listeBM = new Vector<BM>();
-	private Vector<Mouche> listeMouches = new Vector<Mouche>();
+	protected boolean isCamoufle = false;
+	protected boolean isInvisible = false;
+	protected int nbResu = 0;
+	protected Vector<String> inbox = new Vector<String>();
+	protected Vector<BM> externalBmList = new Vector<BM>();
+	protected Vector<Mouche> listeMouches = new Vector<Mouche>();
 
 	// Gestion de l'équipement
 
-	private Vector<Equipement> listeEquipement = new Vector<Equipement>();
+	protected Vector<Equipement> listeEquipement = new Vector<Equipement>();
 	// null signifie qu'il n'y a rien
-	private Equipement tete = null;
-	private Equipement cou = null;
-	private Equipement mainDroite = null;
-	private Equipement mainGauche = null;
-	private Equipement torse = null;
-	private Equipement pieds = null;
+	protected Equipement tete = null;
+	protected Equipement cou = null;
+	protected Equipement mainDroite = null;
+	protected Equipement mainGauche = null;
+	protected Equipement torse = null;
+	protected Equipement pieds = null;
 
 	public MHABot bot = null;
 
-	public Troll(String n, int i, int s, int c, races race) {
-		name = n;
-		id = i;
-		team = c;
-		idSocket = s;
-		pa = 0;
-		debut_tour = MHAGame.instance().roll(
-			1,
-			duree_tour) - 1;
-		date_jeu = debut_tour;
+	public Troll( String name, int id, int idsocket, int team, races race ) {
+		this.name = name;
+		this.id = id;
+		this.team = team;
+		this.idSocket = idsocket;
+		this.pa = 0;
+		this.debut_tour = MHAGame.instance().roll( 1, dlaMinutes ) - 1;
+		this.date_jeu = debut_tour;
 		this.race = race;
-		setComp(
-			race.compReserve(),
-			25,
-			1);
-		pourcentagesSort.put(
-			race.sortReserve(),
-			25);
-		switch (race) {
+		addComp( race.compReserve(), 25, 1 );
+		addSort( race.sortReserve(), 25 );
+		switch( race ) {
 		case skrim:
-			this.race = race;
-			des_Attaque = 4;
-			break;
+			attD = 4;
+		break;
 		case kastar:
-			des_Degat = 4;
-			break;
+			degD = 4;
+		break;
 		case durakuir:
-			pv_totaux = pv_actuels = 40;
-			break;
+			pvMax = pvRestant = 40;
+		break;
 		case tomawak:
 			vue = 4;
-			break;
+		break;
 		default:
-			System.err.println("error : race : " + race
-					+ "not handled in troll creation");
+			System.err.println( "error : race : " + race
+					+ "not handled in troll creation" );
 		}
 	}
 
@@ -172,57 +164,45 @@ public class Troll {
 		return isActive;
 	}
 
-	public void setActive(boolean b) {
+	public void setActive( boolean b ) {
 		isActive = b;
 	}
 
-	public void addBM(BM bm) {
-		listeBM.add(bm);
-		bmExternals.addOtherBM(bm, 0);
+	public void addExternalBM( BM bm ) {
+		externalBmList.add( bm );
+		bmExternals.addOtherBM( bm, 0 );
+		bmTurnFull.addOtherBM( bm );
 
-	}
-
-	private void setComp(Competences comp, int pourcentage, int level) {
-		Hashtable<Integer, Integer> compLvls = pourcentagesComp.get(comp);
-		if (compLvls == null) pourcentagesComp.put(
-			comp,
-			compLvls = new Hashtable<Integer, Integer>());
-		compLvls.put(
-			level,
-			pourcentage);
 	}
 
 	public String getBM() {
-		if (listeBM.size() == 0) return "";
-		String s = listeBM.elementAt(
-			0).toString();
-		for (int i = 1; i < listeBM.size(); i++)
-			s += "\n" + listeBM.elementAt(
-				i).toString();
+		if( externalBmList.size() == 0 ) return "";
+		String s = externalBmList.elementAt( 0 ).toString();
+		for( int i = 1 ; i < externalBmList.size() ; i++ )
+			s += "\n" + externalBmList.elementAt( i ).toString();
 		return s;
 	}
 
 	public String getMouches() {
-		if (listeMouches.size() == 0) return "";
-		String s = listeMouches.elementAt(
-			0).toString();
-		for (int i = 1; i < listeMouches.size(); i++)
-			s += "\n" + listeMouches.elementAt(
-				i).toString();
+		if( listeMouches.size() == 0 ) return "";
+		String s = listeMouches.elementAt( 0 ).toString();
+		for( int i = 1 ; i < listeMouches.size() ; i++ )
+			s += "\n" + listeMouches.elementAt( i ).toString();
 		return s;
 	}
 
-	public void addMouche(Mouche m) {
-		bmMouches.addOtherBM(m.getEffet());
+	public void addMouche( Mouche m ) {
 		// System.out.println("Mouche de type "+m.getType()+" ajoutée");
-		listeMouches.add(m);
+		listeMouches.add( m );
+		bmMouches.addOtherBM( m.getEffet() );
+		bmTurnFull.addOtherBM( m.getEffet() );
 	}
 
-	public void setTeam(int i) {
+	public void setTeam( int i ) {
 		team = i;
 	}
 
-	public void setResu(int i) {
+	public void setResu( int i ) {
 		nbResu = i;
 	}
 
@@ -230,7 +210,7 @@ public class Troll {
 		return nbResu;
 	}
 
-	public void setIcon(String i) {
+	public void setIcon( String i ) {
 		icon = i;
 	}
 
@@ -239,14 +219,14 @@ public class Troll {
 	}
 
 	public void addKill() {
-		kill++;
+		kill++ ;
 	}
 
 	public int getNbKills() {
 		return kill;
 	}
 
-	public void addDeg(int i) {
+	public void addDeg( int i ) {
 		deginflig += i;
 	}
 
@@ -254,7 +234,7 @@ public class Troll {
 		return deginflig;
 	}
 
-	public void addPAUtil(int i) {
+	public void addPAUtil( int i ) {
 		nbPA_utile += i;
 	}
 
@@ -262,7 +242,7 @@ public class Troll {
 		return nbPA_utile;
 	}
 
-	public void addPVReg(int i) {
+	public void addPVReg( int i ) {
 		nbPVRegen += i;
 	}
 
@@ -270,80 +250,90 @@ public class Troll {
 		return nbPVRegen;
 	}
 
-	private void removeBMs() {
-		bmExternals = new BM();
-		for (BM toPass : listeBM) {
-			if (toPass.newTurn()) {
-				listeBM.remove(toPass);
-			} else {
-				bmExternals.addOtherBM(toPass);
+	protected void removeBMs() {
+		for( BM toPass : externalBmList ) {
+			if( toPass.newTurn() ) {
+				externalBmList.remove( toPass );
+				bmExternals.remove( toPass );
+				bmTurnFull.remove( toPass );
 			}
 		}
+	}
+
+	protected void removeAllExternalsBMs() {
+		externalBmList.clear();
+		updateBmExternal();
 		updateBmTurn();
 	}
 
-	private void removeAllBMs() {
-		listeBM.clear();
-		bmExternals = new BM();
-		updateBmTurn();
-	}
-	
 	protected void updateBmTurn() {
-		
+		bmTurnFull = new BM();
+		bmTurnFull.addOtherBM( bmEquip );
+		bmTurnFull.addOtherBM( bmExternals );
+		bmTurnFull.addOtherBM( bmMouches );
 	}
 
-	public void addEquipement(Equipement e) {
-		if (!listeEquipement.contains(e)) {
-			listeEquipement.add(e);
+	protected void updateBmExternal() {
+		bmExternals = new BM();
+		for( BM external : externalBmList ) {
+			bmExternals.addOtherBM( external );
+		}
+	}
+
+	protected void updateBmEquipement() {
+		bmEquip = new BM();
+		for( Equipement equip : listeEquipement ) {
+			bmEquip.addOtherBM( equip );
+		}
+	}
+
+	public void addEquipementEffect( Equipement e ) {
+		if( !listeEquipement.contains( e ) ) {
+			listeEquipement.add( e );
+			bmEquip.addOtherBM( e );
+			bmTurnFull.addOtherBM( e );
 			poids += e.getPoids();
 		}
 	}
 
-	public void removeEquipement(Equipement e) {
-		if (listeEquipement.contains(e)) {
-			listeEquipement.remove(e);
+	public void removeEquipementEffect( Equipement e ) {
+		if( listeEquipement.contains( e ) ) {
+			listeEquipement.remove( e );
+			bmEquip.remove( e );
+			bmTurnFull.remove( e );
 			poids -= e.getPoids();
 		}
 	}
 
-	private void bonusEquip(Equipement e, boolean equip) {
-		if (equip) {
-			bmEquip.addOtherBM(e);
-		} else {
-			bmEquip.remove(e);
-		}
-	}
-
-	public void setProfil(int niv, int att, int esq, int deg, int reg, int pv,
-			int v, int dla, int resm, int maim) {
-		niveau = niv;
-		des_Attaque = att;
-		des_Esquive = esq;
-		des_Degat = deg;
-		pv_totaux = pv_actuels = pv;
-		des_Regeneration = reg;
-		vue = v;
-		duree_tour = dla;
-		rm = resm;
-		mm = maim;
+	public void setProfil( int niv, int att, int esq, int deg, int reg, int pv,
+			int v, int dla, int resm, int maim ) {
+		this.niveau = niv;
+		this.attD = att;
+		this.esqD = esq;
+		this.degD = deg;
+		this.pvMax = pv;
+		this.pvRestant = pv;
+		this.regD = reg;
+		this.vue = v;
+		this.dlaMinutes = dla;
+		this.rm = resm;
+		this.mm = maim;
 	}
 
 	public String getInfosTroll() {
-		if (!isCreated) return "Error: Le troll n'a pas encore été validé !";
-		String r = ("Numéro      : " + id + "\n" + "Nom         : " + name
-				+ "\n" + "Race        : " + race.name() + "\n"
-				+ "Niveau      : " + niveau + "\n" + "Mouches     : "
-				+ listeMouches.size() + "\n" + formatEquipePorte(tete)
-				+ formatEquipePorte(cou) + formatEquipePorte(mainDroite)
-				+ formatEquipePorte(mainGauche) + formatEquipePorte(torse) + formatEquipePorte(pieds));
-		return r.substring(
-			0,
-			r.length() - 1);
+		if( !isCreated ) return "Error: Le troll n'a pas encore été validé !";
+		String r = ( "Numéro      : " + id + "\n" + "Nom         : " + name + "\n"
+				+ "Race        : " + race.name() + "\n" + "Niveau      : " + niveau
+				+ "\n" + "Mouches     : " + listeMouches.size() + "\n"
+				+ formatEquipePorte( tete ) + formatEquipePorte( cou )
+				+ formatEquipePorte( mainDroite ) + formatEquipePorte( mainGauche )
+				+ formatEquipePorte( torse ) + formatEquipePorte( pieds ) );
+		return r.substring( 0, r.length() - 1 );
 	}
 
-	private String formatEquipePorte(Equipement e) {
-		if (e == null) return "";
-		switch (e.getType()) {
+	protected String formatEquipePorte( Equipement e ) {
+		if( e == null ) return "";
+		switch( e.getType() ) {
 		case armure:
 			return "Torse       : " + e.getId() + " " + e.getName() + "\n";
 		case bouclier:
@@ -363,105 +353,109 @@ public class Troll {
 	}
 
 	public String getProfil() {
-		String returnstring = "Nom : " + name + "\n" + "Niveau " + niveau
-				+ "\n" + "Race : " + race.name() + "\n\n" + "Attaque : "
-				+ des_Attaque + "D6 + " + bmTurnFull.att;
+		String returnstring = "Nom : " + name + "\n" + "Niveau " + niveau + "\n"
+				+ "Race : " + race.name() + "\n\n" + "Attaque : " + attD + "D6 + "
+				+ bmTurnFull.att;
 		returnstring += "/" + bmTurnFull.attM;
-		returnstring += "\n" + "Esquive : " + des_Esquive + "D6 + " + bmTurnFull.esq
-				+ "/" + bmTurnFull.esqM + "\n" + "Dégats : " + des_Degat + "D3 + "
+		returnstring += "\n" + "Esquive : " + esqD + "D6 + " + bmTurnFull.esq + "/"
+				+ bmTurnFull.esqM + "\n" + "Dégats : " + degD + "D3 + "
 				+ bmTurnFull.deg;
 		returnstring += "/" + bmTurnFull.degM;
-		returnstring += "\n" + "Régénération : " + des_Regeneration + "D3 + "
-				+ bmTurnFull.reg + "/" + bmTurnFull.regM + "\n" + "Vue : "
-				+ vue + " cases + " + bmTurnFull.vue + "/" + bmTurnFull.vueM + "\n" + "PV : "
-				+ pv_actuels + "/" + pv_totaux + "\n\n" + "Durée DLA : "
-				+ convertTime(duree_tour) + "\n" + "Poids équipement : "
-				+ convertTime(poids) + "\n" + "Bonus/malus DLA : "
-				+ convertTime(bmTurnFull.dlaMin) + "\n\n" + "Armure : " + armure_phy
-				+ " + " + armure_mag + "\n" + "MM : " + mm + " + "
-				+ ((mm * bmTurnFull.mm) / 100) + "\n" + "RM : " + rm + " + "
-				+ ((rm * bmTurnFull.rm) / 100) + "\n";
+		returnstring += "\n" + "Régénération : " + regD + "D3 + " + bmTurnFull.reg
+				+ "/" + bmTurnFull.regM + "\n" + "Vue : " + vue + " cases + "
+				+ bmTurnFull.vue + "/" + bmTurnFull.vueM + "\n" + "PV : " + pvRestant
+				+ "/" + pvMax + "\n\n" + "Durée DLA : " + convertTime( dlaMinutes )
+				+ "\n" + "Poids équipement : " + convertTime( poids ) + "\n"
+				+ "Bonus/malus DLA : " + convertTime( bmTurnFull.dlaMin ) + "\n\n"
+				+ "Armure : " + arm + " + " + armM + "\n" + "MM : " + mm + " + "
+				+ ( ( mm * bmTurnFull.mm ) / 100 ) + "\n" + "RM : " + rm + " + "
+				+ ( ( rm * bmTurnFull.rm ) / 100 ) + "\n";
 
 		returnstring += "Compétences : \n";
 
 		Iterator<Competences> it = pourcentagesComp.keySet().iterator();
-		while (it.hasNext()) {
+		while( it.hasNext() ) {
 			Competences idComp = it.next();
-			Iterator<Integer> it2 = pourcentagesComp.get(
-				idComp).keySet().iterator();
-			while (it2.hasNext()) {
+			Iterator<Integer> it2 = pourcentagesComp.get( idComp ).keySet()
+					.iterator();
+			while( it2.hasNext() ) {
 				int level = it2.next();
-				int pour = pourcentagesComp.get(
-					idComp).get(
-					level);
-				if (pour > 0)
-					returnstring += idComp.toString() + " : " + pour
-							+ "% (Niveau " + level + ")\n";
+				int pour = pourcentagesComp.get( idComp ).get( level );
+				if( pour > 0 ) returnstring += idComp.toString() + " : " + pour
+						+ "% (Niveau " + level + ")\n";
 			}
 		}
 		returnstring += "Sorts : \n";
-		for (Sorts sorts : Sorts.values()) {
-			if (pourcentagesSort.get(sorts) > 0) {
-				returnstring += sorts + " : " + pourcentagesSort.get(sorts)
-						+ "%\n";
+		for( Sorts sorts : Sorts.values() ) {
+			if( pourcentagesSort.get( sorts ) > 0 ) {
+				returnstring += sorts + " : " + pourcentagesSort.get( sorts ) + "%\n";
 			}
 		}
-		return returnstring.substring(
-			0,
-			returnstring.length() - 1);
+		return returnstring.substring( 0, returnstring.length() - 1 );
 	}
 
 	public String getFullProfil() {
-		String s = debut_tour + ";" + duree_tour + ";" + bmTurnFull.dlaMin + ";"
-				+ (250 * (pv_totaux - pv_actuels) / pv_totaux) + ";" + poids
-				+ ";" + posx + ";" + posy + ";" + posn + ";" + vue + ";"
-				+ formateCarac(vue) + "/" + formateCarac(bmTurnFull.vueM) + ";"
-				+ niveau + ";" + pv_actuels + ";" + pv_totaux + ";"
-				+ des_Regeneration + ";" + formateCarac(bmTurnFull.reg) + "/"
-				+ formateCarac(bmTurnFull.regM) + ";" + fatigue + ";"
-				+ des_Attaque + ";";
-		s += formateCarac(bmTurnFull.att) + "/" + formateCarac(bmTurnFull.attM) + ";";
-		s += des_Esquive + ";" + formateCarac(bmTurnFull.esq) + "/"
-				+ formateCarac(bmTurnFull.esqM) + ";" + des_Degat + ";";
-		s += formateCarac(bmTurnFull.deg) + "/" + formateCarac(bmTurnFull.degM) + ";";
-		s += armure_phy + ";" + armure_mag + ";" + bmTurnFull.esqD + ";"
-				+ bmTurnFull.parades + ";" + bmTurnFull.CA + ";" + rm + ";" + bmTurnFull.rm + ";" + mm
-				+ ";" + bmTurnFull.mm + ";" + concentration + ";";
-		if (camoufle) s += "1;";
+		String s = debut_tour + ";" + dlaMinutes + ";" + bmTurnFull.dlaMin + ";"
+				+ ( 250 * ( pvMax - pvRestant ) / pvMax ) + ";" + poids + ";" + posX
+				+ ";" + posY + ";" + posN + ";" + vue + ";" + formateCarac( vue ) + "/"
+				+ formateCarac( bmTurnFull.vueM ) + ";" + niveau + ";" + pvRestant
+				+ ";" + pvMax + ";" + regD + ";" + formateCarac( bmTurnFull.reg ) + "/"
+				+ formateCarac( bmTurnFull.regM ) + ";" + fatigue + ";" + attD + ";";
+		s += formateCarac( bmTurnFull.att ) + "/" + formateCarac( bmTurnFull.attM )
+				+ ";";
+		s += esqD + ";" + formateCarac( bmTurnFull.esq ) + "/"
+				+ formateCarac( bmTurnFull.esqM ) + ";" + degD + ";";
+		s += formateCarac( bmTurnFull.deg ) + "/" + formateCarac( bmTurnFull.degM )
+				+ ";";
+		s += arm + ";" + armM + ";" + bmTurnFull.esqD + ";" + bmTurnFull.parades
+				+ ";" + bmTurnFull.CA + ";" + rm + ";" + bmTurnFull.rm + ";" + mm + ";"
+				+ bmTurnFull.mm + ";" + concentration + ";";
+		if( isCamoufle ) s += "1;";
 		else s += "0;";
-		if (invisible) s += "1";
+		if( isInvisible ) s += "1";
 		else s += "0";
 		return s;
 	}
 
-	public boolean addComp(Competences comp, int prctSuccess, int level) {
-		if (comp.isReserved() && comp != race.compReserve()) return false;
-		if (prctSuccess > 95) return false;
-		if (level < 1 || level > comp.maxCompLvl) {
+	public boolean addComp( Competences comp, int prctSuccess, int level ) {
+		if( comp.isReserved() && comp != race.compReserve() ) return false;
+		if( prctSuccess > 95 ) {
+			prctSuccess = 95;
+		}
+		int maxPrct = 90;
+		if( prctSuccess > maxPrct ) {
+			maxPrct = prctSuccess;
+		}
+		maxPrctComp.put( comp, maxPrct );
+		if( level < 1 ) {
+			level = 1;
+		}
+		if( level > comp.maxCompLvl ) {
 			level = comp.maxCompLvl;
 		}
-		setComp(
-			comp,
-			prctSuccess,
-			level);
+		if( !pourcentagesComp.containsKey( comp ) ) {
+			pourcentagesComp.put( comp, new Hashtable<Integer, Integer>() );
+		}
+		pourcentagesComp.get( comp ).put( level, prctSuccess );
 		return true;
 	}
 
-	public boolean addSort(Sorts sorts, int pour) {
-		if (sorts.isReserved() && sorts != race.sortReserve()) return false;
-		if (pour > 85) return false;
-		pourcentagesSort.put(
-			sorts,
-			pour);
+	public boolean addSort( Sorts sorts, int pour ) {
+		if( sorts.isReserved() && sorts != race.sortReserve() ) { return false; }
+		if( pour > 85 ) {
+			pour = 85;
+		}
+		maxPrctSort.put( sorts, ( pour > 80 ? pour : 80 ) );
+		pourcentagesSort.put( sorts, pour );
 		return true;
 	}
 
-	private int somme(int i) {
-		return ((i + 1) * i) / 2;
+	protected int somme( int i ) {
+		return ( ( i + 1 ) * i ) / 2;
 	}
 
 	public boolean valideTroll() {
-		if (!verifNiveau()) return false;
+		if( !verifNiveau() ) return false;
 		isCreated = true;
 		return true;
 	}
@@ -470,191 +464,156 @@ public class Troll {
 		return isCreated;
 	}
 
-	private String formateCarac(int carac) {
-		if (carac > 0) return "+" + carac;
+	public static String formateCarac( int carac ) {
+		if( carac > 0 ) return "+" + carac;
 		return "" + carac;
 	}
 
 	public boolean verifNiveau() {
 		int px = 0;
-		if (race == races.skrim) px += somme(des_Attaque - 4) * 12;
-		else px += somme(des_Attaque - 3) * 16;
-		if (race == races.durakuir) px += somme((pv_totaux - 40) / 10) * 12;
-		else px += somme((pv_totaux - 30) / 10) * 16;
-		if (race == races.kastar) px += somme(des_Degat - 4) * 12;
-		else px += somme(des_Degat - 3) * 16;
-		if (race == races.tomawak) px += somme(vue - 4) * 12;
-		else px += somme(vue - 3) * 16;
-		px += somme(des_Esquive - 3) * 16;
-		px += somme(des_Regeneration - 1) * 30;
-		switch (duree_tour) {
+		if( race == races.skrim ) px += somme( attD - 4 ) * 12;
+		else px += somme( attD - 3 ) * 16;
+		if( race == races.durakuir ) px += somme( ( pvMax - 40 ) / 10 ) * 12;
+		else px += somme( ( pvMax - 30 ) / 10 ) * 16;
+		if( race == races.kastar ) px += somme( degD - 4 ) * 12;
+		else px += somme( degD - 3 ) * 16;
+		if( race == races.tomawak ) px += somme( vue - 4 ) * 12;
+		else px += somme( vue - 3 ) * 16;
+		px += somme( esqD - 3 ) * 16;
+		px += somme( regD - 1 ) * 30;
+		switch( dlaMinutes ) {
 		case 720:
-			break;
+		break;
 		case 690:
 			px += 1 * 18;
-			break;
+		break;
 		case 663:
 			px += 3 * 18;
-			break;
+		break;
 		case 639:
 			px += 6 * 18;
-			break;
+		break;
 		case 618:
 			px += 10 * 18;
-			break;
+		break;
 		case 600:
 			px += 15 * 18;
-			break;
+		break;
 		case 585:
 			px += 21 * 18;
-			break;
+		break;
 		case 573:
 			px += 28 * 18;
-			break;
+		break;
 		case 564:
 			px += 36 * 18;
-			break;
+		break;
 		case 558:
 			px += 45 * 18;
-			break;
+		break;
 		case 555:
 			px += 55 * 18;
-			break;
+		break;
 		default:
-			if (duree_tour > 555) return false;
-			px += (somme((555 - duree_tour) * 2 / 5) + 55 + 10 * ((555 - duree_tour) * 2 / 5)) * 18;
+			if( dlaMinutes > 555 ) return false;
+			px += ( somme( ( 555 - dlaMinutes ) * 2 / 5 ) + 55 + 10 * ( ( 555 - dlaMinutes ) * 2 / 5 ) ) * 18;
 		}
 		Iterator<Competences> it = pourcentagesComp.keySet().iterator();
-		while (it.hasNext()) {
+		while( it.hasNext() ) {
 			Competences ownedComp = it.next();
 			int level = 0;
-			Iterator<Integer> it2 = pourcentagesComp.get(
-				ownedComp).keySet().iterator();
-			while (it2.hasNext()) {
+			Iterator<Integer> it2 = pourcentagesComp.get( ownedComp ).keySet()
+					.iterator();
+			while( it2.hasNext() ) {
 				int lev = it2.next();
-				if (lev > level) level = lev;
+				if( lev > level ) level = lev;
 			}
-			for (int i = 1; i < level; i++)
-				if (pourcentagesComp.get(
-					ownedComp).get(
-					i) == null || pourcentagesComp.get(
-					ownedComp).get(
-					i) < 75) return false;
-			px += ownedComp.minTrollLvl() * ((level * (level + 1)) / 2);
+			for( int i = 1 ; i < level ; i++ )
+				if( pourcentagesComp.get( ownedComp ).get( i ) == null
+						|| pourcentagesComp.get( ownedComp ).get( i ) < 75 ) return false;
+			px += ownedComp.minTrollLvl() * ( ( level * ( level + 1 ) ) / 2 );
 		}
 		// if((niveau)*(niveau+3)*5<=px)
 		// System.out.println("Problème : Un niveau "+niveau+" a au max "+((niveau)*(niveau+3)*5)+" et vous en avez dépensé "+px);
-		return (niveau) * (niveau + 3) * 5 > px;
+		return ( niveau ) * ( niveau + 3 ) * 5 > px;
 	}
 
-	public void equipe(Equipement e) {
-		if (!listeEquipement.contains(e)) return;
-		switch (e.getType()) {
+	public void equipe( Equipement e ) {
+		if( !listeEquipement.contains( e ) ) return;
+		switch( e.getType() ) {
 		case armure:
-			if (torse != null) bonusEquip(
-				torse,
-				false);
+			if( torse != null ) {
+				removeEquipementEffect( torse );
+			}
 			torse = e;
-			bonusEquip(
-				e,
-				true);
+			addEquipementEffect( e );
 			return;
 		case bouclier:
-			if (mainGauche != null) bonusEquip(
-				mainGauche,
-				false);
-			if (mainDroite != null && mainDroite.getType() == types.arme2h) {
-				bonusEquip(
-					mainDroite,
-					false);
+			if( mainGauche != null ) {
+				removeEquipementEffect( mainGauche );
+			}
+			if( mainDroite != null && mainDroite.getType() == types.arme2h ) {
+				removeEquipementEffect( mainDroite );
 				mainDroite = null;
 			}
 			mainGauche = e;
-			bonusEquip(
-				e,
-				true);
+			addEquipementEffect( e );
 			return;
 		case casque:
-			if (tete != null) bonusEquip(
-				tete,
-				false);
+			if( tete != null ) removeEquipementEffect( tete );
 			tete = e;
-			bonusEquip(
-				e,
-				true);
+			addEquipementEffect( e );
 			return;
 		case arme1H:
-			if (mainDroite != null) bonusEquip(
-				mainDroite,
-				false);
+			if( mainDroite != null ) removeEquipementEffect( mainDroite );
 			mainDroite = e;
-			bonusEquip(
-				e,
-				true);
+			addEquipementEffect( e );
 			return;
 		case talisman:
-			if (cou != null) bonusEquip(
-				cou,
-				false);
+			if( cou != null ) removeEquipementEffect( cou );
 			cou = e;
-			bonusEquip(
-				e,
-				true);
+			addEquipementEffect( e );
 			return;
 		case bottes:
-			if (pieds != null) bonusEquip(
-				pieds,
-				false);
+			if( pieds != null ) removeEquipementEffect( pieds );
 			pieds = e;
-			bonusEquip(
-				e,
-				true);
+			addEquipementEffect( e );
 			return;
 		case arme2h:
-			if (mainDroite != null) bonusEquip(
-				mainDroite,
-				false);
-			if (mainGauche != null) {
-				bonusEquip(
-					mainGauche,
-					false);
+			if( mainDroite != null ) removeEquipementEffect( mainDroite );
+			if( mainGauche != null ) {
+				removeEquipementEffect( mainGauche );
 				mainGauche = null;
 			}
 			mainDroite = e;
-			bonusEquip(
-				e,
-				true);
+			addEquipementEffect( e );
 			return;
 		}
 		return;
 	}
 
-	public Equipement getEquipementById(int id) {
-		for (int i = 0; i < listeEquipement.size(); i++) {
-			if (listeEquipement.elementAt(
-				i).getId() == id) return listeEquipement.elementAt(i);
+	public Equipement getEquipementById( int id ) {
+		for( Equipement equip : listeEquipement ) {
+			if( equip.getId() == id ) return equip;
 		}
 		return null;
 	}
 
 	public String getEquip() {
 		String s = "";
-		for (int i = 0; i < listeEquipement.size(); i++) {
+		for( Equipement e : listeEquipement ) {
 			int equip = 0;
-			Equipement e = listeEquipement.elementAt(i);
-			if (e == torse || e == mainGauche || e == mainDroite || e == tete
-					|| e == cou || e == pieds) equip = 1;
-			s += e.getId() + ";" + e.getType() + ";" + equip + ";"
-					+ e.getDescr() + ";" + e.getName() + "\n";
+			if( e == torse || e == mainGauche || e == mainDroite || e == tete
+					|| e == cou || e == pieds ) equip = 1;
+			s += e.getId() + ";" + e.getType() + ";" + equip + ";" + e.getDescr()
+					+ ";" + e.getName() + "\n";
 		}
-		if (s.equals("")) return "Aucun équipement";
-		return s.substring(
-			0,
-			s.length() - 1);
+		if( s.equals( "" ) ) return "Aucun équipement";
+		return s.substring( 0, s.length() - 1 );
 	}
 
-	public boolean isEquipe(Equipement e) {
-		switch (e.getType()) {
+	public boolean isEquipe( Equipement e ) {
+		switch( e.getType() ) {
 		case armure:
 			return torse == e;
 		case bouclier:
@@ -705,142 +664,139 @@ public class Troll {
 	}
 
 	public int getRM() {
-		return rm * ((100 + bmTurnFull.rm) / 100);
+		return rm * ( ( 100 + bmTurnFull.rm ) / 100 );
 	}
 
 	public int getMM() {
-		return mm * ((100 + bmTurnFull.mm) / 100);
+		return mm * ( ( 100 + bmTurnFull.mm ) / 100 );
 	}
 
-	public boolean isGlue() {
+	public boolean isGlued() {
 		return bmTurnFull.glued;
 	}
 
-	public int getReussiteSort(Sorts sorts) {
-		return pourcentagesSort.get(sorts);
+	public int getReussiteSort( Sorts sorts ) {
+		return pourcentagesSort.get( sorts );
 	}
 
-	public int getLevelComp(Competences comp) {
-		Hashtable<Integer, Integer> h = pourcentagesComp.get(comp);
-		if (h == null) return 0;
+	public int getHighestCompLevel( Competences comp ) {
+		Hashtable<Integer, Integer> h = pourcentagesComp.get( comp );
+		if( h == null ) return 0;
 		int level = 0;
-		Iterator<Integer> it = h.keySet().iterator();
-		while (it.hasNext()) {
-			int lev = it.next();
-			if (lev > level) level = lev;
+		for( Integer lvl : h.keySet() ) {
+			if( lvl > level ) {
+				level = lvl;
+			}
 		}
 		return level;
 	}
 
-	public int getReussiteComp(Competences comp, int level) {
-		Hashtable<Integer, Integer> h = pourcentagesComp.get(comp);
-		if (h == null) return 0;
-		Integer i = h.get(level);
-		if (i == null) return 0;
+	public int getReussiteComp( Competences comp, int level ) {
+		Hashtable<Integer, Integer> h = pourcentagesComp.get( comp );
+		if( h == null ) return 0;
+		Integer i = h.get( level );
+		if( i == null ) return 0;
 		return i;
 	}
 
-	public void augmentComp(Competences comp, int level, int pour) {
-		Hashtable<Integer, Integer> h = pourcentagesComp.get(comp);
-		if (h == null) return;
-		Integer i = h.get(level);
-		if (i == null) return;
-		h.put(
-			level,
-			i + pour);
-	}
-
-	public void augmentSort(Sorts sorts, int i) {
-		int val = pourcentagesSort.get(sorts);
-		val += i;
-		if (val > 80) {
-			val = 80;
+	public void augmentComp( Competences comp, int level, int pour ) {
+		Hashtable<Integer, Integer> h = pourcentagesComp.get( comp );
+		if( h == null ) { return; }
+		Integer val = h.get( level );
+		if( val == null ) { return; }
+		val = val + pour;
+		if( val > maxPrctComp.get( comp ) ) {
+			val = maxPrctComp.get( comp );
 		}
-		pourcentagesSort.put(
-			sorts,
-			val);
+		h.put( level, val );
 	}
 
-	public void setPos(int x, int y, int n) {
-		posx = x;
-		posy = y;
-		posn = n;
+	public void augmentSort( Sorts sort, int i ) {
+		if( !pourcentagesSort.containsKey( sort ) ) { return; }
+		int val = pourcentagesSort.get( sort );
+		val += i;
+		if( val > maxPrctSort.get( sort ) ) {
+			val = maxPrctSort.get( sort );
+		}
+		pourcentagesSort.put( sort, val );
+	}
+
+	public void setPos( int x, int y, int n ) {
+		posX = x;
+		posY = y;
+		posN = n;
 	}
 
 	public int getPosX() {
-		return posx;
+		return posX;
 	}
 
 	public int getPosY() {
-		return posy;
+		return posY;
 	}
 
 	public int getPosN() {
-		return posn;
+		return posN;
 	}
 
-	public void move(int x, int y, int n) {
-		posx += x;
-		posy += y;
-		posn += n;
+	public void move( int x, int y, int n ) {
+		posX += x;
+		posY += y;
+		posN += n;
 	}
 
 	public String getPos() {
-		return posx + " " + posy + " " + posn;
+		return posX + " " + posY + " " + posN;
 	}
 
 	public int getTeam() {
 		return team;
 	}
 
-	public void blesse(int i) {
-		pv_actuels -= i;
+	public void blesse( int i ) {
+		pvRestant -= i;
 		// Je suis mort :) peut etre ?
 	}
 
 	public int getArmurePhy() {
-		return armure_phy;
+		return arm;
 	}
 
 	public int getArmureMag() {
-		return armure_mag;
+		return armM;
 	}
 
 	public int getAttaque() {
-		return Math.max(
-			0,
-			des_Attaque + bmTurnFull.attD);
+		return Math.max( 0, attD + bmTurnFull.attD );
 	}
 
 	public boolean isDead() {
-		return (pv_actuels <= 0);
+		return ( pvRestant <= 0 );
 	}
 
 	public int getEsquive() {
-		return Math.max(
-			0,
-			des_Esquive + bmTurnFull.esqD);
+		return Math.max( 0, esqD + bmTurnFull.esqD );
 	}
 
 	public int getEsquiveTotale() {
-		return des_Esquive;
+		return esqD;
 	}
 
 	public int getDegat() {
-		return des_Degat;
+		return degD;
 	}
 
 	public int getRegeneration() {
-		return des_Regeneration;
+		return regD;
 	}
 
 	public void getTouch() {
-		bmTurnFull.esqD--;
+		bmTurnFull.esqD-- ;
 	}
 
 	public void getParade() {
-		bmTurnFull.attD--;
-		bmTurnFull.esqD--;
+		bmTurnFull.attD-- ;
+		bmTurnFull.esqD-- ;
 	}
 
 	public String getName() {
@@ -863,8 +819,8 @@ public class Troll {
 		return race;
 	}
 
-	public boolean sameNameOrId(Troll t) {
-		return ((t.getId() == id) || (t.getName().equals(name)));
+	public boolean sameNameOrId( Troll t ) {
+		return ( ( t.getId() == id ) || ( t.getName().equals( name ) ) );
 	}
 
 	public int getDateJeu() {
@@ -875,7 +831,7 @@ public class Troll {
 		return debut_tour;
 	}
 
-	public void setNouveauTour(int i) {
+	public void setNouveauTour( int i ) {
 		debut_tour = i;
 	}
 
@@ -883,11 +839,11 @@ public class Troll {
 		return fatigue;
 	}
 
-	public void setFatigue(int i) {
+	public void setFatigue( int i ) {
 		fatigue = i;
 	}
 
-	public void decale(int i) {
+	public void decale( int i ) {
 		date_jeu += i;
 		isActive = false;
 	}
@@ -897,30 +853,30 @@ public class Troll {
 	}
 
 	public int getPV() {
-		return pv_actuels;
+		return pvRestant;
 	}
 
 	public int getPVTotaux() {
-		return pv_totaux;
+		return pvMax;
 	}
 
-	public void setPV(int i) {
-		pv_actuels = i;
+	public void setPV( int i ) {
+		pvRestant = i;
 	}
 
-	public void setPA(int i) {
+	public void setPA( int i ) {
 		pa = i;
 	}
 
-	public void setSortReserve(boolean b) {
-		sortReserve = b;
+	public void tryReservedSort( boolean b ) {
+		reservedSortTryed = b;
 	}
 
-	public boolean getSortReserve() {
-		return sortReserve;
+	public boolean reservedSortTryed() {
+		return reservedSortTryed;
 	}
 
-	public void setCertif(boolean b) {
+	public void setCertif( boolean b ) {
 		isCertif = b;
 	}
 
@@ -928,19 +884,19 @@ public class Troll {
 		return isCertif;
 	}
 
-	public void setCompReservee(boolean b) {
-		compReservee = b;
+	public void tryReservedComp( boolean b ) {
+		reservedCompTryed = b;
 	}
 
-	public boolean getCompReservee() {
-		return compReservee;
+	public boolean reservedCompTryed() {
+		return reservedCompTryed;
 	}
 
 	public int getConcentration() {
 		return concentration;
 	}
 
-	public void setConcentration(int i) {
+	public void setConcentration( int i ) {
 		concentration = i;
 	}
 
@@ -957,7 +913,7 @@ public class Troll {
 		return dureeTourTotale;
 	}
 
-	public String beginTurn(int current) {
+	public String beginTurn( int current ) {
 		// Il faut régénérer
 		// Regarder les bonus/malus encore en cours
 		// Virer les poisons
@@ -969,145 +925,114 @@ public class Troll {
 		String s = "";
 		boolean modify = false;
 
-		if (isDead() && nbResu > 0) {
-			nbResu--;
+		if( isDead() && nbResu > 0 ) {
+			nbResu-- ;
 			s += "\nVous étiez mort mais vous revenez à la vie\nIl ne vous reste plus que "
 					+ nbResu + " résurrection(s)\n";
-			if (MHAGame.instance().getMode() == gameModes.teamdeathmatch
-					&& MHAGame.instance().isRegroupe()) {
-				MHAGame.instance().placeTrollInHisTeam(
-					this);
-			} else setPos(
-				MHAGame.instance().roll(
-					1,
-					MHAGame.instance().getSizeArena()) - 1,
-				MHAGame.instance().roll(
-					1,
-					MHAGame.instance().getSizeArena()) - 1,
-				-MHAGame.instance().roll(
-					1,
-					(MHAGame.instance().getSizeArena() + 1) / 2));
-			pv_actuels = (pv_totaux * 50) / 100;
-			s += "Vous réapparaissez en X=" + posx + " Y=" + posy + " N="
-					+ posn + " avec seulement " + pv_actuels + "PV";
-			removeAllBMs();
+			if( MHAGame.instance().getMode() == gameModes.teamdeathmatch
+					&& MHAGame.instance().isRegroupe() ) {
+				MHAGame.instance().placeTrollInHisTeam( this );
+			} else setPos( MHAGame.instance().roll( 1,
+					MHAGame.instance().getSizeArena() ) - 1, MHAGame.instance().roll( 1,
+					MHAGame.instance().getSizeArena() ) - 1, -MHAGame.instance().roll( 1,
+					( MHAGame.instance().getSizeArena() + 1 ) / 2 ) );
+			pvRestant = ( pvMax * 50 ) / 100;
+			s += "Vous réapparaissez en X=" + posX + " Y=" + posY + " N=" + posN
+					+ " avec seulement " + pvRestant + "PV";
+			removeAllExternalsBMs();
 			pa = 0;
 			debut_tour = current;
 		} else {
-			while (debut_tour <= current) {
-				if (poids + (250 * (pv_totaux - pv_actuels) / pv_totaux)
-						+ bmTurnFull.dlaMin < 0) {
-					debut_tour += duree_tour;
-					dureeTourTotale = duree_tour;
+			while( debut_tour <= current ) {
+				if( poids + ( 250 * ( pvMax - pvRestant ) / pvMax ) + bmTurnFull.dlaMin < 0 ) {
+					debut_tour += dlaMinutes;
+					dureeTourTotale = dlaMinutes;
 				} else {
-					debut_tour += duree_tour + poids
-							+ (250 * (pv_totaux - pv_actuels) / pv_totaux)
-							+ bmTurnFull.dlaMin;
-					dureeTourTotale = duree_tour + poids
-							+ (250 * (pv_totaux - pv_actuels) / pv_totaux)
-							+ bmTurnFull.dlaMin;
+					debut_tour += dlaMinutes + poids
+							+ ( 250 * ( pvMax - pvRestant ) / pvMax ) + bmTurnFull.dlaMin;
+					dureeTourTotale = dlaMinutes + poids
+							+ ( 250 * ( pvMax - pvRestant ) / pvMax ) + bmTurnFull.dlaMin;
 				}
 			}
 			removeBMs();
 			s += "\nVotre tour de jeu et votre nouvelle date limite d'action ont été calculés.";
-			if (pv_totaux - pv_actuels != 0
-					&& (250 * (pv_totaux - pv_actuels) / pv_totaux) + Math.min(
-						0,
-						poids + bmTurnFull.dlaMin) > 0)
+			if( pvMax - pvRestant != 0
+					&& ( 250 * ( pvMax - pvRestant ) / pvMax )
+							+ Math.min( 0, poids + bmTurnFull.dlaMin ) > 0 ) s += "\nSa durée est augmentée de "
+					+ convertTime( ( 250 * ( pvMax - pvRestant ) / pvMax )
+							+ Math.min( 0, poids + bmTurnFull.dlaMin ) )
+					+ " à cause de vos blessures.";
+			if( poids + bmTurnFull.dlaMin > 0 ) {
 				s += "\nSa durée est augmentée de "
-						+ convertTime((250 * (pv_totaux - pv_actuels) / pv_totaux)
-								+ Math.min(
-									0,
-									poids + bmTurnFull.dlaMin))
-						+ " à cause de vos blessures.";
-			if (poids + bmTurnFull.dlaMin > 0) {
-				s += "\nSa durée est augmentée de "
-						+ convertTime(poids + bmTurnFull.dlaMin)
+						+ convertTime( poids + bmTurnFull.dlaMin )
 						+ " à cause du poids de votre Equipement.";
 			}
 		}
 		s += "\nVotre nouvelle date limite d'action est le "
-				+ hour2string(debut_tour);
-		int i = Math.max(
-			MHAGame.instance().roll(
-				des_Regeneration,
-				3) + bmTurnFull.reg + bmTurnFull.regM,
-			0);
+				+ hour2string( debut_tour );
+		int i = Math.max( MHAGame.instance().roll( regD, 3 ) + bmTurnFull.reg
+				+ bmTurnFull.regM, 0 );
 		int j = i + bmTurnFull.soin;
-		if (pv_actuels < pv_totaux) {
-			s += "\nVous aviez " + pv_actuels + " Points de Vie.";
+		if( pvRestant < pvMax ) {
+			s += "\nVous aviez " + pvRestant + " Points de Vie.";
 			s += "\nVous avez régénéré de " + i + " Points de Vie.";
-			nbPVRegen += Math.min(
-				pv_totaux - pv_actuels,
-				i);
+			nbPVRegen += Math.min( pvMax - pvRestant, i );
 			modify = true;
 		}
-		pv_actuels = Math.min(
-			pv_totaux,
-			pv_actuels + j);
-		if (bmTurnFull.soin < 0) {
+		pvRestant = Math.min( pvMax, pvRestant + j );
+		if( bmTurnFull.soin < 0 ) {
 			s += "\nLe venin vous fait perdre " + bmTurnFull.soin + " Points de Vie.";
-			if (pv_actuels <= 0) {
+			if( pvRestant <= 0 ) {
 				s += "\nVous êtes mort !!!!";
-				return s.substring(1);
+				return s.substring( 1 );
 			}
 			modify = true;
 		}
-		if (modify)
-			s += "\nVotre total actuel est donc de " + pv_actuels
-					+ " Points de Vie.";
+		if( modify ) s += "\nVotre total actuel est donc de " + pvRestant
+				+ " Points de Vie.";
 		// Le venin !!!!
-		if (pa != 0) {
+		if( pa != 0 ) {
 			s += "\n"
 					+ pa
 					+ " PA de votre tour précédent n'ont pas été utilisés et on été automatiquement attribués à une concentration.";
 			concentration += pa * 5;
 		}
-		if (fatigue > 0) {
-			fatigue = (int) Math.floor(((double) fatigue) / 1.25);
+		if( fatigue > 0 ) {
+			fatigue = (int) Math.floor( ( (double) fatigue ) / 1.25 );
 			s += "\nVotre fatigue est de " + fatigue;
 		}
 		isActive = true;
-		compReservee = false;
-		sortReserve = false;
-		frenetique = false;
+		reservedCompTryed = false;
+		reservedSortTryed = false;
 		bmTurnFull.esqD = 0;
 		bmTurnFull.attD = 0;
 		bmTurnFull.parades = 0;
 		bmTurnFull.CA = 0;
 		pa = 6;
-		return s.substring(1);
+		return s.substring( 1 );
 	}
 
 	public boolean getCamouflage() {
-		return camoufle;
+		return isCamoufle;
 	}
 
-	public void setCamouflage(boolean b) {
-		camoufle = b;
-	}
-
-	public boolean getFrenetique() {
-		return frenetique;
-	}
-
-	public void setFrenetique(boolean b) {
-		frenetique = b;
+	public void setCamouflage( boolean b ) {
+		isCamoufle = b;
 	}
 
 	public boolean getInvisible() {
-		return invisible;
+		return isInvisible;
 	}
 
-	public void setInvisible(boolean b) {
-		invisible = b;
+	public void setInvisible( boolean b ) {
+		isInvisible = b;
 	}
 
 	public int getNbCA() {
 		return bmTurnFull.CA;
 	}
 
-	public void setNbCA(int i) {
+	public void setNbCA( int i ) {
 		bmTurnFull.CA = i;
 	}
 
@@ -1115,7 +1040,7 @@ public class Troll {
 		return bmTurnFull.parades;
 	}
 
-	public void setNbParade(int i) {
+	public void setNbParade( int i ) {
 		bmTurnFull.parades = i;
 	}
 
@@ -1123,26 +1048,47 @@ public class Troll {
 		return tempsRestant;
 	}
 
-	public void setTempsRestant(int i) {
+	public void setTempsRestant( int i ) {
 		tempsRestant = i;
 	}
 
-	public boolean isVisibleFrom(int x, int y, int n, int v) {
-		if (v < 0) v = 0;
-		if (invisible || isDead()) return false;
-		if (camoufle) return x == posx && y == posy && n == posn && v >= 0;
-		return Math.abs(x - posx) <= v && Math.abs(y - posy) <= v
-				&& Math.abs(n - posn) <= (v + 1) / 2;
+	public boolean isVisibleFrom( int x, int y, int n, int v ) {
+		return isVisibleFrom( x, y, n, v, false );
 	}
 
-	public static String convertTime(int t) {
-		if (t >= 0) return (t / 60) + " heures et " + (t % 60) + " minutes";
-		else return "-" + (-t / 60) + " heures et -" + ((-t) % 60) + " minutes";
+	public boolean isVisibleFrom( int x, int y, int n, int v, boolean VlC ) {
+		if( isDead() ) { return false; }
+		if( v < 0 ) {
+			v = 0;
+		}
+		if( x == getPosX() && y == getPosY() && n == getPosN()
+				&& ( !getInvisible() || VlC ) ) {
+			// invisible sur la même case <=> invi et non VlC
+			return true;
+		}
+		if( getCamouflage() || getInvisible() ) {
+			if( VlC ) {
+				// TODO use the good values for VlC.
+				return Math.abs( x - posX ) <= v && Math.abs( y - posY ) <= v
+						&& Math.abs( n - posN ) <= ( v + 1 ) / 2;
+			} else {
+				return false;
+			}
+		} else {
+			return Math.abs( x - posX ) <= v && Math.abs( y - posY ) <= v
+					&& Math.abs( n - posN ) <= ( v + 1 ) / 2;
+		}
 	}
 
-	public static String hour2string(int t) {
-		return "jour " + (t / (60 * 24) + 1) + " à "
-				+ convertTime(t % (60 * 24));
+	public static String convertTime( int t ) {
+		if( t >= 0 ) return ( t / 60 ) + " heures et " + ( t % 60 ) + " minutes";
+		else return "-" + ( -t / 60 ) + " heures et -" + ( ( -t ) % 60 )
+				+ " minutes";
+	}
+
+	public static String hour2string( int t ) {
+		return "jour " + ( t / ( 60 * 24 ) + 1 ) + " à "
+				+ convertTime( t % ( 60 * 24 ) );
 	}
 
 	public Vector<String> getInbox() {
